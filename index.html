@@ -32,6 +32,8 @@
 
         // --- Configuración de Firebase ---
         // IMPORTANTE: Reemplaza esto con la configuración de tu proyecto Firebase
+        
+      
       const firebaseConfig = {
   apiKey: "AIzaSyCmuO4U_fDthWu_vY-ghx9marNtF78_vzM",
   authDomain: "nacimientos2.firebaseapp.com",
@@ -40,7 +42,6 @@
   messagingSenderId: "228024131760",
   appId: "1:228024131760:web:8159300ab19043453d9b75"
 };
-        
         
         // --- Inicialización ---
         const app = initializeApp(firebaseConfig);
@@ -257,6 +258,7 @@
 
             const ingresoForm = document.getElementById('ingreso-form');
             const searchButton = document.getElementById('search-button');
+            const clearSearchButton = document.getElementById('clear-search-button'); // ID del nuevo botón
             const pacientesTbody = document.getElementById('pacientes-tbody');
 
             const editModal = document.getElementById('edit-modal');
@@ -365,6 +367,7 @@
                     document.getElementById('search-fecha-desde').value = '';
                     document.getElementById('search-fecha-hasta').value = '';
                     renderTable([], false); // false = no es un resultado de búsqueda
+                    exportFilteredButton.dataset.filteredData = JSON.stringify([]); // Limpiar datos de exportación
                 }
             }
 
@@ -512,6 +515,16 @@
 
                 renderTable(filteredPatients, true); // true = es una búsqueda activa
                 exportFilteredButton.dataset.filteredData = JSON.stringify(filteredPatients);
+            });
+
+            // NUEVO: Lógica del botón de limpiar búsqueda
+            clearSearchButton.addEventListener('click', () => {
+                document.getElementById('search-apellido').value = '';
+                document.getElementById('search-fecha-desde').value = '';
+                document.getElementById('search-fecha-hasta').value = '';
+                renderTable([], false); // false = no es un resultado de búsqueda
+                exportFilteredButton.dataset.filteredData = JSON.stringify([]);
+                showToast("Búsqueda limpiada", "success");
             });
             
             // Función para renderizar la tabla de pacientes
@@ -1201,7 +1214,8 @@
                             </div>
                         </div>
                         <!-- Botón de Búsqueda -->
-                        <div class="text-right mt-4">
+                        <div class="text-right mt-4 flex justify-end gap-4">
+                            <button id="clear-search-button" class="btn-secondary">Limpiar</button>
                             <button id="search-button" class="btn-primary">Buscar</button>
                         </div>
                     </div>
@@ -1475,7 +1489,7 @@
                         <option value="rnt_apeg">RNT-APEG</option>
                         <option value="rnt_bpeg">RNT-BPEG</option>
                         <option value="rnpt_paeg">RNPT-PAEG</option>
-                        <option value="rnpt_bpeg">RNPT-BPEG</option>
+                        <option value="rnpt_bpeg">RNPT-BPEG</section>
                         <option value="rnpt_apeg">RNPT-APEG</option>
                         <option value="rnpost_paeg">RNPOST-PAEG</option>
                         <option value="rnpost_bpeg">RNPOST-BPEG</option>
