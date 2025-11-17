@@ -32,17 +32,15 @@
 
         // --- Configuración de Firebase ---
         // IMPORTANTE: Reemplaza esto con la configuración de tu proyecto Firebase
-                
-      
       const firebaseConfig = {
-    apiKey: "AIzaSyCmuO4U_fDthWu_vY-ghx9marNtF78_vzM",
-    authDomain: "nacimientos2.firebaseapp.com",
-    projectId: "nacimientos2",
-    storageBucket: "nacimientos2.firebasestorage.app",
-    messagingSenderId: "228024131760",
-    appId: "1:228024131760:web:8159300ab19043453d9b75"
-  };
-
+  apiKey: "AIzaSyCmuO4U_fDthWu_vY-ghx9marNtF78_vzM",
+  authDomain: "nacimientos2.firebaseapp.com",
+  projectId: "nacimientos2",
+  storageBucket: "nacimientos2.firebasestorage.app",
+  messagingSenderId: "228024131760",
+  appId: "1:228024131760:web:8159300ab19043453d9b75"
+};
+        
         
         // --- Inicialización ---
         const app = initializeApp(firebaseConfig);
@@ -52,6 +50,7 @@
         let currentUser = null;
         let allPatients = []; // Caché local de todos los pacientes
         const patientsCollection = collection(db, "pacientes");
+        let patientsListenerUnsubscribe = null; // Para detener el listener al cerrar sesión
 
         // --- Estilos CSS Personalizados ---
         // Tailwind no puede hacer todo, usamos <style> para cosas específicas
@@ -284,6 +283,11 @@
                 } else {
                     // Usuario no está logueado
                     currentUser = null;
+                    if (patientsListenerUnsubscribe) {
+                        patientsListenerUnsubscribe(); // Detener el listener
+                        patientsListenerUnsubscribe = null;
+                    }
+                    allPatients = []; // Limpiar caché
                     loginView.classList.remove('hidden');
                     appView.classList.add('hidden');
                     loadingView.classList.add('hidden');
@@ -355,6 +359,12 @@
                     tabIngreso.classList.remove('active');
                     tabConsultas.classList.add('active');
                     tabConsultas.classList.remove('inactive');
+                    
+                    // NUEVO: Limpiar búsqueda y tabla al entrar a Consultas
+                    document.getElementById('search-apellido').value = '';
+                    document.getElementById('search-fecha-desde').value = '';
+                    document.getElementById('search-fecha-hasta').value = '';
+                    renderTable([], false); // false = no es un resultado de búsqueda
                 }
             }
 
@@ -433,23 +443,25 @@
             
             // Listener en tiempo real para cambios
             function setupRealtimeListener() {
-                // Si ya hay un listener, cancelarlo (aunque en este flujo no debería pasar)
-                // if (unsubscribe) unsubscribe(); 
+                // Detener listener anterior si existe
+                if (patientsListenerUnsubscribe) {
+                    patientsListenerUnsubscribe();
+                }
                 
-                onSnapshot(patientsCollection, (snapshot) => {
+                patientsListenerUnsubscribe = onSnapshot(patientsCollection, (snapshot) => {
                     allPatients = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     totalNacimientosSpan.textContent = allPatients.length;
                     
-                    // Actualizar la tabla si la vista de consultas está activa
-                    // para reflejar los cambios en tiempo real
-                    if (!consultasView.classList.contains('hidden')) {
-                        // Volver a aplicar los filtros actuales
-                        searchButton.click();
-                    } else {
-                        // Si estamos en la pestaña de ingreso, solo mostrar todos al entrar a consultas
-                        renderTable(allPatients, false); // false = no mostrar mensaje de "realice búsqueda"
-                    }
-                    console.log("Datos de pacientes actualizados en tiempo real.");
+                    // NO renderizar la tabla automáticamente. 
+                    // Solo actualizar el caché de 'allPatients'.
+                    // La tabla solo se actualiza con una búsqueda activa.
+                    
+                    // Opcional: si quisiéramos que la búsqueda se actualice en tiempo real:
+                    // if (!consultasView.classList.contains('hidden')) {
+                    //    searchButton.click(); // Esto haría que los resultados cambien solos
+                    // }
+                    
+                    console.log("Datos de pacientes (caché) actualizados en tiempo real.");
 
                 }, (error) => {
                     console.error("Error en listener de Firestore:", error);
@@ -462,6 +474,14 @@
                 const apellido = document.getElementById('search-apellido').value.toLowerCase().trim();
                 const fechaDesde = document.getElementById('search-fecha-desde').value;
                 const fechaHasta = document.getElementById('search-fecha-hasta').value;
+
+                // NUEVO: Validar que al menos un campo esté lleno
+                if (!apellido && !fechaDesde && !fechaHasta) {
+                    showToast("Por favor, ingrese un apellido o un rango de fechas para buscar.", "error");
+                    renderTable([], false); // Limpiar la tabla si la búsqueda está vacía
+                    exportFilteredButton.dataset.filteredData = JSON.stringify([]);
+                    return;
+                }
 
                 let filteredPatients = allPatients;
 
@@ -502,7 +522,8 @@
                     if (isSearchResult) {
                         pacientesTbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500">No se encontraron pacientes con esos criterios.</td></tr>';
                     } else {
-                         pacientesTbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500">Aún no hay pacientes. Realice una búsqueda para comenzar.</td></tr>';
+                         // NUEVO: Mensaje por defecto al entrar a la pestaña
+                         pacientesTbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500">Realice una búsqueda por Apellido o Fecha para ver los resultados.</td></tr>';
                     }
                     return;
                 }
@@ -604,7 +625,9 @@
                     showToast("Paciente actualizado exitosamente", "success");
                     closeEditModal();
                     
-                    // (El listener en tiempo real se encargará de actualizar la tabla)
+                    // (El listener en tiempo real actualizará el caché 'allPatients')
+                    // Recargar la búsqueda actual para reflejar el cambio en la tabla
+                    searchButton.click();
                     
                 } catch (error) {
                     console.error("Error actualizando paciente:", error);
@@ -636,7 +659,9 @@
 
                     showToast("Paciente borrado exitosamente", "success");
                     
-                    // (El listener en tiempo real se encargará de actualizar la tabla)
+                    // (El listener en tiempo real actualizará el caché 'allPatients')
+                    // Recargar la búsqueda actual para reflejar el cambio en la tabla
+                    searchButton.click();
 
                 } catch (error) {
                     console.error("Error borrando paciente:", error);
@@ -769,7 +794,7 @@
                 if (!dateString) return '';
                 // Asumir que la fecha (ej. 2024-05-15) está en zona local
                 const date = new Date(dateString + "T00:00:00");
-                return date.toLocaleDateString('es-AR', {
+                return date.toLocaleString('es-AR', {
                     day: '2-digit',
                     month: '2-digit',
                     year: 'numeric'
@@ -1218,7 +1243,7 @@
                         </thead>
                         <tbody id="pacientes-tbody" class="divide-y divide-gray-200">
                             <!-- Las filas se insertarán aquí dinámicamente -->
-                            <tr><td colspan="5" class="p-4 text-center text-gray-500">Realice una búsqueda para ver los resultados.</td></tr>
+                            <tr><td colspan="5" class="p-4 text-center text-gray-500">Realice una búsqueda por Apellido o Fecha para ver los resultados.</td></tr>
                         </tbody>
                     </table>
                 </div>
