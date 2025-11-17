@@ -32,8 +32,6 @@
 
         // --- Configuración de Firebase ---
         // IMPORTANTE: Reemplaza esto con la configuración de tu proyecto Firebase
-        
-      
       const firebaseConfig = {
   apiKey: "AIzaSyCmuO4U_fDthWu_vY-ghx9marNtF78_vzM",
   authDomain: "nacimientos2.firebaseapp.com",
@@ -42,6 +40,8 @@
   messagingSenderId: "228024131760",
   appId: "1:228024131760:web:8159300ab19043453d9b75"
 };
+      
+      
         
         // --- Inicialización ---
         const app = initializeApp(firebaseConfig);
@@ -959,36 +959,38 @@
                     <hr>
                     <h3 class="text-lg font-semibold title-text border-b pb-2">Datos Maternos</h3>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                         <div>
                             <label for="edad_materna" class="block text-sm font-medium text-gray-700">Edad Materna</label>
                             <input type="number" id="edad_materna" name="edad_materna" class="form-input mt-1" min="10">
                         </div>
                         <div>
-                            <label for="g" class="block text-sm font-medium text-gray-700">G (Gestas)</label>
-                            <input type="number" id="g" name="g" class="form-input mt-1" min="0">
+                            <label for="g" class="block text-sm font-medium text-gray-700">G</label>
+                            <input type="number" id="g" name="g" class="form-input mt-1" min="0" max="9">
                         </div>
                         <div>
-                            <label for="p" class="block text-sm font-medium text-gray-700">P (Partos)</label>
-                            <input type="number" id="p" name="p" class="form-input mt-1" min="0">
+                            <label for="p" class="block text-sm font-medium text-gray-700">P</label>
+                            <input type="number" id="p" name="p" class="form-input mt-1" min="0" max="9">
                         </div>
                         <div>
-                            <label for="a" class="block text-sm font-medium text-gray-700">A (Abortos)</label>
-                            <input type="number" id="a" name="a" class="form-input mt-1" min="0">
+                            <label for="a" class="block text-sm font-medium text-gray-700">A</label>
+                            <input type="number" id="a" name="a" class="form-input mt-1" min="0" max="9">
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-                        <div class="flex items-center space-x-4">
-                            <label class="block text-sm font-medium text-gray-700">Controlada (SI/NO)</label>
-                            <label class="switch">
-                                <input type="checkbox" id="controlada" name="controlada">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div>
-                            <label for="num_controles" class="block text-sm font-medium text-gray-700">N° de Controles</label>
-                            <input type="number" id="num_controles" name="num_controles" class="form-input mt-1" min="0">
+                    <div class="grid grid-cols-1 gap-6 items-center">
+                        <div class="flex flex-wrap items-center gap-x-6 gap-y-2">
+                            <div class="flex items-center space-x-4">
+                                <label class="block text-sm font-medium text-gray-700">Controlada</label>
+                                <label class="switch">
+                                    <input type="checkbox" id="controlada" name="controlada">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="flex-1 min-w-[150px]">
+                                <label for="num_controles" class="block text-sm font-medium text-gray-700">N° de Controles</label>
+                                <input type="number" id="num_controles" name="num_controles" class="form-input mt-1" min="0" max="99">
+                            </div>
                         </div>
                     </div>
 
@@ -1041,48 +1043,97 @@
                     </details>
 
                     <!-- Antecedentes Patológicos -->
-                    <div>
-                        <label for="antPatologicos" class="block text-sm font-medium text-gray-700">Antecedentes Patológicos</label>
-                        <select id="antPatologicos" name="antPatologicos" class="form-input mt-1">
-                            <option value="">Seleccionar...</option>
-                            <option value="ninguno">Ninguno</option>
-                            <option value="diabetes">Diabetes</option>
-                            <option value="diabetes_gestacional">Diabetes gestacional</option>
-                            <option value="hta">HTA</option>
-                            <option value="fumadora">Fumadora</option>
-                            <option value="consumo_problematico">Consumo problemático de sustancias</option>
-                            <option value="otra">Otra</option>
-                        </select>
-                    </div>
+                    <details>
+                        <summary>Antecedentes Patológicos</summary>
+                        <div class="pt-4">
+                            <label for="antPatologicos" class="block text-sm font-medium text-gray-700">Seleccionar Antecedente</label>
+                            <select id="antPatologicos" name="antPatologicos" class="form-input mt-1">
+                                <option value="">Seleccionar...</option>
+                                <option value="ninguno">Ninguno</option>
+                                <option value="otra">Otra</option>
+                            </select>
+                        </div>
+                    </details>
                     
+                    <hr>
+
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div>
+                            <label for="grupo_materno" class="block text-sm font-medium text-gray-700">Grupo Materno</label>
+                            <select id="grupo_materno" name="grupo_materno" class="form-input mt-1">
+                                <option value="">Seleccionar...</option>
+                                <option value="A">A</option>
+                                <option value="B">B</option>
+                                <option value="AB">AB</option>
+                                <option value="0">0</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="rh_materno" class="block text-sm font-medium text-gray-700">Rh Materno</label>
+                            <select id="rh_materno" name="rh_materno" class="form-input mt-1">
+                                <option value="">Seleccionar...</option>
+                                <option value="+">+</option>
+                                <option value="-">-</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="grupo_paciente" class="block text-sm font-medium text-gray-700">Grupo Paciente</label>
+                            <select id="grupo_paciente" name="grupo_paciente" class="form-input mt-1">
+                                <option value="">Seleccionar...</option>
+                                <option value="A">A</option>
+                                <option value="B">B</option>
+                                <option value="AB">AB</option>
+                                <option value="0">0</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="rh_paciente" class="block text-sm font-medium text-gray-700">Rh Paciente</label>
+                            <select id="rh_paciente" name="rh_paciente" class="form-input mt-1">
+                                <option value="">Seleccionar...</option>
+                                <option value="+">+</option>
+                                <option value="-">-</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <hr>
                     
                     <h3 class="text-lg font-semibold title-text border-b pb-2">Datos del Nacimiento</h3>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="peso" class="block text-sm font-medium text-gray-700">Peso (gr)</label>
                             <input type="number" id="peso" name="peso" class="form-input mt-1" min="0">
                         </div>
                         <div>
-                            <label for="talla" class="block text-sm font-medium text-gray-700">Talla (cm)</label>
-                            <input type="number" id="talla" name="talla" class="form-input mt-1" min="0" step="0.1">
+                            <div class="grid grid-cols-2 gap-6">
+                                <div>
+                                    <label for="talla" class="block text-sm font-medium text-gray-700">Talla (cm)</label>
+                                    <input type="number" id="talla" name="talla" class="form-input mt-1" min="0" step="0.1">
+                                </div>
+                                <div>
+                                    <label for="pc" class="block text-sm font-medium text-gray-700">PC (cm)</label>
+                                    <input type="number" id="pc" name="pc" class="form-input mt-1" min="0" step="0.1">
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <label for="pc" class="block text-sm font-medium text-gray-700">PC (cm)</label>
-                            <input type="number" id="pc" name="pc" class="form-input mt-1" min="0" step="0.1">
-                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="eg" class="block text-sm font-medium text-gray-700">EG (semanas)</label>
                             <input type="number" id="eg" name="eg" class="form-input mt-1" min="20" max="45">
                         </div>
                         <div>
-                            <label for="apgar1" class="block text-sm font-medium text-gray-700">Apgar 1 min</label>
-                            <input type="number" id="apgar1" name="apgar1" class="form-input mt-1" min="0" max="10">
-                        </div>
-                        <div>
-                            <label for="apgar5" class="block text-sm font-medium text-gray-700">Apgar 5 min</label>
-                            <input type="number" id="apgar5" name="apgar5" class="form-input mt-1" min="0" max="10">
+                            <div class="grid grid-cols-2 gap-6">
+                                <div>
+                                    <label for="apgar1" class="block text-sm font-medium text-gray-700">Apgar 1</label>
+                                    <input type="number" id="apgar1" name="apgar1" class="form-input mt-1" min="0" max="10">
+                                </div>
+                                <div>
+                                    <label for="apgar5" class="block text-sm font-medium text-gray-700">Apgar 5</label>
+                                    <input type="number" id="apgar5" name="apgar5" class="form-input mt-1" min="0" max="10">
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
@@ -1105,16 +1156,16 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <div>
-                            <label for="grupo_materno" class="block text-sm font-medium text-gray-700">Grupo Materno</label>
-                            <select id="grupo_materno" name="grupo_materno" class="form-input mt-1">
-                                <option value="">Seleccionar...</option>
-                                <option value="A">A</option>
-                                <option value="B">B</option>
-                                <option value="AB">AB</option>
-                                <option value="0">0</option>
-                            </select>
+                    <!-- REEMPLAZADO: Grupo/Rh movido arriba -->
+
+                    <hr>
+                    
+                    <details>
+                        <summary>Diagnóstico</summary>
+                        <div class="pt-4">
+                            <label for="diagnostico" class="block text-sm font-medium text-gray-700">Selección de Diagnósticos (múltiple)</label>
+                            <select id="diagnostico" name="diagnostico" class="form-input mt-1" multiple size="8">
+                                <option value="rnt_paeg">RNT-PAEG</option>
                         </div>
                         <div>
                             <label for="rh_materno" class="block text-sm font-medium text-gray-700">Rh Materno</label>
@@ -1160,16 +1211,16 @@
                             <option value="rnpost_bpeg">RNPOST-BPEG</option>
                             <option value="rnpost_apeg">RNPOST-APEG</option>
                             <option value="asfixia">Asfixia neonatal</option>
-                            <option value="dif_respiratoria">Dif. respiratoria</option>
-                            <option value="otros">Otros</option>
-                        </select>
-                        <small class="text-gray-500">Mantén presionada la tecla Ctrl (o Cmd en Mac) para seleccionar varios.</small>
-                    </div>
-
-                    <div id="diagnostico_otros_wrapper" class="hidden">
-                        <label for="diagnostico_otros" class="block text-sm font-medium text-gray-700">Otros Diagnósticos</to-label>
-                        <input type="text" id="diagnostico_otros" name="diagnostico_otros" class="form-input mt-1">
-                    </div>
+                                <option value="otros">Otros</option>
+                            </select>
+                            <small class="text-gray-500">Mantén presionada la tecla Ctrl (o Cmd en Mac) para seleccionar varios.</small>
+                        </div>
+    
+                        <div id="diagnostico_otros_wrapper" class="hidden mt-4">
+                            <label for="diagnostico_otros" class="block text-sm font-medium text-gray-700">Otros Diagnósticos</to-label>
+                            <input type="text" id="diagnostico_otros" name="diagnostico_otros" class="form-input mt-1">
+                        </div>
+                    </details>
 
                     <hr>
                     <h3 class="text-lg font-semibold title-text border-b pb-2">Notas Adicionales</h3>
@@ -1295,36 +1346,38 @@
                 <hr>
                 <h3 class="text-lg font-semibold title-text border-b pb-2">Datos Maternos</h3>
                 
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Edad Materna</label>
                         <input type="number" name="edad_materna" class="form-input mt-1" min="10">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">G (Gestas)</label>
-                        <input type="number" name="g" class="form-input mt-1" min="0">
+                        <label class="block text-sm font-medium text-gray-700">G</label>
+                        <input type="number" name="g" class="form-input mt-1" min="0" max="9">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">P (Partos)</label>
-                        <input type="number" name="p" class="form-input mt-1" min="0">
+                        <label class="block text-sm font-medium text-gray-700">P</label>
+                        <input type="number" name="p" class="form-input mt-1" min="0" max="9">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">A (Abortos)</label>
-                        <input type="number" name="a" class="form-input mt-1" min="0">
+                        <label class="block text-sm font-medium text-gray-700">A</label>
+                        <input type="number" name="a" class="form-input mt-1" min="0" max="9">
                     </div>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-                    <div class="flex items-center space-x-4">
-                        <label class="block text-sm font-medium text-gray-700">Controlada (SI/NO)</label>
-                        <label class="switch">
-                            <input type="checkbox" name="controlada">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">N° de Controles</label>
-                        <input type="number" name="num_controles" class="form-input mt-1" min="0">
+                <div class="grid grid-cols-1 gap-6 items-center">
+                    <div class="flex flex-wrap items-center gap-x-6 gap-y-2">
+                        <div class="flex items-center space-x-4">
+                            <label class="block text-sm font-medium text-gray-700">Controlada</label>
+                            <label class="switch">
+                                <input type="checkbox" name="controlada">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="flex-1 min-w-[150px]">
+                            <label class="block text-sm font-medium text-gray-700">N° de Controles</label>
+                            <input type="number" name="num_controles" class="form-input mt-1" min="0" max="99">
+                        </div>
                     </div>
                 </div>
 
@@ -1377,47 +1430,96 @@
                 </details>
 
                 <!-- Antecedentes Patológicos -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Antecedentes Patológicos</label>
-                    <select name="antPatologicos" class="form-input mt-1">
-                        <option value="">Seleccionar...</option>
-                        <option value="ninguno">Ninguno</option>
-                        <option value="diabetes">Diabetes</option>
-                        <option value="diabetes_gestacional">Diabetes gestacional</option>
-                        <option value="hta">HTA</option>
-                        <option value="fumadora">Fumadora</option>
-                        <option value="consumo_problematico">Consumo problemático de sustancias</option>
-                        <option value="otra">Otra</option>
-                    </select>
-                </div>
+                <details open>
+                    <summary>Antecedentes Patológicos</summary>
+                    <div class="pt-4">
+                        <label class="block text-sm font-medium text-gray-700">Seleccionar Antecedente</label>
+                        <select name="antPatologicos" class="form-input mt-1">
+                            <option value="">Seleccionar...</option>
+                            <option value="ninguno">Ninguno</option>
+                            <option value="otra">Otra</option>
+                        </select>
+                    </div>
+                </details>
                 
+                <hr>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Grupo Materno</label>
+                        <select name="grupo_materno" class="form-input mt-1">
+                            <option value="">Seleccionar...</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="AB">AB</option>
+                            <option value="0">0</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Rh Materno</label>
+                        <select name="rh_materno" class="form-input mt-1">
+                            <option value="">Seleccionar...</option>
+                            <option value="+">+</option>
+                            <option value="-">-</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Grupo Paciente</label>
+                        <select name="grupo_paciente" class="form-input mt-1">
+                            <option value="">Seleccionar...</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="AB">AB</option>
+                            <option value="0">0</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Rh Paciente</label>
+                        <select name="rh_paciente" class="form-input mt-1">
+                            <option value="">Seleccionar...</option>
+                            <option value="+">+</option>
+                            <option value="-">-</option>
+                        </select>
+                    </div>
+                </div>
+
                 <hr>
                 <h3 class="text-lg font-semibold title-text border-b pb-2">Datos del Nacimiento</h3>
                 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Peso (gr)</label>
                         <input type="number" name="peso" class="form-input mt-1" min="0">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Talla (cm)</label>
-                        <input type="number" name="talla" class="form-input mt-1" min="0" step="0.1">
+                        <div class="grid grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Talla (cm)</label>
+                                <input type="number" name="talla" class="form-input mt-1" min="0" step="0.1">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">PC (cm)</label>
+                                <input type="number" name="pc" class="form-input mt-1" min="0" step="0.1">
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">PC (cm)</label>
-                        <input type="number" name="pc" class="form-input mt-1" min="0" step="0.1">
-                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700">EG (semanas)</label>
                         <input type="number" name="eg" class="form-input mt-1" min="20" max="45">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Apgar 1 min</label>
-                        <input type="number" name="apgar1" class="form-input mt-1" min="0" max="10">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Apgar 5 min</label>
-                        <input type="number" name="apgar5" class="form-input mt-1" min="0" max="10">
+                        <div class="grid grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Apgar 1</label>
+                                <input type="number" name="apgar1" class="form-input mt-1" min="0" max="10">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Apgar 5</label>
+                                <input type="number" name="apgar5" class="form-input mt-1" min="0" max="10">
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
@@ -1440,16 +1542,16 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Grupo Materno</label>
-                        <select name="grupo_materno" class="form-input mt-1">
-                            <option value="">Seleccionar...</option>
-                            <option value="A">A</option>
-                            <option value="B">B</option>
-                            <option value="AB">AB</option>
-                            <option value="0">0</option>
-                        </select>
+                <!-- REEMPLAZADO: Grupo/Rh movido arriba -->
+
+                <hr>
+                
+                <details open>
+                    <summary>Diagnóstico</summary>
+                    <div class="pt-4">
+                        <label class="block text-sm font-medium text-gray-700">Selección de Diagnósticos (múltiple)</label>
+                        <select name="diagnostico" class="form-input mt-1" multiple size="8">
+                            <option value="rnt_paeg">RNT-PAEG</option>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Rh Materno</label>
@@ -1495,15 +1597,15 @@
                         <option value="rnpost_bpeg">RNPOST-BPEG</option>
                         <option value="rnpost_apeg">RNPOST-APEG</option>
                         <option value="asfixia">Asfixia neonatal</option>
-                        <option value="dif_respiratoria">Dif. respiratoria</option>
-                        <option value="otros">Otros</option>
-                    </select>
-                </div>
-
-                <div id="edit_diagnostico_otros_wrapper" class="hidden">
-                    <label class="block text-sm font-medium text-gray-700">Otros Diagnósticos</label>
-                    <input type="text" name="diagnostico_otros" class="form-input mt-1">
-                </div>
+                            <option value="otros">Otros</option>
+                        </select>
+                    </div>
+    
+                    <div id="edit_diagnostico_otros_wrapper" class="hidden mt-4">
+                        <label class="block text-sm font-medium text-gray-700">Otros Diagnósticos</label>
+                        <input type="text" name="diagnostico_otros" class="form-input mt-1">
+                    </div>
+                </details>
 
                 <hr>
                 <h3 class="text-lg font-semibold title-text border-b pb-2">Notas Adicionales</h3>
