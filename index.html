@@ -32,6 +32,7 @@
 
         // --- Configuración de Firebase ---
         // IMPORTANTE: Reemplaza esto con la configuración de tu proyecto Firebase
+      
       const firebaseConfig = {
   apiKey: "AIzaSyCmuO4U_fDthWu_vY-ghx9marNtF78_vzM",
   authDomain: "nacimientos2.firebaseapp.com",
@@ -39,9 +40,7 @@
   storageBucket: "nacimientos2.firebasestorage.app",
   messagingSenderId: "228024131760",
   appId: "1:228024131760:web:8159300ab19043453d9b75"
-};
-      
-      
+}
         
         // --- Inicialización ---
         const app = initializeApp(firebaseConfig);
@@ -397,6 +396,9 @@
                     pacienteData['diagnostico'] = Array.from(document.getElementById('diagnostico').selectedOptions).map(opt => opt.value);
                     pacienteData['diagnostico_otros'] = document.getElementById('diagnostico_otros').value;
 
+                    // Manejar antecedentes múltiples
+                    pacienteData['antPatologicos'] = Array.from(document.getElementById('antPatologicos').selectedOptions).map(opt => opt.value);
+
                     // Añadir metadata
                     pacienteData.createdAt = Timestamp.now();
                     pacienteData.createdBy = currentUser.email;
@@ -583,12 +585,14 @@
                         if (input.type === 'checkbox') {
                             input.checked = paciente[key];
                         } else if (input.tagName === 'SELECT' && input.multiple) {
-                            // Para 'diagnostico' múltiple
+                            // Para selects múltiples (Diagnóstico, Ant. Patológicos)
                             Array.from(input.options).forEach(opt => {
                                 opt.selected = paciente[key] && paciente[key].includes(opt.value);
                             });
-                            // Disparar evento 'change' para mostrar/ocultar "otros"
-                            input.dispatchEvent(new Event('change'));
+                            // Disparar evento 'change' SÓLO para diagnóstico (para mostrar/ocultar "otros")
+                            if (input.name === 'diagnostico') {
+                                input.dispatchEvent(new Event('change'));
+                            }
                         } else {
                             input.value = paciente[key];
                         }
@@ -627,6 +631,9 @@
                     // Manejar diagnósticos múltiples
                     updatedData['diagnostico'] = Array.from(editForm.elements['diagnostico'].selectedOptions).map(opt => opt.value);
                     updatedData['diagnostico_otros'] = editForm.elements['diagnostico_otros'].value;
+
+                    // Manejar antecedentes múltiples
+                    updatedData['antPatologicos'] = Array.from(editForm.elements['antPatologicos'].selectedOptions).map(opt => opt.value);
 
                     // Añadir metadata de modificación
                     updatedData.lastModifiedBy = currentUser.email;
@@ -1041,22 +1048,8 @@
                             </div>
                         </div>
                     </details>
-
-                    <!-- Antecedentes Patológicos -->
-                    <details>
-                        <summary>Antecedentes Patológicos</summary>
-                        <div class="pt-4">
-                            <label for="antPatologicos" class="block text-sm font-medium text-gray-700">Seleccionar Antecedente</label>
-                            <select id="antPatologicos" name="antPatologicos" class="form-input mt-1">
-                                <option value="">Seleccionar...</option>
-                                <option value="ninguno">Ninguno</option>
-                                <option value="otra">Otra</option>
-                            </select>
-                        </div>
-                    </details>
                     
-                    <hr>
-
+                    <!-- CAMBIO: Grupo/Rh movido aquí -->
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                         <div>
                             <label for="grupo_materno" class="block text-sm font-medium text-gray-700">Grupo Materno</label>
@@ -1096,6 +1089,25 @@
                         </div>
                     </div>
 
+                    <!-- Antecedentes Patológicos -->
+                    <details>
+                        <summary>Antecedentes Patológicos</summary>
+                        <div class="pt-4">
+                            <label for="antPatologicos" class="block text-sm font-medium text-gray-700">Selección de Antecedentes (múltiple)</label>
+                            <select id="antPatologicos" name="antPatologicos" class="form-input mt-1" multiple size="8">
+                                <option value="ninguno">Ninguno</option>
+                                <option value="hta">HTA</option>
+                                <option value="dbt">DBT</option>
+                                <option value="dbt_gestacional">DBT gestacional</option>
+                                <option value="hipotiroidismo">Hipotiroidismo</option>
+                                <option value="hipertiroidismo">Hipertiroidismo</option>
+                                <option value="infeccion_urinaria">Infección Urinaria</option>
+                                <option value="otras">Otras</option>
+                            </select>
+                            <small class="text-gray-500">Mantén presionada la tecla Ctrl (o Cmd en Mac) para seleccionar varios.</small>
+                        </div>
+                    </details>
+                    
                     <hr>
                     
                     <h3 class="text-lg font-semibold title-text border-b pb-2">Datos del Nacimiento</h3>
@@ -1166,51 +1178,16 @@
                             <label for="diagnostico" class="block text-sm font-medium text-gray-700">Selección de Diagnósticos (múltiple)</label>
                             <select id="diagnostico" name="diagnostico" class="form-input mt-1" multiple size="8">
                                 <option value="rnt_paeg">RNT-PAEG</option>
-                        </div>
-                        <div>
-                            <label for="rh_materno" class="block text-sm font-medium text-gray-700">Rh Materno</label>
-                            <select id="rh_materno" name="rh_materno" class="form-input mt-1">
-                                <option value="">Seleccionar...</option>
-                                <option value="+">+</option>
-                                <option value="-">-</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="grupo_paciente" class="block text-sm font-medium text-gray-700">Grupo Paciente</label>
-                            <select id="grupo_paciente" name="grupo_paciente" class="form-input mt-1">
-                                <option value="">Seleccionar...</option>
-                                <option value="A">A</option>
-                                <option value="B">B</option>
-                                <option value="AB">AB</option>
-                                <option value="0">0</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="rh_paciente" class="block text-sm font-medium text-gray-700">Rh Paciente</label>
-                            <select id="rh_paciente" name="rh_paciente" class="form-input mt-1">
-                                <option value="">Seleccionar...</option>
-                                <option value="+">+</option>
-                                <option value="-">-</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <hr>
-                    <h3 class="text-lg font-semibold title-text border-b pb-2">Diagnóstico</h3>
-
-                    <div>
-                        <label for="diagnostico" class="block text-sm font-medium text-gray-700">Selección de Diagnósticos (múltiple)</label>
-                        <select id="diagnostico" name="diagnostico" class="form-input mt-1" multiple size="8">
-                            <option value="rnt_paeg">RNT-PAEG</option>
-                            <option value="rnt_apeg">RNT-APEG</option>
-                            <option value="rnt_bpeg">RNT-BPEG</option>
-                            <option value="rnpt_paeg">RNPT-PAEG</option>
-                            <option value="rnpt_bpeg">RNPT-BPEG</option>
-                            <option value="rnpt_apeg">RNPT-APEG</option>
-                            <option value="rnpost_paeg">RNPOST-PAEG</option>
-                            <option value="rnpost_bpeg">RNPOST-BPEG</option>
-                            <option value="rnpost_apeg">RNPOST-APEG</option>
-                            <option value="asfixia">Asfixia neonatal</option>
+                                <option value="rnt_apeg">RNT-APEG</option>
+                                <option value="rnt_bpeg">RNT-BPEG</option>
+                                <option value="rnpt_paeg">RNPT-PAEG</option>
+                                <option value="rnpt_bpeg">RNPT-BPEG</option>
+                                <option value="rnpt_apeg">RNPT-APEG</option>
+                                <option value="rnpost_paeg">RNPOST-PAEG</option>
+                                <option value="rnpost_bpeg">RNPOST-BPEG</option>
+                                <option value="rnpost_apeg">RNPOST-APEG</option>
+                                <option value="asfixia">Asfixia neonatal</option>
+                                <option value="dif_respiratoria">Dif. respiratoria</option>
                                 <option value="otros">Otros</option>
                             </select>
                             <small class="text-gray-500">Mantén presionada la tecla Ctrl (o Cmd en Mac) para seleccionar varios.</small>
@@ -1429,21 +1406,7 @@
                     </div>
                 </details>
 
-                <!-- Antecedentes Patológicos -->
-                <details open>
-                    <summary>Antecedentes Patológicos</summary>
-                    <div class="pt-4">
-                        <label class="block text-sm font-medium text-gray-700">Seleccionar Antecedente</label>
-                        <select name="antPatologicos" class="form-input mt-1">
-                            <option value="">Seleccionar...</option>
-                            <option value="ninguno">Ninguno</option>
-                            <option value="otra">Otra</option>
-                        </select>
-                    </div>
-                </details>
-                
-                <hr>
-
+                <!-- CAMBIO: Grupo/Rh movido aquí -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Grupo Materno</label>
@@ -1483,6 +1446,25 @@
                     </div>
                 </div>
 
+                <!-- Antecedentes Patológicos -->
+                <details open>
+                    <summary>Antecedentes Patológicos</summary>
+                    <div class="pt-4">
+                        <label class="block text-sm font-medium text-gray-700">Selección de Antecedentes (múltiple)</label>
+                        <select name="antPatologicos" class="form-input mt-1" multiple size="8">
+                            <option value="ninguno">Ninguno</option>
+                            <option value="hta">HTA</option>
+                            <option value="dbt">DBT</option>
+                            <option value="dbt_gestacional">DBT gestacional</option>
+                            <option value="hipotiroidismo">Hipotiroidismo</option>
+                            <option value="hipertiroidismo">Hipertiroidismo</option>
+                            <option value="infeccion_urinaria">Infección Urinaria</option>
+                            <option value="otras">Otras</option>
+                        </select>
+                        <small class="text-gray-500">Mantén presionada la tecla Ctrl (o Cmd en Mac) para seleccionar varios.</small>
+                    </div>
+                </details>
+                
                 <hr>
                 <h3 class="text-lg font-semibold title-text border-b pb-2">Datos del Nacimiento</h3>
                 
@@ -1552,51 +1534,16 @@
                         <label class="block text-sm font-medium text-gray-700">Selección de Diagnósticos (múltiple)</label>
                         <select name="diagnostico" class="form-input mt-1" multiple size="8">
                             <option value="rnt_paeg">RNT-PAEG</option>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Rh Materno</label>
-                        <select name="rh_materno" class="form-input mt-1">
-                            <option value="">Seleccionar...</option>
-                            <option value="+">+</option>
-                            <option value="-">-</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Grupo Paciente</label>
-                        <select name="grupo_paciente" class="form-input mt-1">
-                            <option value="">Seleccionar...</option>
-                            <option value="A">A</option>
-                            <option value="B">B</option>
-                            <option value="AB">AB</option>
-                            <option value="0">0</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Rh Paciente</label>
-                        <select name="rh_paciente" class="form-input mt-1">
-                            <option value="">Seleccionar...</option>
-                            <option value="+">+</option>
-                            <option value="-">-</option>
-                        </select>
-                    </div>
-                </div>
-
-                <hr>
-                <h3 class="text-lg font-semibold title-text border-b pb-2">Diagnóstico</h3>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Selección de Diagnósticos (múltiple)</label>
-                    <select name="diagnostico" class="form-input mt-1" multiple size="8">
-                        <option value="rnt_paeg">RNT-PAEG</option>
-                        <option value="rnt_apeg">RNT-APEG</option>
-                        <option value="rnt_bpeg">RNT-BPEG</option>
-                        <option value="rnpt_paeg">RNPT-PAEG</option>
-                        <option value="rnpt_bpeg">RNPT-BPEG</section>
-                        <option value="rnpt_apeg">RNPT-APEG</option>
-                        <option value="rnpost_paeg">RNPOST-PAEG</option>
-                        <option value="rnpost_bpeg">RNPOST-BPEG</option>
-                        <option value="rnpost_apeg">RNPOST-APEG</option>
-                        <option value="asfixia">Asfixia neonatal</option>
+                            <option value="rnt_apeg">RNT-APEG</option>
+                            <option value="rnt_bpeg">RNT-BPEG</option>
+                            <option value="rnpt_paeg">RNPT-PAEG</option>
+                            <option value="rnpt_bpeg">RNPT-BPEG</option>
+                            <option value="rnpt_apeg">RNPT-APEG</option>
+                            <option value="rnpost_paeg">RNPOST-PAEG</option>
+                            <option value="rnpost_bpeg">RNPOST-BPEG</option>
+                            <option value="rnpost_apeg">RNPOST-APEG</option>
+                            <option value="asfixia">Asfixia neonatal</option>
+                            <option value="dif_respiratoria">Dif. respiratoria</option>
                             <option value="otros">Otros</option>
                         </select>
                     </div>
