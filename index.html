@@ -33,14 +33,15 @@
         // --- Configuración de Firebase ---
         // IMPORTANTE: Reemplaza esto con la configuración de tu proyecto Firebase
       
-      const firebaseConfig = {
+      
+        const firebaseConfig = {
   apiKey: "AIzaSyCmuO4U_fDthWu_vY-ghx9marNtF78_vzM",
   authDomain: "nacimientos2.firebaseapp.com",
   projectId: "nacimientos2",
   storageBucket: "nacimientos2.firebasestorage.app",
   messagingSenderId: "228024131760",
   appId: "1:228024131760:web:8159300ab19043453d9b75"
-}
+};
         
         // --- Inicialización ---
         const app = initializeApp(firebaseConfig);
@@ -1008,38 +1009,68 @@
                             <!-- VDRL -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">VDRL</label>
-                                <input type="date" name="vdrl_fecha" class="form-input mt-1 mb-2">
-                                <input type="text" name="vdrl_resultado" class="form-input mt-1" placeholder="Resultado VDRL">
+                                <div class="grid grid-cols-2 gap-2 mt-1">
+                                    <input type="date" name="vdrl_fecha" class="form-input">
+                                    <select name="vdrl_resultado" class="form-input">
+                                        <option value="-">-</option>
+                                        <option value="+">+</option>
+                                    </select>
+                                </div>
                             </div>
                             <!-- HIV -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">HIV</label>
-                                <input type="date" name="hiv_fecha" class="form-input mt-1 mb-2">
-                                <input type="text" name="hiv_resultado" class="form-input mt-1" placeholder="Resultado HIV">
+                                <div class="grid grid-cols-2 gap-2 mt-1">
+                                    <input type="date" name="hiv_fecha" class="form-input">
+                                    <select name="hiv_resultado" class="form-input">
+                                        <option value="-">-</option>
+                                        <option value="+">+</option>
+                                    </select>
+                                </div>
                             </div>
                             <!-- Chagas -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Chagas</label>
-                                <input type="date" name="chagas_fecha" class="form-input mt-1 mb-2">
-                                <input type="text" name="chagas_resultado" class="form-input mt-1" placeholder="Resultado Chagas">
+                                <div class="grid grid-cols-2 gap-2 mt-1">
+                                    <input type="date" name="chagas_fecha" class="form-input">
+                                    <select name="chagas_resultado" class="form-input">
+                                        <option value="-">-</option>
+                                        <option value="+">+</option>
+                                    </select>
+                                </div>
                             </div>
                             <!-- HBV -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">HBV</label>
-                                <input type="date" name="hbv_fecha" class="form-input mt-1 mb-2">
-                                <input type="text" name="hbv_resultado" class="form-input mt-1" placeholder="Resultado HBV">
+                                <div class="grid grid-cols-2 gap-2 mt-1">
+                                    <input type="date" name="hbv_fecha" class="form-input">
+                                    <select name="hbv_resultado" class="form-input">
+                                        <option value="-">-</option>
+                                        <option value="+">+</option>
+                                    </select>
+                                </div>
                             </div>
                             <!-- Toxoplasmosis -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Toxoplasmosis</label>
-                                <input type="date" name="toxo_fecha" class="form-input mt-1 mb-2">
-                                <input type="text" name="toxo_resultado" class="form-input mt-1" placeholder="Resultado Toxoplasmosis">
+                                <div class="grid grid-cols-2 gap-2 mt-1">
+                                    <input type="date" name="toxo_fecha" class="form-input">
+                                    <select name="toxo_resultado" class="form-input">
+                                        <option value="-">-</option>
+                                        <option value="+">+</option>
+                                    </select>
+                                </div>
                             </div>
                             <!-- CMV -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">CMV</label>
-                                <input type="date" name="cmv_fecha" class="form-input mt-1 mb-2">
-                                <input type="text" name="cmv_resultado" class="form-input mt-1" placeholder="Resultado CMV">
+                                <div class="grid grid-cols-2 gap-2 mt-1">
+                                    <input type="date" name="cmv_fecha" class="form-input">
+                                    <select name="cmv_resultado" class="form-input">
+                                        <option value="-">-</option>
+                                        <option value="+">+</option>
+                                    </select>
+                                </div>
                             </div>
                             <!-- Notas Serologías -->
                             <div class="md:col-span-3">
@@ -1102,6 +1133,7 @@
                                 <option value="hipotiroidismo">Hipotiroidismo</option>
                                 <option value="hipertiroidismo">Hipertiroidismo</option>
                                 <option value="infeccion_urinaria">Infección Urinaria</option>
+                                <option value="consumo_problematico">Consumo Problemático</option>
                                 <option value="otras">Otras</option>
                             </select>
                             <small class="text-gray-500">Mantén presionada la tecla Ctrl (o Cmd en Mac) para seleccionar varios.</small>
@@ -1188,6 +1220,8 @@
                                 <option value="rnpost_apeg">RNPOST-APEG</option>
                                 <option value="asfixia">Asfixia neonatal</option>
                                 <option value="dif_respiratoria">Dif. respiratoria</option>
+                                <option value="causa_social">Causa Social</option>
+                                <option value="hijo_madre_consumo">Hijo de madre con consumo problemático</option>
                                 <option value="otros">Otros</option>
                             </select>
                             <small class="text-gray-500">Mantén presionada la tecla Ctrl (o Cmd en Mac) para seleccionar varios.</small>
@@ -1365,38 +1399,68 @@
                         <!-- VDRL -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700">VDRL</label>
-                            <input type="date" name="vdrl_fecha" class="form-input mt-1 mb-2">
-                            <input type="text" name="vdrl_resultado" class="form-input mt-1" placeholder="Resultado VDRL">
+                            <div class="grid grid-cols-2 gap-2 mt-1">
+                                <input type="date" name="vdrl_fecha" class="form-input">
+                                <select name="vdrl_resultado" class="form-input">
+                                    <option value="-">-</option>
+                                    <option value="+">+</option>
+                                </select>
+                            </div>
                         </div>
                         <!-- HIV -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700">HIV</label>
-                            <input type="date" name="hiv_fecha" class="form-input mt-1 mb-2">
-                            <input type="text" name="hiv_resultado" class="form-input mt-1" placeholder="Resultado HIV">
+                            <div class="grid grid-cols-2 gap-2 mt-1">
+                                <input type="date" name="hiv_fecha" class="form-input">
+                                <select name="hiv_resultado" class="form-input">
+                                    <option value="-">-</option>
+                                    <option value="+">+</option>
+                                </select>
+                            </div>
                         </div>
                         <!-- Chagas -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Chagas</label>
-                            <input type="date" name="chagas_fecha" class="form-input mt-1 mb-2">
-                            <input type="text" name="chagas_resultado" class="form-input mt-1" placeholder="Resultado Chagas">
+                            <div class="grid grid-cols-2 gap-2 mt-1">
+                                <input type="date" name="chagas_fecha" class="form-input">
+                                <select name="chagas_resultado" class="form-input">
+                                    <option value="-">-</option>
+                                    <option value="+">+</option>
+                                </select>
+                            </div>
                         </div>
                         <!-- HBV -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700">HBV</label>
-                            <input type="date" name="hbv_fecha" class="form-input mt-1 mb-2">
-                            <input type="text" name="hbv_resultado" class="form-input mt-1" placeholder="Resultado HBV">
+                            <div class="grid grid-cols-2 gap-2 mt-1">
+                                <input type="date" name="hbv_fecha" class="form-input">
+                                <select name="hbv_resultado" class="form-input">
+                                    <option value="-">-</option>
+                                    <option value="+">+</option>
+                                </select>
+                            </div>
                         </div>
                         <!-- Toxoplasmosis -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Toxoplasmosis</label>
-                            <input type="date" name="toxo_fecha" class="form-input mt-1 mb-2">
-                            <input type="text" name="toxo_resultado" class="form-input mt-1" placeholder="Resultado Toxoplasmosis">
+                            <div class="grid grid-cols-2 gap-2 mt-1">
+                                <input type="date" name="toxo_fecha" class="form-input">
+                                <select name="toxo_resultado" class="form-input">
+                                    <option value="-">-</option>
+                                    <option value="+">+</option>
+                                </select>
+                            </div>
                         </div>
                         <!-- CMV -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700">CMV</label>
-                            <input type="date" name="cmv_fecha" class="form-input mt-1 mb-2">
-                            <input type="text" name="cmv_resultado" class="form-input mt-1" placeholder="Resultado CMV">
+                            <div class="grid grid-cols-2 gap-2 mt-1">
+                                <input type="date" name="cmv_fecha" class="form-input">
+                                <select name="cmv_resultado" class="form-input">
+                                    <option value="-">-</option>
+                                    <option value="+">+</option>
+                                </select>
+                            </div>
                         </div>
                         <!-- Notas Serologías -->
                         <div class="md:col-span-3">
@@ -1459,6 +1523,7 @@
                             <option value="hipotiroidismo">Hipotiroidismo</option>
                             <option value="hipertiroidismo">Hipertiroidismo</option>
                             <option value="infeccion_urinaria">Infección Urinaria</option>
+                            <option value="consumo_problematico">Consumo Problemático</option>
                             <option value="otras">Otras</option>
                         </select>
                         <small class="text-gray-500">Mantén presionada la tecla Ctrl (o Cmd en Mac) para seleccionar varios.</small>
@@ -1538,14 +1603,14 @@
                             <option value="rnt_bpeg">RNT-BPEG</option>
                             <option value="rnpt_paeg">RNPT-PAEG</option>
                             <option value="rnpt_bpeg">RNPT-BPEG</option>
-                            <option value="rnpt_apeg">RNPT-APEG</option>
-                            <option value="rnpost_paeg">RNPOST-PAEG</option>
-                            <option value="rnpost_bpeg">RNPOST-BPEG</option>
-                            <option value="rnpost_apeg">RNPOST-APEG</option>
-                            <option value="asfixia">Asfixia neonatal</option>
-                            <option value="dif_respiratoria">Dif. respiratoria</option>
-                            <option value="otros">Otros</option>
-                        </select>
+                                <option value="rnpost_bpeg">RNPOST-BPEG</option>
+                                <option value="rnpost_apeg">RNPOST-APEG</option>
+                                <option value="asfixia">Asfixia neonatal</option>
+                                <option value="dif_respiratoria">Dif. respiratoria</option>
+                                <option value="causa_social">Causa Social</option>
+                                <option value="hijo_madre_consumo">Hijo de madre con consumo problemático</option>
+                                <option value="otros">Otros</option>
+                            </select>
                     </div>
     
                     <div id="edit_diagnostico_otros_wrapper" class="hidden mt-4">
