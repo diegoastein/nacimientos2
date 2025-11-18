@@ -32,9 +32,8 @@
 
         // --- Configuración de Firebase ---
         // IMPORTANTE: Reemplaza esto con la configuración de tu proyecto Firebase
-        
       
-      const firebaseConfig = {
+     const firebaseConfig = {
   apiKey: "AIzaSyCmuO4U_fDthWu_vY-ghx9marNtF78_vzM",
   authDomain: "nacimientos2.firebaseapp.com",
   projectId: "nacimientos2",
@@ -42,6 +41,7 @@
   messagingSenderId: "228024131760",
   appId: "1:228024131760:web:8159300ab19043453d9b75"
 };
+      
         
         // --- Inicialización ---
         const app = initializeApp(firebaseConfig);
@@ -50,8 +50,11 @@
         
         let currentUser = null;
         let allPatients = []; // Caché local de todos los pacientes
+        let allAuditLogs = []; // Caché local de logs de auditoría
         const patientsCollection = collection(db, "pacientes");
+        const auditLogsCollection = collection(db, "logs_borrado");
         let patientsListenerUnsubscribe = null; // Para detener el listener al cerrar sesión
+        let auditLogsListenerUnsubscribe = null; // Listener para auditoría
 
         // --- Estilos CSS Personalizados ---
         // Tailwind no puede hacer todo, usamos <style> para cosas específicas
@@ -253,19 +256,28 @@
             
             const ingresoView = document.getElementById('ingreso-view');
             const consultasView = document.getElementById('consultas-view');
+            const auditoriaView = document.getElementById('auditoria-view'); // NUEVO
             const tabIngreso = document.getElementById('tab-ingreso');
             const tabConsultas = document.getElementById('tab-consultas');
+            const tabAuditoria = document.getElementById('tab-auditoria'); // NUEVO
 
             const ingresoForm = document.getElementById('ingreso-form');
             const searchButton = document.getElementById('search-button');
-            const clearSearchButton = document.getElementById('clear-search-button'); // ID del nuevo botón
+            const clearSearchButton = document.getElementById('clear-search-button');
             const pacientesTbody = document.getElementById('pacientes-tbody');
+            const auditoriaTbody = document.getElementById('auditoria-tbody'); // NUEVO
 
             const editModal = document.getElementById('edit-modal');
             const editForm = document.getElementById('edit-form');
             const closeEditModalButton = document.getElementById('close-edit-modal');
             const cancelEditButton = document.getElementById('cancel-edit-button');
             
+            // NUEVO: Modal de Auditoría
+            const auditDetailsModal = document.getElementById('audit-details-modal');
+            const closeAuditModal = document.getElementById('close-audit-modal');
+            const closeAuditModalFooter = document.getElementById('close-audit-modal-footer');
+            const auditDetailsContent = document.getElementById('audit-details-content');
+
             const toast = document.getElementById('toast');
 
             // --- Lógica de Autenticación ---
@@ -281,15 +293,19 @@
                     
                     // Iniciar la carga de datos
                     setupRealtimeListener();
+                    setupAuditListener(); // NUEVO
 
                 } else {
                     // Usuario no está logueado
                     currentUser = null;
-                    if (patientsListenerUnsubscribe) {
-                        patientsListenerUnsubscribe(); // Detener el listener
-                        patientsListenerUnsubscribe = null;
-                    }
+                    if (patientsListenerUnsubscribe) patientsListenerUnsubscribe(); // Detener el listener
+                    if (auditLogsListenerUnsubscribe) auditLogsListenerUnsubscribe(); // NUEVO: Detener listener
+                    
+                    patientsListenerUnsubscribe = null;
+                    auditLogsListenerUnsubscribe = null;
                     allPatients = []; // Limpiar caché
+                    allAuditLogs = []; // Limpiar caché
+                    
                     loginView.classList.remove('hidden');
                     appView.classList.add('hidden');
                     loadingView.classList.add('hidden');
@@ -347,32 +363,45 @@
             // --- Lógica de Navegación por Pestañas ---
 
             function switchTab(tabName) {
+                // Ocultar todas las vistas
+                ingresoView.classList.add('hidden');
+                consultasView.classList.add('hidden');
+                auditoriaView.classList.add('hidden');
+                
+                // Poner todas las pestañas como inactivas
+                tabIngreso.classList.remove('active');
+                tabConsultas.classList.remove('active');
+                tabAuditoria.classList.remove('active');
+                tabIngreso.classList.add('inactive');
+                tabConsultas.classList.add('inactive');
+                tabAuditoria.classList.add('inactive');
+
                 if (tabName === 'ingreso') {
                     ingresoView.classList.remove('hidden');
-                    consultasView.classList.add('hidden');
                     tabIngreso.classList.add('active');
                     tabIngreso.classList.remove('inactive');
-                    tabConsultas.classList.add('inactive');
-                    tabConsultas.classList.remove('active');
-                } else {
-                    ingresoView.classList.add('hidden');
+                } else if (tabName === 'consultas') {
                     consultasView.classList.remove('hidden');
-                    tabIngreso.classList.add('inactive');
-                    tabIngreso.classList.remove('active');
                     tabConsultas.classList.add('active');
                     tabConsultas.classList.remove('inactive');
                     
-                    // NUEVO: Limpiar búsqueda y tabla al entrar a Consultas
+                    // Limpiar búsqueda al entrar a Consultas
                     document.getElementById('search-apellido').value = '';
                     document.getElementById('search-fecha-desde').value = '';
                     document.getElementById('search-fecha-hasta').value = '';
                     renderTable([], false); // false = no es un resultado de búsqueda
-                    exportFilteredButton.dataset.filteredData = JSON.stringify([]); // Limpiar datos de exportación
+                    exportFilteredButton.dataset.filteredData = JSON.stringify([]);
+                } else if (tabName === 'auditoria') { // NUEVO
+                    auditoriaView.classList.remove('hidden');
+                    tabAuditoria.classList.add('active');
+                    tabAuditoria.classList.remove('inactive');
+                    renderAuditTable(); // Renderizar tabla al cambiar a esta pestaña
                 }
             }
 
             tabIngreso.addEventListener('click', () => switchTab('ingreso'));
             tabConsultas.addEventListener('click', () => switchTab('consultas'));
+            tabAuditoria.addEventListener('click', () => switchTab('auditoria')); // NUEVO
 
             // --- Lógica de Formulario de Ingreso ---
 
@@ -411,6 +440,8 @@
                     ingresoForm.reset();
                     // Ocultar campo 'otros' por si acaso
                     document.getElementById('diagnostico_otros_wrapper').classList.add('hidden');
+                    // Cerrar secciones <details>
+                    document.querySelectorAll('#ingreso-form details').forEach(d => d.open = false);
                     
                 } catch (error) {
                     console.error("Error guardando paciente:", error);
@@ -419,7 +450,6 @@
             });
 
             // Mostrar/Ocultar campo "Otros" en Diagnóstico
-            // *** FIX: El listener ahora apunta a #diagnostico (que ya tiene ID) ***
             document.getElementById('diagnostico').addEventListener('change', (e) => {
                 const selected = Array.from(e.target.selectedOptions).map(opt => opt.value);
                 const otrosInput = document.getElementById('diagnostico_otros_wrapper');
@@ -450,29 +480,17 @@
             
             // Listener en tiempo real para cambios
             function setupRealtimeListener() {
-                // Detener listener anterior si existe
-                if (patientsListenerUnsubscribe) {
-                    patientsListenerUnsubscribe();
-                }
+                if (patientsListenerUnsubscribe) patientsListenerUnsubscribe();
                 
                 patientsListenerUnsubscribe = onSnapshot(patientsCollection, (snapshot) => {
                     allPatients = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     totalNacimientosSpan.textContent = allPatients.length;
                     
-                    // NO renderizar la tabla automáticamente. 
-                    // Solo actualizar el caché de 'allPatients'.
-                    // La tabla solo se actualiza con una búsqueda activa.
-                    
-                    // Opcional: si quisiéramos que la búsqueda se actualice en tiempo real:
-                    // if (!consultasView.classList.contains('hidden')) {
-                    //    searchButton.click(); // Esto haría que los resultados cambien solos
-                    // }
-                    
                     console.log("Datos de pacientes (caché) actualizados en tiempo real.");
 
                 }, (error) => {
-                    console.error("Error en listener de Firestore:", error);
-                    showToast("Error de conexión en tiempo real", "error");
+                    console.error("Error en listener de Firestore (pacientes):", error);
+                    showToast("Error de conexión en tiempo real (pacientes)", "error");
                 });
             }
 
@@ -482,26 +500,22 @@
                 const fechaDesde = document.getElementById('search-fecha-desde').value;
                 const fechaHasta = document.getElementById('search-fecha-hasta').value;
 
-                // NUEVO: Validar que al menos un campo esté lleno
                 if (!apellido && !fechaDesde && !fechaHasta) {
                     showToast("Por favor, ingrese un apellido o un rango de fechas para buscar.", "error");
-                    renderTable([], false); // Limpiar la tabla si la búsqueda está vacía
+                    renderTable([], false);
                     exportFilteredButton.dataset.filteredData = JSON.stringify([]);
                     return;
                 }
 
                 let filteredPatients = allPatients;
 
-                // Filtrar por apellido (si se proporciona)
                 if (apellido) {
                     filteredPatients = filteredPatients.filter(p => 
                         p.apellido && p.apellido.toLowerCase().includes(apellido)
                     );
                 }
-
-                // Filtrar por fecha de nacimiento (si se proporcionan)
                 if (fechaDesde) {
-                    const desde = new Date(fechaDesde + "T00:00:00"); // Asegurar zona horaria local
+                    const desde = new Date(fechaDesde + "T00:00:00");
                     filteredPatients = filteredPatients.filter(p => {
                         if (!p.fecha_nacimiento) return false;
                         const pDate = new Date(p.fecha_nacimiento + "T00:00:00");
@@ -509,7 +523,7 @@
                     });
                 }
                 if (fechaHasta) {
-                    const hasta = new Date(fechaHasta + "T23:59:59"); // Asegurar zona horaria local
+                    const hasta = new Date(fechaHasta + "T23:59:59");
                     filteredPatients = filteredPatients.filter(p => {
                         if (!p.fecha_nacimiento) return false;
                         const pDate = new Date(p.fecha_nacimiento + "T00:00:00");
@@ -517,29 +531,26 @@
                     });
                 }
 
-                renderTable(filteredPatients, true); // true = es una búsqueda activa
+                renderTable(filteredPatients, true);
                 exportFilteredButton.dataset.filteredData = JSON.stringify(filteredPatients);
             });
 
-            // NUEVO: Lógica del botón de limpiar búsqueda
             clearSearchButton.addEventListener('click', () => {
                 document.getElementById('search-apellido').value = '';
                 document.getElementById('search-fecha-desde').value = '';
                 document.getElementById('search-fecha-hasta').value = '';
-                renderTable([], false); // false = no es un resultado de búsqueda
+                renderTable([], false);
                 exportFilteredButton.dataset.filteredData = JSON.stringify([]);
                 showToast("Búsqueda limpiada", "success");
             });
             
-            // Función para renderizar la tabla de pacientes
             function renderTable(pacientes, isSearchResult) {
-                pacientesTbody.innerHTML = ''; // Limpiar tabla
+                pacientesTbody.innerHTML = '';
                 
                 if (pacientes.length === 0) {
                     if (isSearchResult) {
                         pacientesTbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500">No se encontraron pacientes con esos criterios.</td></tr>';
                     } else {
-                         // NUEVO: Mensaje por defecto al entrar a la pestaña
                          pacientesTbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500">Realice una búsqueda por Apellido o Fecha para ver los resultados.</td></tr>';
                     }
                     return;
@@ -561,7 +572,6 @@
                     pacientesTbody.appendChild(tr);
                 });
 
-                // Añadir listeners a los nuevos botones
                 pacientesTbody.querySelectorAll('.btn-edit').forEach(btn => {
                     btn.addEventListener('click', (e) => openEditModal(e.target.dataset.id));
                 });
@@ -580,18 +590,16 @@
                 }
 
                 // Llenar el formulario del modal
-                editForm.dataset.id = patientId; // Guardar ID para el submit
+                editForm.dataset.id = patientId;
                 for (const key in paciente) {
                     const input = editForm.elements[key];
                     if (input) {
                         if (input.type === 'checkbox') {
                             input.checked = paciente[key];
                         } else if (input.tagName === 'SELECT' && input.multiple) {
-                            // Para selects múltiples (Diagnóstico, Ant. Patológicos)
                             Array.from(input.options).forEach(opt => {
                                 opt.selected = paciente[key] && paciente[key].includes(opt.value);
                             });
-                            // Disparar evento 'change' SÓLO para diagnóstico (para mostrar/ocultar "otros")
                             if (input.name === 'diagnostico') {
                                 input.dispatchEvent(new Event('change'));
                             }
@@ -601,7 +609,21 @@
                     }
                 }
                 
-                // Mostrar el modal
+                // Abrir <details> que tengan contenido seleccionado
+                editForm.querySelectorAll('details').forEach(d => {
+                    d.open = false; // Resetear
+                    const selects = d.querySelectorAll('select');
+                    let hasSelection = false;
+                    selects.forEach(s => {
+                        if (s.multiple) {
+                            if (Array.from(s.selectedOptions).length > 0) hasSelection = true;
+                        } else {
+                             if (s.value) hasSelection = true;
+                        }
+                    });
+                    if (hasSelection) d.open = true;
+                });
+                
                 editModal.classList.remove('hidden');
             }
 
@@ -627,17 +649,10 @@
                         updatedData[key] = value;
                     });
                     
-                    // Manejar checkbox 'controlada'
                     updatedData['controlada'] = editForm.elements['controlada'].checked;
-
-                    // Manejar diagnósticos múltiples
                     updatedData['diagnostico'] = Array.from(editForm.elements['diagnostico'].selectedOptions).map(opt => opt.value);
                     updatedData['diagnostico_otros'] = editForm.elements['diagnostico_otros'].value;
-
-                    // Manejar antecedentes múltiples
                     updatedData['antPatologicos'] = Array.from(editForm.elements['antPatologicos'].selectedOptions).map(opt => opt.value);
-
-                    // Añadir metadata de modificación
                     updatedData.lastModifiedBy = currentUser.email;
                     updatedData.lastModifiedAt = Timestamp.now();
 
@@ -646,9 +661,6 @@
 
                     showToast("Paciente actualizado exitosamente", "success");
                     closeEditModal();
-                    
-                    // (El listener en tiempo real actualizará el caché 'allPatients')
-                    // Recargar la búsqueda actual para reflejar el cambio en la tabla
                     searchButton.click();
                     
                 } catch (error) {
@@ -660,29 +672,24 @@
             // --- Lógica de Borrado ---
 
             async function deletePatient(patientId) {
-                // Usar un modal personalizado en lugar de confirm()
-                // Por ahora, usamos confirm() como placeholder
                 if (!confirm("¿Estás seguro de que deseas borrar este paciente? Esta acción es irreversible.")) {
                     return;
                 }
 
                 try {
-                    // (Opcional: Registrar quién lo borró en una colección de "logs")
+                    const patientData = allPatients.find(p => p.id === patientId);
                     const logData = {
                         patientId: patientId,
                         deletedBy: currentUser.email,
                         deletedAt: Timestamp.now(),
-                        patientData: allPatients.find(p => p.id === patientId) // Guardar copia
+                        patientData: patientData || {} // Guardar copia
                     };
-                    await addDoc(collection(db, "logs_borrado"), logData);
+                    await addDoc(auditLogsCollection, logData); // USA LA CONSTANTE NUEVA
 
                     const patientDocRef = doc(db, "pacientes", patientId);
                     await deleteDoc(patientDocRef);
 
                     showToast("Paciente borrado exitosamente", "success");
-                    
-                    // (El listener en tiempo real actualizará el caché 'allPatients')
-                    // Recargar la búsqueda actual para reflejar el cambio en la tabla
                     searchButton.click();
 
                 } catch (error) {
@@ -690,6 +697,83 @@
                     showToast(`Error al borrar: ${getFirebaseErrorMessage(error)}`, 'error');
                 }
             }
+
+            // --- NUEVO: Lógica de Auditoría ---
+
+            function setupAuditListener() {
+                if (auditLogsListenerUnsubscribe) auditLogsListenerUnsubscribe();
+                
+                auditLogsListenerUnsubscribe = onSnapshot(auditLogsCollection, (snapshot) => {
+                    allAuditLogs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    
+                    // Ordenar por fecha, más nuevos primero
+                    allAuditLogs.sort((a, b) => b.deletedAt.toDate() - a.deletedAt.toDate());
+                    
+                    console.log("Datos de auditoría (caché) actualizados.");
+                    
+                    // Si el usuario está viendo la pestaña, actualizarla
+                    if (!auditoriaView.classList.contains('hidden')) {
+                        renderAuditTable();
+                    }
+                }, (error) => {
+                    console.error("Error en listener de Firestore (auditoría):", error);
+                    showToast("Error de conexión en tiempo real (auditoría)", "error");
+                });
+            }
+
+            function renderAuditTable() {
+                auditoriaTbody.innerHTML = '';
+                
+                if (allAuditLogs.length === 0) {
+                    auditoriaTbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-500">No hay registros de pacientes borrados.</td></tr>';
+                    return;
+                }
+
+                allAuditLogs.forEach(log => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-gray-50';
+                    const patientName = `${log.patientData?.apellido || 'N/A'}, ${log.patientData?.nombre || 'N/A'}`;
+                    tr.innerHTML = `
+                        <td class="p-4 whitespace-nowrap">${patientName}</td>
+                        <td class="p-4 whitespace-nowrap">${log.deletedAt.toDate().toLocaleString('es-AR')}</td>
+                        <td class="p-4 whitespace-nowrap">${log.deletedBy}</td>
+                        <td class="p-4 whitespace-nowrap text-right">
+                            <button class="btn-secondary" data-id="${log.id}">Ver Datos</button>
+                        </td>
+                    `;
+                    auditoriaTbody.appendChild(tr);
+                });
+
+                // Añadir listeners a los botones "Ver Datos"
+                auditoriaTbody.querySelectorAll('.btn-secondary').forEach(btn => {
+                    btn.addEventListener('click', (e) => openAuditDetailsModal(e.target.dataset.id));
+                });
+            }
+
+            function openAuditDetailsModal(logId) {
+                const log = allAuditLogs.find(l => l.id === logId);
+                if (!log) {
+                    showToast("Error: Log no encontrado", "error");
+                    return;
+                }
+                
+                // Formatear los datos para que se vean bien
+                let formattedData = "Datos del paciente al momento del borrado:\n\n";
+                for (const [key, value] of Object.entries(log.patientData)) {
+                    formattedData += `${key}: ${value}\n`;
+                }
+                
+                auditDetailsContent.textContent = formattedData;
+                auditDetailsModal.classList.remove('hidden');
+            }
+            
+            function closeAuditDetailsModal() {
+                auditDetailsModal.classList.add('hidden');
+            }
+            
+            closeAuditModal.addEventListener('click', closeAuditDetailsModal);
+            closeAuditModalFooter.addEventListener('click', closeAuditDetailsModal);
+
             
             // --- Lógica de Exportación a CSV ---
 
@@ -938,6 +1022,9 @@
                 <button id="tab-consultas" class="tab-btn inactive">
                     Consultas
                 </button>
+                <button id="tab-auditoria" class="tab-btn inactive">
+                    Auditoría
+                </button>
             </div>
         </nav>
 
@@ -946,7 +1033,7 @@
             
             <!-- Pestaña 1: Ingreso de Pacientes -->
             <div id="ingreso-view" class="p-8 bg-white shadow-lg rounded-b-lg">
-                <h2 class="text-2xl font-semibold title-text mb-6">Ingreso de datos</h2>
+                <h2 class="text-2xl font-semibold title-text mb-6">Nuevo Ingreso de Paciente</h2>
                 
                 <form id="ingreso-form" class="space-y-6">
                     
@@ -1207,15 +1294,12 @@
                         </div>
                     </div>
                     
-                    <!-- REEMPLAZADO: Grupo/Rh movido arriba -->
-
                     <hr>
                     
                     <details>
                         <summary>Diagnóstico</summary>
                         <div class="pt-4">
                             <label class="block text-sm font-medium text-gray-700">Selección de Diagnósticos (múltiple)</label>
-                            <!-- *** FIX: Añadido id="diagnostico" *** -->
                             <select id="diagnostico" name="diagnostico" class="form-input mt-1" multiple size="8">
                                 <option value="rnt_paeg">RNT-PAEG</option>
                                 <option value="rnt_apeg">RNT-APEG</option>
@@ -1322,12 +1406,33 @@
                             </tr>
                         </thead>
                         <tbody id="pacientes-tbody" class="divide-y divide-gray-200">
-                            <!-- Las filas se insertarán aquí dinámicamente -->
                             <tr><td colspan="5" class="p-4 text-center text-gray-500">Realice una búsqueda por Apellido o Fecha para ver los resultados.</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
+
+            <!-- Pestaña 3: Auditoría (NUEVO) -->
+            <div id="auditoria-view" class="p-8 bg-white shadow-lg rounded-b-lg hidden">
+                <h2 class="text-2xl font-semibold title-text mb-6">Registro de Auditoría (Pacientes Borrados)</h2>
+                <div class="overflow-x-auto bg-white rounded-lg shadow">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="p-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Paciente Borrado</th>
+                                <th class="p-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Fecha de Borrado</th>
+                                <th class="p-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Borrado Por (Usuario)</th>
+                                <th class="p-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="auditoria-tbody" class="divide-y divide-gray-200">
+                            <!-- Los logs se insertarán aquí dinámicamente -->
+                            <tr><td colspan="4" class="p-4 text-center text-gray-500">Cargando registros...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
         </main>
     </div>
 
@@ -1598,8 +1703,6 @@
                     </div>
                 </div>
 
-                <!-- REEMPLAZADO: Grupo/Rh movido arriba -->
-
                 <hr>
                 
                 <details>
@@ -1644,6 +1747,22 @@
                     <button type="submit" class="btn-primary">Guardar Cambios</button>
                 </footer>
             </form>
+        </div>
+    </div>
+
+    <!-- NUEVO: Modal de Detalles de Auditoría -->
+    <div id="audit-details-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+            <header class="flex justify-between items-center p-6 border-b">
+                <h2 class="text-2xl font-semibold title-text">Datos del Paciente Borrado</h2>
+                <button id="close-audit-modal" class="text-gray-400 hover:text-gray-600 text-3xl">&times;</button>
+            </header>
+            <div class="p-8 overflow-y-auto">
+                <pre id="audit-details-content" class="bg-gray-100 p-4 rounded-lg overflow-x-auto text-sm whitespace-pre-wrap"></pre>
+            </div>
+            <footer class="flex justify-end gap-4 p-4 bg-gray-50 border-t">
+                <button type="button" id="close-audit-modal-footer" class="btn-secondary">Cerrar</button>
+            </footer>
         </div>
     </div>
     
