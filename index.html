@@ -32,7 +32,6 @@
 
         // --- Configuración de Firebase ---
         // IMPORTANTE: Reemplaza esto con la configuración de tu proyecto Firebase
-        
       
       const firebaseConfig = {
   apiKey: "AIzaSyCmuO4U_fDthWu_vY-ghx9marNtF78_vzM",
@@ -51,6 +50,7 @@
         let currentUser = null;
         let allPatients = []; // Caché local de todos los pacientes
         const patientsCollection = collection(db, "pacientes");
+        const auditLogsCollection = collection(db, "logs_borrado"); // Se mantiene para LOGGING
         let patientsListenerUnsubscribe = null; // Para detener el listener al cerrar sesión
 
         // --- Estilos CSS Personalizados ---
@@ -258,7 +258,7 @@
 
             const ingresoForm = document.getElementById('ingreso-form');
             const searchButton = document.getElementById('search-button');
-            const clearSearchButton = document.getElementById('clear-search-button'); // ID del nuevo botón
+            const clearSearchButton = document.getElementById('clear-search-button');
             const pacientesTbody = document.getElementById('pacientes-tbody');
 
             const editModal = document.getElementById('edit-modal');
@@ -285,11 +285,11 @@
                 } else {
                     // Usuario no está logueado
                     currentUser = null;
-                    if (patientsListenerUnsubscribe) {
-                        patientsListenerUnsubscribe(); // Detener el listener
-                        patientsListenerUnsubscribe = null;
-                    }
+                    if (patientsListenerUnsubscribe) patientsListenerUnsubscribe(); // Detener el listener
+                    
+                    patientsListenerUnsubscribe = null;
                     allPatients = []; // Limpiar caché
+                    
                     loginView.classList.remove('hidden');
                     appView.classList.add('hidden');
                     loadingView.classList.add('hidden');
@@ -347,27 +347,31 @@
             // --- Lógica de Navegación por Pestañas ---
 
             function switchTab(tabName) {
+                // Ocultar todas las vistas
+                ingresoView.classList.add('hidden');
+                consultasView.classList.add('hidden');
+                
+                // Poner todas las pestañas como inactivas
+                tabIngreso.classList.remove('active');
+                tabConsultas.classList.remove('active');
+                tabIngreso.classList.add('inactive');
+                tabConsultas.classList.add('inactive');
+
                 if (tabName === 'ingreso') {
                     ingresoView.classList.remove('hidden');
-                    consultasView.classList.add('hidden');
                     tabIngreso.classList.add('active');
                     tabIngreso.classList.remove('inactive');
-                    tabConsultas.classList.add('inactive');
-                    tabConsultas.classList.remove('active');
-                } else {
-                    ingresoView.classList.add('hidden');
+                } else if (tabName === 'consultas') {
                     consultasView.classList.remove('hidden');
-                    tabIngreso.classList.add('inactive');
-                    tabIngreso.classList.remove('active');
                     tabConsultas.classList.add('active');
                     tabConsultas.classList.remove('inactive');
                     
-                    // NUEVO: Limpiar búsqueda y tabla al entrar a Consultas
+                    // Limpiar búsqueda al entrar a Consultas
                     document.getElementById('search-apellido').value = '';
                     document.getElementById('search-fecha-desde').value = '';
                     document.getElementById('search-fecha-hasta').value = '';
                     renderTable([], false); // false = no es un resultado de búsqueda
-                    exportFilteredButton.dataset.filteredData = JSON.stringify([]); // Limpiar datos de exportación
+                    exportFilteredButton.dataset.filteredData = JSON.stringify([]);
                 }
             }
 
@@ -411,6 +415,8 @@
                     ingresoForm.reset();
                     // Ocultar campo 'otros' por si acaso
                     document.getElementById('diagnostico_otros_wrapper').classList.add('hidden');
+                    // Cerrar secciones <details>
+                    document.querySelectorAll('#ingreso-form details').forEach(d => d.open = false);
                     
                 } catch (error) {
                     console.error("Error guardando paciente:", error);
@@ -419,7 +425,6 @@
             });
 
             // Mostrar/Ocultar campo "Otros" en Diagnóstico
-            // *** FIX: El listener ahora apunta a #diagnostico (que ya tiene ID) ***
             document.getElementById('diagnostico').addEventListener('change', (e) => {
                 const selected = Array.from(e.target.selectedOptions).map(opt => opt.value);
                 const otrosInput = document.getElementById('diagnostico_otros_wrapper');
@@ -450,29 +455,17 @@
             
             // Listener en tiempo real para cambios
             function setupRealtimeListener() {
-                // Detener listener anterior si existe
-                if (patientsListenerUnsubscribe) {
-                    patientsListenerUnsubscribe();
-                }
+                if (patientsListenerUnsubscribe) patientsListenerUnsubscribe();
                 
                 patientsListenerUnsubscribe = onSnapshot(patientsCollection, (snapshot) => {
                     allPatients = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     totalNacimientosSpan.textContent = allPatients.length;
                     
-                    // NO renderizar la tabla automáticamente. 
-                    // Solo actualizar el caché de 'allPatients'.
-                    // La tabla solo se actualiza con una búsqueda activa.
-                    
-                    // Opcional: si quisiéramos que la búsqueda se actualice en tiempo real:
-                    // if (!consultasView.classList.contains('hidden')) {
-                    //    searchButton.click(); // Esto haría que los resultados cambien solos
-                    // }
-                    
                     console.log("Datos de pacientes (caché) actualizados en tiempo real.");
 
                 }, (error) => {
-                    console.error("Error en listener de Firestore:", error);
-                    showToast("Error de conexión en tiempo real", "error");
+                    console.error("Error en listener de Firestore (pacientes):", error);
+                    showToast("Error de conexión en tiempo real (pacientes)", "error");
                 });
             }
 
@@ -482,26 +475,22 @@
                 const fechaDesde = document.getElementById('search-fecha-desde').value;
                 const fechaHasta = document.getElementById('search-fecha-hasta').value;
 
-                // NUEVO: Validar que al menos un campo esté lleno
                 if (!apellido && !fechaDesde && !fechaHasta) {
                     showToast("Por favor, ingrese un apellido o un rango de fechas para buscar.", "error");
-                    renderTable([], false); // Limpiar la tabla si la búsqueda está vacía
+                    renderTable([], false);
                     exportFilteredButton.dataset.filteredData = JSON.stringify([]);
                     return;
                 }
 
                 let filteredPatients = allPatients;
 
-                // Filtrar por apellido (si se proporciona)
                 if (apellido) {
                     filteredPatients = filteredPatients.filter(p => 
                         p.apellido && p.apellido.toLowerCase().includes(apellido)
                     );
                 }
-
-                // Filtrar por fecha de nacimiento (si se proporcionan)
                 if (fechaDesde) {
-                    const desde = new Date(fechaDesde + "T00:00:00"); // Asegurar zona horaria local
+                    const desde = new Date(fechaDesde + "T00:00:00");
                     filteredPatients = filteredPatients.filter(p => {
                         if (!p.fecha_nacimiento) return false;
                         const pDate = new Date(p.fecha_nacimiento + "T00:00:00");
@@ -509,7 +498,7 @@
                     });
                 }
                 if (fechaHasta) {
-                    const hasta = new Date(fechaHasta + "T23:59:59"); // Asegurar zona horaria local
+                    const hasta = new Date(fechaHasta + "T23:59:59");
                     filteredPatients = filteredPatients.filter(p => {
                         if (!p.fecha_nacimiento) return false;
                         const pDate = new Date(p.fecha_nacimiento + "T00:00:00");
@@ -517,29 +506,26 @@
                     });
                 }
 
-                renderTable(filteredPatients, true); // true = es una búsqueda activa
+                renderTable(filteredPatients, true);
                 exportFilteredButton.dataset.filteredData = JSON.stringify(filteredPatients);
             });
 
-            // NUEVO: Lógica del botón de limpiar búsqueda
             clearSearchButton.addEventListener('click', () => {
                 document.getElementById('search-apellido').value = '';
                 document.getElementById('search-fecha-desde').value = '';
                 document.getElementById('search-fecha-hasta').value = '';
-                renderTable([], false); // false = no es un resultado de búsqueda
+                renderTable([], false);
                 exportFilteredButton.dataset.filteredData = JSON.stringify([]);
                 showToast("Búsqueda limpiada", "success");
             });
             
-            // Función para renderizar la tabla de pacientes
             function renderTable(pacientes, isSearchResult) {
-                pacientesTbody.innerHTML = ''; // Limpiar tabla
+                pacientesTbody.innerHTML = '';
                 
                 if (pacientes.length === 0) {
                     if (isSearchResult) {
                         pacientesTbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500">No se encontraron pacientes con esos criterios.</td></tr>';
                     } else {
-                         // NUEVO: Mensaje por defecto al entrar a la pestaña
                          pacientesTbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500">Realice una búsqueda por Apellido o Fecha para ver los resultados.</td></tr>';
                     }
                     return;
@@ -561,7 +547,6 @@
                     pacientesTbody.appendChild(tr);
                 });
 
-                // Añadir listeners a los nuevos botones
                 pacientesTbody.querySelectorAll('.btn-edit').forEach(btn => {
                     btn.addEventListener('click', (e) => openEditModal(e.target.dataset.id));
                 });
@@ -580,18 +565,16 @@
                 }
 
                 // Llenar el formulario del modal
-                editForm.dataset.id = patientId; // Guardar ID para el submit
+                editForm.dataset.id = patientId;
                 for (const key in paciente) {
                     const input = editForm.elements[key];
                     if (input) {
                         if (input.type === 'checkbox') {
                             input.checked = paciente[key];
                         } else if (input.tagName === 'SELECT' && input.multiple) {
-                            // Para selects múltiples (Diagnóstico, Ant. Patológicos)
                             Array.from(input.options).forEach(opt => {
                                 opt.selected = paciente[key] && paciente[key].includes(opt.value);
                             });
-                            // Disparar evento 'change' SÓLO para diagnóstico (para mostrar/ocultar "otros")
                             if (input.name === 'diagnostico') {
                                 input.dispatchEvent(new Event('change'));
                             }
@@ -601,7 +584,21 @@
                     }
                 }
                 
-                // Mostrar el modal
+                // Abrir <details> que tengan contenido seleccionado
+                editForm.querySelectorAll('details').forEach(d => {
+                    d.open = false; // Resetear
+                    const selects = d.querySelectorAll('select');
+                    let hasSelection = false;
+                    selects.forEach(s => {
+                        if (s.multiple) {
+                            if (Array.from(s.selectedOptions).length > 0) hasSelection = true;
+                        } else {
+                             if (s.value) hasSelection = true;
+                        }
+                    });
+                    if (hasSelection) d.open = true;
+                });
+                
                 editModal.classList.remove('hidden');
             }
 
@@ -627,17 +624,10 @@
                         updatedData[key] = value;
                     });
                     
-                    // Manejar checkbox 'controlada'
                     updatedData['controlada'] = editForm.elements['controlada'].checked;
-
-                    // Manejar diagnósticos múltiples
                     updatedData['diagnostico'] = Array.from(editForm.elements['diagnostico'].selectedOptions).map(opt => opt.value);
                     updatedData['diagnostico_otros'] = editForm.elements['diagnostico_otros'].value;
-
-                    // Manejar antecedentes múltiples
                     updatedData['antPatologicos'] = Array.from(editForm.elements['antPatologicos'].selectedOptions).map(opt => opt.value);
-
-                    // Añadir metadata de modificación
                     updatedData.lastModifiedBy = currentUser.email;
                     updatedData.lastModifiedAt = Timestamp.now();
 
@@ -646,9 +636,6 @@
 
                     showToast("Paciente actualizado exitosamente", "success");
                     closeEditModal();
-                    
-                    // (El listener en tiempo real actualizará el caché 'allPatients')
-                    // Recargar la búsqueda actual para reflejar el cambio en la tabla
                     searchButton.click();
                     
                 } catch (error) {
@@ -660,29 +647,24 @@
             // --- Lógica de Borrado ---
 
             async function deletePatient(patientId) {
-                // Usar un modal personalizado en lugar de confirm()
-                // Por ahora, usamos confirm() como placeholder
                 if (!confirm("¿Estás seguro de que deseas borrar este paciente? Esta acción es irreversible.")) {
                     return;
                 }
 
                 try {
-                    // (Opcional: Registrar quién lo borró en una colección de "logs")
+                    const patientData = allPatients.find(p => p.id === patientId);
                     const logData = {
                         patientId: patientId,
                         deletedBy: currentUser.email,
                         deletedAt: Timestamp.now(),
-                        patientData: allPatients.find(p => p.id === patientId) // Guardar copia
+                        patientData: patientData || {} // Guardar copia
                     };
-                    await addDoc(collection(db, "logs_borrado"), logData);
+                    await addDoc(auditLogsCollection, logData); // USA LA CONSTANTE
 
                     const patientDocRef = doc(db, "pacientes", patientId);
                     await deleteDoc(patientDocRef);
 
                     showToast("Paciente borrado exitosamente", "success");
-                    
-                    // (El listener en tiempo real actualizará el caché 'allPatients')
-                    // Recargar la búsqueda actual para reflejar el cambio en la tabla
                     searchButton.click();
 
                 } catch (error) {
@@ -946,7 +928,7 @@
             
             <!-- Pestaña 1: Ingreso de Pacientes -->
             <div id="ingreso-view" class="p-8 bg-white shadow-lg rounded-b-lg">
-                <h2 class="text-2xl font-semibold title-text mb-6">Ingreso de datos</h2>
+                <h2 class="text-2xl font-semibold title-text mb-6">Nuevo Ingreso de Paciente</h2>
                 
                 <form id="ingreso-form" class="space-y-6">
                     
@@ -1016,8 +998,8 @@
                             <!-- VDRL -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">VDRL</label>
-                                <div class="grid grid-cols-2 gap-2 mt-1">
-                                    <input type="date" name="vdrl_fecha" class="form-input">
+                                <div class="grid grid-cols-3 gap-2 mt-1">
+                                    <input type="date" name="vdrl_fecha" class="form-input col-span-2">
                                     <select name="vdrl_resultado" class="form-input">
                                         <option value="-">-</option>
                                         <option value="+">+</option>
@@ -1027,8 +1009,8 @@
                             <!-- HIV -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">HIV</label>
-                                <div class="grid grid-cols-2 gap-2 mt-1">
-                                    <input type="date" name="hiv_fecha" class="form-input">
+                                <div class="grid grid-cols-3 gap-2 mt-1">
+                                    <input type="date" name="hiv_fecha" class="form-input col-span-2">
                                     <select name="hiv_resultado" class="form-input">
                                         <option value="-">-</option>
                                         <option value="+">+</option>
@@ -1038,8 +1020,8 @@
                             <!-- Chagas -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Chagas</label>
-                                <div class="grid grid-cols-2 gap-2 mt-1">
-                                    <input type="date" name="chagas_fecha" class="form-input">
+                                <div class="grid grid-cols-3 gap-2 mt-1">
+                                    <input type="date" name="chagas_fecha" class="form-input col-span-2">
                                     <select name="chagas_resultado" class="form-input">
                                         <option value="-">-</option>
                                         <option value="+">+</option>
@@ -1049,8 +1031,8 @@
                             <!-- HBV -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">HBV</label>
-                                <div class="grid grid-cols-2 gap-2 mt-1">
-                                    <input type="date" name="hbv_fecha" class="form-input">
+                                <div class="grid grid-cols-3 gap-2 mt-1">
+                                    <input type="date" name="hbv_fecha" class="form-input col-span-2">
                                     <select name="hbv_resultado" class="form-input">
                                         <option value="-">-</option>
                                         <option value="+">+</option>
@@ -1060,8 +1042,8 @@
                             <!-- Toxoplasmosis -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Toxoplasmosis</label>
-                                <div class="grid grid-cols-2 gap-2 mt-1">
-                                    <input type="date" name="toxo_fecha" class="form-input">
+                                <div class="grid grid-cols-3 gap-2 mt-1">
+                                    <input type="date" name="toxo_fecha" class="form-input col-span-2">
                                     <select name="toxo_resultado" class="form-input">
                                         <option value="-">-</option>
                                         <option value="+">+</option>
@@ -1071,8 +1053,8 @@
                             <!-- CMV -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">CMV</label>
-                                <div class="grid grid-cols-2 gap-2 mt-1">
-                                    <input type="date" name="cmv_fecha" class="form-input">
+                                <div class="grid grid-cols-3 gap-2 mt-1">
+                                    <input type="date" name="cmv_fecha" class="form-input col-span-2">
                                     <select name="cmv_resultado" class="form-input">
                                         <option value="-">-</option>
                                         <option value="+">+</option>
@@ -1207,15 +1189,12 @@
                         </div>
                     </div>
                     
-                    <!-- REEMPLAZADO: Grupo/Rh movido arriba -->
-
                     <hr>
                     
                     <details>
                         <summary>Diagnóstico</summary>
                         <div class="pt-4">
                             <label class="block text-sm font-medium text-gray-700">Selección de Diagnósticos (múltiple)</label>
-                            <!-- *** FIX: Añadido id="diagnostico" *** -->
                             <select id="diagnostico" name="diagnostico" class="form-input mt-1" multiple size="8">
                                 <option value="rnt_paeg">RNT-PAEG</option>
                                 <option value="rnt_apeg">RNT-APEG</option>
@@ -1322,12 +1301,12 @@
                             </tr>
                         </thead>
                         <tbody id="pacientes-tbody" class="divide-y divide-gray-200">
-                            <!-- Las filas se insertarán aquí dinámicamente -->
                             <tr><td colspan="5" class="p-4 text-center text-gray-500">Realice una búsqueda por Apellido o Fecha para ver los resultados.</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
+
         </main>
     </div>
 
@@ -1407,8 +1386,8 @@
                         <!-- VDRL -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700">VDRL</label>
-                            <div class="grid grid-cols-2 gap-2 mt-1">
-                                <input type="date" name="vdrl_fecha" class="form-input">
+                            <div class="grid grid-cols-3 gap-2 mt-1">
+                                <input type="date" name="vdrl_fecha" class="form-input col-span-2">
                                 <select name="vdrl_resultado" class="form-input">
                                     <option value="-">-</option>
                                     <option value="+">+</option>
@@ -1418,8 +1397,8 @@
                         <!-- HIV -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700">HIV</label>
-                            <div class="grid grid-cols-2 gap-2 mt-1">
-                                <input type="date" name="hiv_fecha" class="form-input">
+                            <div class="grid grid-cols-3 gap-2 mt-1">
+                                <input type="date" name="hiv_fecha" class="form-input col-span-2">
                                 <select name="hiv_resultado" class="form-input">
                                     <option value="-">-</option>
                                     <option value="+">+</option>
@@ -1429,8 +1408,8 @@
                         <!-- Chagas -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Chagas</label>
-                            <div class="grid grid-cols-2 gap-2 mt-1">
-                                <input type="date" name="chagas_fecha" class="form-input">
+                            <div class="grid grid-cols-3 gap-2 mt-1">
+                                <input type="date" name="chagas_fecha" class="form-input col-span-2">
                                 <select name="chagas_resultado" class="form-input">
                                     <option value="-">-</option>
                                     <option value="+">+</option>
@@ -1440,8 +1419,8 @@
                         <!-- HBV -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700">HBV</label>
-                            <div class="grid grid-cols-2 gap-2 mt-1">
-                                <input type="date" name="hbv_fecha" class="form-input">
+                            <div class="grid grid-cols-3 gap-2 mt-1">
+                                <input type="date" name="hbv_fecha" class="form-input col-span-2">
                                 <select name="hbv_resultado" class="form-input">
                                     <option value="-">-</option>
                                     <option value="+">+</option>
@@ -1451,8 +1430,8 @@
                         <!-- Toxoplasmosis -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Toxoplasmosis</label>
-                            <div class="grid grid-cols-2 gap-2 mt-1">
-                                <input type="date" name="toxo_fecha" class="form-input">
+                            <div class="grid grid-cols-3 gap-2 mt-1">
+                                <input type="date" name="toxo_fecha" class="form-input col-span-2">
                                 <select name="toxo_resultado" class="form-input">
                                     <option value="-">-</option>
                                     <option value="+">+</option>
@@ -1462,8 +1441,8 @@
                         <!-- CMV -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700">CMV</label>
-                            <div class="grid grid-cols-2 gap-2 mt-1">
-                                <input type="date" name="cmv_fecha" class="form-input">
+                            <div class="grid grid-cols-3 gap-2 mt-1">
+                                <input type="date" name="cmv_fecha" class="form-input col-span-2">
                                 <select name="cmv_resultado" class="form-input">
                                     <option value="-">-</option>
                                     <option value="+">+</option>
@@ -1528,7 +1507,7 @@
                             <option value="hta">HTA</option>
                             <option value="dbt">DBT</option>
                             <option value="dbt_gestacional">DBT gestacional</option>
-                            <option value="hipotiroidismo">Hipotiroidismo</option>
+                            <option valueD="hipotiroidismo">Hipotiroidismo</option>
                             <option value="hipertiroidismo">Hipertiroidismo</option>
                             <option value="infeccion_urinaria">Infección Urinaria</option>
                             <option value="consumo_problematico">Consumo Problemático</option>
@@ -1597,8 +1576,6 @@
                         </select>
                     </div>
                 </div>
-
-                <!-- REEMPLAZADO: Grupo/Rh movido arriba -->
 
                 <hr>
                 
