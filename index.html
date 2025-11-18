@@ -1,855 +1,36 @@
 <!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>nacimientos2</title>
+    <link rel="stylesheet" href="./style.css">
+
+  </head>
+    
+  <body>
+  <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro de Nacimientos</title>
-    <!-- Tailwind CSS -->
+    
+    <!-- Tailwind CSS (Framework de diseño) -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Firebase SDKs (v10.12.2) -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { 
-            getAuth, 
-            createUserWithEmailAndPassword, 
-            signInWithEmailAndPassword, 
-            onAuthStateChanged, 
-            signOut 
-        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { 
-            getFirestore, 
-            collection, 
-            addDoc, 
-            query, 
-            getDocs, 
-            onSnapshot,
-            doc, 
-            updateDoc, 
-            deleteDoc,
-            where,
-            Timestamp
-        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-        // --- Configuración de Firebase ---
-        // ⚠️ IMPORTANTE: PEGA AQUÍ TUS CREDENCIALES REALES DE FIREBASE ⚠️
-        // Si no pegas tus claves aquí, el inicio de sesión fallará.
-
-
-        const firebaseConfig = {
-  apiKey: "AIzaSyCmuO4U_fDthWu_vY-ghx9marNtF78_vzM",
-  authDomain: "nacimientos2.firebaseapp.com",
-  projectId: "nacimientos2",
-  storageBucket: "nacimientos2.firebasestorage.app",
-  messagingSenderId: "228024131760",
-  appId: "1:228024131760:web:8159300ab19043453d9b75"
-};
-        
-        // --- Inicialización ---
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        
-        let currentUser = null;
-        let allPatients = []; // Caché local de todos los pacientes
-        const patientsCollection = collection(db, "pacientes");
-        const auditLogsCollection = collection(db, "logs_borrado"); // Se mantiene para LOGGING
-        let patientsListenerUnsubscribe = null; // Para detener el listener al cerrar sesión
-
-        // --- Estilos CSS Personalizados ---
-        // Tailwind no puede hacer todo, usamos <style> para cosas específicas
-        const style = document.createElement('style');
-        style.textContent = `
-            body {
-                font-family: 'Inter', sans-serif;
-            }
-            /* Estilo para los títulos azules */
-            .title-text {
-                color: #2563eb; /* Azul-600 de Tailwind */
-            }
-            /* Estilos de botones */
-            .btn-primary {
-                background-color: #2563eb;
-                color: white;
-                padding: 0.75rem 1.5rem;
-                border-radius: 0.5rem;
-                font-weight: bold;
-                transition: background-color 0.3s;
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-            }
-            .btn-primary:hover {
-                background-color: #1d4ed8;
-            }
-            .btn-secondary {
-                background-color: #f3f4f6;
-                color: #374151;
-                padding: 0.75rem 1.5rem;
-                border-radius: 0.5rem;
-                font-weight: 600;
-                border: 1px solid #d1d5db;
-                transition: background-color 0.3s;
-                box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            }
-            .btn-secondary:hover {
-                background-color: #e5e7eb;
-            }
-            .btn-danger {
-                background-color: #dc2626;
-                color: white;
-                padding: 0.5rem 1rem;
-                border-radius: 0.5rem;
-                font-weight: 600;
-                transition: background-color 0.3s;
-            }
-            .btn-danger:hover {
-                background-color: #b91c1c;
-            }
-            .btn-edit {
-                background-color: #f97316;
-                color: white;
-                padding: 0.5rem 1rem;
-                border-radius: 0.5rem;
-                font-weight: 600;
-                transition: background-color 0.3s;
-            }
-            .btn-edit:hover {
-                background-color: #ea580c;
-            }
-            /* Estilos de formularios */
-            .form-input {
-                width: 100%;
-                padding: 0.75rem;
-                border: 1px solid #d1d5db;
-                border-radius: 0.5rem;
-                transition: border-color 0.3s, box-shadow 0.3s;
-            }
-            .form-input:focus {
-                border-color: #2563eb;
-                box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
-                outline: none;
-            }
-            /* Estilo para pestañas */
-            .tab-btn {
-                padding: 1rem 1.5rem;
-                font-weight: 600;
-                border-radius: 0.5rem 0.5rem 0 0;
-                transition: background-color 0.3s, color 0.3s;
-            }
-            .tab-btn.active {
-                background-color: white;
-                color: #2563eb;
-                box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.05), 0 -2px 4px -2px rgba(0, 0, 0, 0.05);
-            }
-            .tab-btn.inactive {
-                background-color: transparent;
-                color: #6b7280;
-            }
-            .tab-btn.inactive:hover {
-                background-color: #ebf8ff; /* Azul claro en hover */
-                color: #2563eb;
-            }
-            /* Estilos para "details" (colapsable) */
-            details {
-                border: 1px solid #e5e7eb;
-                border-radius: 0.5rem;
-                margin-bottom: 1rem;
-            }
-            details summary {
-                font-weight: 600;
-                padding: 1rem;
-                cursor: pointer;
-                background-color: #f9fafb;
-                border-radius: 0.5rem 0.5rem 0 0;
-            }
-            details[open] summary {
-                border-bottom: 1px solid #e5e7eb;
-            }
-            details div {
-                padding: 1.5rem;
-                background-color: white;
-            }
-            /* Estilo para el switch (SI/NO) */
-            .switch {
-                position: relative;
-                display: inline-block;
-                width: 60px;
-                height: 34px;
-            }
-            .switch input { 
-                opacity: 0;
-                width: 0;
-                height: 0;
-            }
-            .slider {
-                position: absolute;
-                cursor: pointer;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background-color: #ccc;
-                transition: .4s;
-                border-radius: 34px;
-            }
-            .slider:before {
-                position: absolute;
-                content: "";
-                height: 26px;
-                width: 26px;
-                left: 4px;
-                bottom: 4px;
-                background-color: white;
-                transition: .4s;
-                border-radius: 50%;
-            }
-            input:checked + .slider {
-                background-color: #2563eb;
-            }
-            input:checked + .slider:before {
-                transform: translateX(26px);
-            }
-            /* Mensajes de feedback (toast) */
-            #toast {
-                position: fixed;
-                bottom: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                padding: 1rem 2rem;
-                border-radius: 0.5rem;
-                color: white;
-                font-weight: 600;
-                z-index: 100;
-                opacity: 0;
-                transition: opacity 0.5s, transform 0.5s;
-                visibility: hidden;
-            }
-            #toast.show {
-                opacity: 1;
-                visibility: visible;
-                transform: translateX(-50%) translateY(0);
-            }
-            #toast.success {
-                background-color: #16a34a; /* Verde */
-            }
-            #toast.error {
-                background-color: #dc2626; /* Rojo */
-            }
-        `;
-        document.head.appendChild(style);
-
-        // --- Lógica de UI ---
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            const loginView = document.getElementById('login-view');
-            const appView = document.getElementById('app-view');
-            const loadingView = document.getElementById('loading-view');
-            const userEmailDisplay = document.getElementById('user-email');
-            const logoutButton = document.getElementById('logout-button');
-            const totalNacimientosSpan = document.getElementById('total-nacimientos');
-            const exportAllButton = document.getElementById('export-all-button');
-            const exportFilteredButton = document.getElementById('export-filtered-button');
-
-            const loginForm = document.getElementById('login-form');
-            const signupForm = document.getElementById('signup-form');
-            const showSignupLink = document.getElementById('show-signup');
-            const showLoginLink = document.getElementById('show-login');
-            
-            const ingresoView = document.getElementById('ingreso-view');
-            const consultasView = document.getElementById('consultas-view');
-            const tabIngreso = document.getElementById('tab-ingreso');
-            const tabConsultas = document.getElementById('tab-consultas');
-
-            const ingresoForm = document.getElementById('ingreso-form');
-            const searchButton = document.getElementById('search-button');
-            const clearSearchButton = document.getElementById('clear-search-button');
-            const pacientesTbody = document.getElementById('pacientes-tbody');
-
-            const editModal = document.getElementById('edit-modal');
-            const editForm = document.getElementById('edit-form');
-            const closeEditModalButton = document.getElementById('close-edit-modal');
-            const cancelEditButton = document.getElementById('cancel-edit-button');
-            
-            const toast = document.getElementById('toast');
-
-            // --- Lógica de Autenticación ---
-
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    // Usuario está logueado
-                    currentUser = user;
-                    userEmailDisplay.textContent = user.email;
-                    loginView.classList.add('hidden');
-                    appView.classList.remove('hidden');
-                    loadingView.classList.add('hidden');
-                    
-                    // Iniciar la carga de datos
-                    setupRealtimeListener();
-
-                } else {
-                    // Usuario no está logueado
-                    currentUser = null;
-                    if (patientsListenerUnsubscribe) patientsListenerUnsubscribe(); // Detener el listener
-                    
-                    patientsListenerUnsubscribe = null;
-                    allPatients = []; // Limpiar caché
-                    
-                    loginView.classList.remove('hidden');
-                    appView.classList.add('hidden');
-                    loadingView.classList.add('hidden');
-                }
-            });
-
-            loginForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const email = e.target.email.value;
-                const password = e.target.password.value;
-                try {
-                    await signInWithEmailAndPassword(auth, email, password);
-                    showToast('Inicio de sesión exitoso', 'success');
-                } catch (error) {
-                    console.error("Error en login:", error);
-                    showToast(`Error: ${getFirebaseErrorMessage(error)}`, 'error');
-                }
-            });
-
-            signupForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const email = e.target['signup-email'].value;
-                const password = e.target['signup-password'].value;
-                try {
-                    await createUserWithEmailAndPassword(auth, email, password);
-                    showToast('Usuario creado exitosamente. Iniciando sesión...', 'success');
-                } catch (error) {
-                    console.error("Error en signup:", error);
-                    showToast(`Error: ${getFirebaseErrorMessage(error)}`, 'error');
-                }
-            });
-
-            logoutButton.addEventListener('click', async () => {
-                try {
-                    await signOut(auth);
-                    showToast('Sesión cerrada', 'success');
-                } catch (error) {
-                    console.error("Error en logout:", error);
-                    showToast(`Error: ${getFirebaseErrorMessage(error)}`, 'error');
-                }
-            });
-
-            showSignupLink.addEventListener('click', (e) => {
-                e.preventDefault();
-                loginForm.classList.add('hidden');
-                signupForm.classList.remove('hidden');
-            });
-
-            showLoginLink.addEventListener('click', (e) => {
-                e.preventDefault();
-                signupForm.classList.add('hidden');
-                loginForm.classList.remove('hidden');
-            });
-
-            // --- Lógica de Navegación por Pestañas ---
-
-            function switchTab(tabName) {
-                // Ocultar todas las vistas
-                ingresoView.classList.add('hidden');
-                consultasView.classList.add('hidden');
-                
-                // Poner todas las pestañas como inactivas
-                tabIngreso.classList.remove('active');
-                tabConsultas.classList.remove('active');
-                tabIngreso.classList.add('inactive');
-                tabConsultas.classList.add('inactive');
-
-                if (tabName === 'ingreso') {
-                    ingresoView.classList.remove('hidden');
-                    tabIngreso.classList.add('active');
-                    tabIngreso.classList.remove('inactive');
-                } else if (tabName === 'consultas') {
-                    consultasView.classList.remove('hidden');
-                    tabConsultas.classList.add('active');
-                    tabConsultas.classList.remove('inactive');
-                    
-                    // Limpiar búsqueda al entrar a Consultas
-                    document.getElementById('search-apellido').value = '';
-                    document.getElementById('search-fecha-desde').value = '';
-                    document.getElementById('search-fecha-hasta').value = '';
-                    renderTable([], false); // false = no es un resultado de búsqueda
-                    exportFilteredButton.dataset.filteredData = JSON.stringify([]);
-                }
-            }
-
-            tabIngreso.addEventListener('click', () => switchTab('ingreso'));
-            tabConsultas.addEventListener('click', () => switchTab('consultas'));
-
-            // --- Lógica de Formulario de Ingreso ---
-
-            ingresoForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                if (!currentUser) {
-                    showToast('Error: Debes estar logueado', 'error');
-                    return;
-                }
-
-                try {
-                    const formData = new FormData(ingresoForm);
-                    const pacienteData = {};
-                    formData.forEach((value, key) => {
-                        pacienteData[key] = value;
-                    });
-                    
-                    // Manejar el checkbox 'controlada'
-                    pacienteData['controlada'] = document.getElementById('controlada').checked;
-
-                    // Manejar diagnósticos múltiples
-                    pacienteData['diagnostico'] = Array.from(document.getElementById('diagnostico').selectedOptions).map(opt => opt.value);
-                    pacienteData['diagnostico_otros'] = document.getElementById('diagnostico_otros').value;
-
-                    // Manejar antecedentes múltiples
-                    pacienteData['antPatologicos'] = Array.from(document.getElementById('antPatologicos').selectedOptions).map(opt => opt.value);
-
-                    // Añadir metadata
-                    pacienteData.createdAt = Timestamp.now();
-                    pacienteData.createdBy = currentUser.email;
-                    pacienteData.lastModifiedBy = currentUser.email;
-
-                    await addDoc(patientsCollection, pacienteData);
-                    
-                    showToast('Paciente guardado exitosamente', 'success');
-                    ingresoForm.reset();
-                    // Ocultar campo 'otros' por si acaso
-                    document.getElementById('diagnostico_otros_wrapper').classList.add('hidden');
-                    // Cerrar secciones <details>
-                    document.querySelectorAll('#ingreso-form details').forEach(d => d.open = false);
-                    
-                } catch (error) {
-                    console.error("Error guardando paciente:", error);
-                    showToast(`Error: ${getFirebaseErrorMessage(error)}`, 'error');
-                }
-            });
-
-            // Mostrar/Ocultar campo "Otros" en Diagnóstico
-            document.getElementById('diagnostico').addEventListener('change', (e) => {
-                const selected = Array.from(e.target.selectedOptions).map(opt => opt.value);
-                const otrosInput = document.getElementById('diagnostico_otros_wrapper');
-                if (selected.includes('otros')) {
-                    otrosInput.classList.remove('hidden');
-                    document.getElementById('diagnostico_otros').required = true;
-                } else {
-                    otrosInput.classList.add('hidden');
-                    document.getElementById('diagnostico_otros').required = false;
-                    document.getElementById('diagnostico_otros').value = '';
-                }
-            });
-            // (Repetir para el modal de edición)
-            document.querySelector('#edit-form select[name="diagnostico"]').addEventListener('change', (e) => {
-                const selected = Array.from(e.target.selectedOptions).map(opt => opt.value);
-                const otrosInput = document.getElementById('edit_diagnostico_otros_wrapper');
-                if (selected.includes('otros')) {
-                    otrosInput.classList.remove('hidden');
-                    document.querySelector('#edit-form input[name="diagnostico_otros"]').required = true;
-                } else {
-                    otrosInput.classList.add('hidden');
-                    document.querySelector('#edit-form input[name="diagnostico_otros"]').required = false;
-                    document.querySelector('#edit-form input[name="diagnostico_otros"]').value = '';
-                }
-            });
-
-            // --- Lógica de Consultas ---
-            
-            // Listener en tiempo real para cambios
-            function setupRealtimeListener() {
-                if (patientsListenerUnsubscribe) patientsListenerUnsubscribe();
-                
-                patientsListenerUnsubscribe = onSnapshot(patientsCollection, (snapshot) => {
-                    allPatients = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    totalNacimientosSpan.textContent = allPatients.length;
-                    
-                    console.log("Datos de pacientes (caché) actualizados en tiempo real.");
-
-                }, (error) => {
-                    console.error("Error en listener de Firestore (pacientes):", error);
-                    showToast("Error de conexión en tiempo real (pacientes)", "error");
-                });
-            }
-
-            // Lógica del botón de búsqueda
-            searchButton.addEventListener('click', () => {
-                const apellido = document.getElementById('search-apellido').value.toLowerCase().trim();
-                const fechaDesde = document.getElementById('search-fecha-desde').value;
-                const fechaHasta = document.getElementById('search-fecha-hasta').value;
-
-                if (!apellido && !fechaDesde && !fechaHasta) {
-                    showToast("Por favor, ingrese un apellido o un rango de fechas para buscar.", "error");
-                    renderTable([], false);
-                    exportFilteredButton.dataset.filteredData = JSON.stringify([]);
-                    return;
-                }
-
-                let filteredPatients = allPatients;
-
-                if (apellido) {
-                    filteredPatients = filteredPatients.filter(p => 
-                        p.apellido && p.apellido.toLowerCase().includes(apellido)
-                    );
-                }
-                if (fechaDesde) {
-                    const desde = new Date(fechaDesde + "T00:00:00");
-                    filteredPatients = filteredPatients.filter(p => {
-                        if (!p.fecha_nacimiento) return false;
-                        const pDate = new Date(p.fecha_nacimiento + "T00:00:00");
-                        return pDate >= desde;
-                    });
-                }
-                if (fechaHasta) {
-                    const hasta = new Date(fechaHasta + "T23:59:59");
-                    filteredPatients = filteredPatients.filter(p => {
-                        if (!p.fecha_nacimiento) return false;
-                        const pDate = new Date(p.fecha_nacimiento + "T00:00:00");
-                        return pDate <= hasta;
-                    });
-                }
-
-                renderTable(filteredPatients, true);
-                exportFilteredButton.dataset.filteredData = JSON.stringify(filteredPatients);
-            });
-
-            clearSearchButton.addEventListener('click', () => {
-                document.getElementById('search-apellido').value = '';
-                document.getElementById('search-fecha-desde').value = '';
-                document.getElementById('search-fecha-hasta').value = '';
-                renderTable([], false);
-                exportFilteredButton.dataset.filteredData = JSON.stringify([]);
-                showToast("Búsqueda limpiada", "success");
-            });
-            
-            function renderTable(pacientes, isSearchResult) {
-                pacientesTbody.innerHTML = '';
-                
-                if (pacientes.length === 0) {
-                    if (isSearchResult) {
-                        pacientesTbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500">No se encontraron pacientes con esos criterios.</td></tr>';
-                    } else {
-                         pacientesTbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500">Realice una búsqueda por Apellido o Fecha para ver los resultados.</td></tr>';
-                    }
-                    return;
-                }
-
-                pacientes.forEach(p => {
-                    const tr = document.createElement('tr');
-                    tr.className = 'hover:bg-gray-50';
-                    tr.innerHTML = `
-                        <td class="p-4 whitespace-nowrap">${p.apellido || ''}</td>
-                        <td class="p-4 whitespace-nowrap">${p.nombre || ''}</td>
-                        <td class="p-4 whitespace-nowrap">${formatDate(p.fecha_nacimiento)}</td>
-                        <td class="p-4 whitespace-nowrap">${p.diagnostico ? p.diagnostico.join(', ') : ''}</td>
-                        <td class="p-4 whitespace-nowrap text-right">
-                            <button class="btn-edit" data-id="${p.id}">Editar</button>
-                            <button class="btn-danger ml-2" data-id="${p.id}">Borrar</button>
-                        </td>
-                    `;
-                    pacientesTbody.appendChild(tr);
-                });
-
-                pacientesTbody.querySelectorAll('.btn-edit').forEach(btn => {
-                    btn.addEventListener('click', (e) => openEditModal(e.target.dataset.id));
-                });
-                pacientesTbody.querySelectorAll('.btn-danger').forEach(btn => {
-                    btn.addEventListener('click', (e) => deletePatient(e.target.dataset.id));
-                });
-            }
-
-            // --- Lógica de Edición (Modal) ---
-
-            function openEditModal(patientId) {
-                const paciente = allPatients.find(p => p.id === patientId);
-                if (!paciente) {
-                    showToast("Error: Paciente no encontrado", "error");
-                    return;
-                }
-
-                // Llenar el formulario del modal
-                editForm.dataset.id = patientId;
-                for (const key in paciente) {
-                    const input = editForm.elements[key];
-                    if (input) {
-                        if (input.type === 'checkbox') {
-                            input.checked = paciente[key];
-                        } else if (input.tagName === 'SELECT' && input.multiple) {
-                            Array.from(input.options).forEach(opt => {
-                                opt.selected = paciente[key] && paciente[key].includes(opt.value);
-                            });
-                            if (input.name === 'diagnostico') {
-                                input.dispatchEvent(new Event('change'));
-                            }
-                        } else {
-                            input.value = paciente[key];
-                        }
-                    }
-                }
-                
-                // Abrir <details> que tengan contenido seleccionado
-                editForm.querySelectorAll('details').forEach(d => {
-                    d.open = false; // Resetear
-                    const selects = d.querySelectorAll('select');
-                    let hasSelection = false;
-                    selects.forEach(s => {
-                        if (s.multiple) {
-                            if (Array.from(s.selectedOptions).length > 0) hasSelection = true;
-                        } else {
-                             if (s.value) hasSelection = true;
-                        }
-                    });
-                    if (hasSelection) d.open = true;
-                });
-                
-                editModal.classList.remove('hidden');
-            }
-
-            function closeEditModal() {
-                 editModal.classList.add('hidden');
-            }
-
-            closeEditModalButton.addEventListener('click', closeEditModal);
-            cancelEditButton.addEventListener('click', closeEditModal);
-
-            editForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const patientId = e.target.dataset.id;
-                if (!patientId || !currentUser) {
-                    showToast("Error: No se pudo guardar", "error");
-                    return;
-                }
-
-                try {
-                    const formData = new FormData(editForm);
-                    const updatedData = {};
-                    formData.forEach((value, key) => {
-                        updatedData[key] = value;
-                    });
-                    
-                    updatedData['controlada'] = editForm.elements['controlada'].checked;
-                    updatedData['diagnostico'] = Array.from(editForm.elements['diagnostico'].selectedOptions).map(opt => opt.value);
-                    updatedData['diagnostico_otros'] = editForm.elements['diagnostico_otros'].value;
-                    updatedData['antPatologicos'] = Array.from(editForm.elements['antPatologicos'].selectedOptions).map(opt => opt.value);
-                    updatedData.lastModifiedBy = currentUser.email;
-                    updatedData.lastModifiedAt = Timestamp.now();
-
-                    const patientDocRef = doc(db, "pacientes", patientId);
-                    await updateDoc(patientDocRef, updatedData);
-
-                    showToast("Paciente actualizado exitosamente", "success");
-                    closeEditModal();
-                    searchButton.click();
-                    
-                } catch (error) {
-                    console.error("Error actualizando paciente:", error);
-                    showToast(`Error al actualizar: ${getFirebaseErrorMessage(error)}`, 'error');
-                }
-            });
-
-            // --- Lógica de Borrado ---
-
-            async function deletePatient(patientId) {
-                if (!confirm("¿Estás seguro de que deseas borrar este paciente? Esta acción es irreversible.")) {
-                    return;
-                }
-
-                try {
-                    const patientData = allPatients.find(p => p.id === patientId);
-                    const logData = {
-                        patientId: patientId,
-                        deletedBy: currentUser.email,
-                        deletedAt: Timestamp.now(),
-                        patientData: patientData || {} // Guardar copia
-                    };
-                    await addDoc(auditLogsCollection, logData); // USA LA CONSTANTE
-
-                    const patientDocRef = doc(db, "pacientes", patientId);
-                    await deleteDoc(patientDocRef);
-
-                    showToast("Paciente borrado exitosamente", "success");
-                    searchButton.click();
-
-                } catch (error) {
-                    console.error("Error borrando paciente:", error);
-                    showToast(`Error al borrar: ${getFirebaseErrorMessage(error)}`, 'error');
-                }
-            }
-            
-            // --- Lógica de Exportación a CSV ---
-
-            function exportToCSV(data, filename) {
-                if (data.length === 0) {
-                    showToast("No hay datos para exportar", "error");
-                    return;
-                }
-
-                // Definir cabeceras fijas para asegurar el orden y legibilidad
-                const headersMap = {
-                    apellido: "Apellido",
-                    nombre: "Nombre",
-                    fecha_nacimiento: "Fecha Nacimiento",
-                    hora_nacimiento: "Hora Nacimiento",
-                    // ... (añadir todas las cabeceras que se quieran exportar)
-                    edad_materna: "Edad Materna",
-                    g: "G",
-                    p: "P",
-                    a: "A",
-                    controlada: "Controlada",
-                    num_controles: "N° Controles",
-                    antPatologicos: "Ant. Patológicos",
-                    peso: "Peso (gr)",
-                    talla: "Talla (cm)",
-                    pc: "PC (cm)",
-                    eg: "EG (sem)",
-                    apgar1: "Apgar 1",
-                    apgar5: "Apgar 5",
-                    tipo_nacimiento: "Tipo Nacimiento",
-                    evolucion: "Evolución",
-                    grupo_materno: "Grupo Materno",
-                    rh_materno: "Rh Materno",
-                    grupo_paciente: "Grupo Paciente",
-                    rh_paciente: "Rh Paciente",
-                    diagnostico: "Diagnóstico",
-                    diagnostico_otros: "Otros Diag.",
-                    notas: "Notas",
-                    // Serologías
-                    vdrl_fecha: "Fecha VDRL",
-                    vdrl_resultado: "Res. VDRL",
-                    hiv_fecha: "Fecha HIV",
-                    hiv_resultado: "Res. HIV",
-                    chagas_fecha: "Fecha Chagas",
-                    chagas_resultado: "Res. Chagas",
-                    hbv_fecha: "Fecha HBV",
-                    hbv_resultado: "Res. HBV",
-                    toxo_fecha: "Fecha Toxo",
-                    toxo_resultado: "Res. Toxo",
-                    cmv_fecha: "Fecha CMV",
-                    cmv_resultado: "Res. CMV",
-                    serologias_notas: "Notas Serologías",
-                    // Metadata
-                    createdBy: "Creado Por",
-                    createdAt: "Fecha Creación",
-                    lastModifiedBy: "Modificado Por",
-                    lastModifiedAt: "Fecha Modificación"
-                };
-
-                const headers = Object.keys(headersMap);
-                const csvHeaders = Object.values(headersMap);
-                
-                let csvContent = "data:text/csv;charset=utf-8,";
-                csvContent += csvHeaders.join(",") + "\r\n";
-
-                data.forEach(row => {
-                    const values = headers.map(header => {
-                        let value = row[header];
-                        
-                        // Formatear fechas de Firestore
-                        if (value && value.toDate) {
-                            value = value.toDate().toLocaleString('es-AR');
-                        }
-                        
-                        // Manejar valores que son arrays (ej. diagnóstico)
-                        if (Array.isArray(value)) {
-                            value = `"${value.join('; ')}"`; // Usar comillas y ;
-                        }
-                        // Manejar booleanos
-                        else if (typeof value === 'boolean') {
-                            value = value ? "SI" : "NO";
-                        }
-                        // Escapar comas y comillas dentro de los valores
-                        else if (typeof value === 'string' && (value.includes(',') || value.includes('"') || value.includes('\n'))) {
-                            value = `"${value.replace(/"/g, '""')}"`;
-                        }
-                        // Manejar valores nulos o indefinidos
-                        else if (value === null || value === undefined) {
-                            value = "";
-                        }
-                        
-                        return value;
-                    });
-                    csvContent += values.join(",") + "\r\n";
-                });
-
-                // Crear y descargar el archivo
-                const encodedUri = encodeURI(csvContent);
-                const link = document.createElement("a");
-                link.setAttribute("href", encodedUri);
-                link.setAttribute("download", filename);
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                
-                showToast("Exportación completada", "success");
-            }
-            
-            exportAllButton.addEventListener('click', () => {
-                exportToCSV(allPatients, "todos_los_pacientes.csv");
-            });
-            
-            exportFilteredButton.addEventListener('click', (e) => {
-                const filteredData = JSON.parse(e.target.dataset.filteredData || "[]");
-                if (filteredData.length === 0) {
-                    showToast("No hay resultados filtrados para exportar", "error");
-                    return;
-                }
-                exportToCSV(filteredData, "pacientes_filtrados.csv");
-            });
-
-            // --- Funciones Utilitarias ---
-
-            function formatDate(dateString) {
-                if (!dateString) return '';
-                // Asumir que la fecha (ej. 2024-05-15) está en zona local
-                const date = new Date(dateString + "T00:00:00");
-                return date.toLocaleString('es-AR', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
-                });
-            }
-
-            let toastTimer;
-            function showToast(message, type = 'success') {
-                toast.textContent = message;
-                toast.className = ''; // Limpiar clases anteriores
-                toast.classList.add(type); // 'success' o 'error'
-                
-                clearTimeout(toastTimer);
-                toast.classList.add('show');
-                
-                toastTimer = setTimeout(() => {
-                    toast.classList.remove('show');
-                }, 3000); // Ocultar después de 3 segundos
-            }
-
-            function getFirebaseErrorMessage(error) {
-                switch (error.code) {
-                    case 'auth/invalid-email':
-                        return 'El formato del email es incorrecto.';
-                    case 'auth/user-not-found':
-                        return 'No se encontró un usuario con ese email.';
-                    case 'auth/wrong-password':
-                        return 'Contraseña incorrecta.';
-                    case 'auth/email-already-in-use':
-                        return 'Ese email ya está registrado.';
-                    case 'auth/weak-password':
-                        return 'La contraseña debe tener al menos 6 caracteres.';
-                    case 'auth/invalid-credential':
-                         return 'Credenciales inválidas. Revise el email y la contraseña.';
-                    default:
-                        return error.message;
-                }
-            }
-
-            // Iniciar en la pestaña de ingreso
-            switchTab('ingreso');
-        });
-    </script>
+    
+    <!-- Tu hoja de estilos personalizada -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Tu lógica de la aplicación (Firebase + Funcionalidad) -->
+    <!-- type="module" es importante para que funcionen los imports de Firebase -->
+    <script type="module" src="app.js"></script>
 </head>
 
 <body class="bg-sky-50 text-gray-900">
 
     <!-- Vista de Carga Inicial -->
+    <!-- Se muestra mientras se verifica si el usuario está logueado -->
     <div id="loading-view" class="flex items-center justify-center min-h-screen">
         <div class="text-xl font-semibold title-text">Cargando...</div>
     </div>
@@ -1071,7 +252,7 @@
                         </div>
                     </details>
                     
-                    <!-- CAMBIO: Grupo/Rh movido aquí -->
+                    <!-- Grupo/Rh -->
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                         <div>
                             <label for="grupo_materno" class="block text-sm font-medium text-gray-700">Grupo Materno</label>
@@ -1107,6 +288,26 @@
                                 <option value="">Seleccionar...</option>
                                 <option value="+">+</option>
                                 <option value="-">-</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- PCD y PCI -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
+                        <div>
+                            <label for="pcd" class="block text-sm font-medium text-gray-700">PCD</label>
+                            <select id="pcd" name="pcd" class="form-input mt-1">
+                                <option value="">Seleccionar...</option>
+                                <option value="negativo">Negativo</option>
+                                <option value="positivo">Positivo</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="pci" class="block text-sm font-medium text-gray-700">PCI</label>
+                            <select id="pci" name="pci" class="form-input mt-1">
+                                <option value="">Seleccionar...</option>
+                                <option value="negativo">Negativo</option>
+                                <option value="positivo">Positivo</option>
                             </select>
                         </div>
                     </div>
@@ -1190,13 +391,13 @@
                             </select>
                         </div>
                     </div>
-                    
+
                     <hr>
                     
                     <details>
                         <summary>Diagnóstico</summary>
                         <div class="pt-4">
-                            <label class="block text-sm font-medium text-gray-700">Selección de Diagnósticos (múltiple)</label>
+                            <label for="diagnostico" class="block text-sm font-medium text-gray-700">Selección de Diagnósticos (múltiple)</label>
                             <select id="diagnostico" name="diagnostico" class="form-input mt-1" multiple size="8">
                                 <option value="rnt_paeg">RNT-PAEG</option>
                                 <option value="rnt_apeg">RNT-APEG</option>
@@ -1459,7 +660,7 @@
                     </div>
                 </details>
                 
-                <!-- CAMBIO: Grupo/Rh movido aquí -->
+                <!-- Grupo/Rh -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Grupo Materno</label>
@@ -1495,6 +696,26 @@
                             <option value="">Seleccionar...</option>
                             <option value="+">+</option>
                             <option value="-">-</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- PCD y PCI en el modal de edición también -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">PCD</label>
+                        <select name="pcd" class="form-input mt-1">
+                            <option value="">Seleccionar...</option>
+                            <option value="negativo">Negativo</option>
+                            <option value="positivo">Positivo</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">PCI</label>
+                        <select name="pci" class="form-input mt-1">
+                            <option value="">Seleccionar...</option>
+                            <option value="negativo">Negativo</option>
+                            <option value="positivo">Positivo</option>
                         </select>
                     </div>
                 </div>
@@ -1630,4 +851,9 @@
     <div id="toast"></div>
 
 </body>
+</html>
+    <script type="module" src="./script.js"></script>
+
+  </body>
+  
 </html>
