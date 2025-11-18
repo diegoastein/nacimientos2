@@ -16,21 +16,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro de Nacimientos</title>
     
-    <!-- Tailwind CSS (Framework de diseño) -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Tu hoja de estilos personalizada -->
+    <!-- Estilos personalizados -->
     <link rel="stylesheet" href="styles.css">
     
-    <!-- Tu lógica de la aplicación (Firebase + Funcionalidad) -->
-    <!-- type="module" es importante para que funcionen los imports de Firebase -->
+    <!-- Lógica de la App -->
     <script type="module" src="app.js"></script>
 </head>
 
 <body class="bg-sky-50 text-gray-900">
 
-    <!-- Vista de Carga Inicial -->
-    <!-- Se muestra mientras se verifica si el usuario está logueado -->
+    <!-- Vista de Carga -->
     <div id="loading-view" class="flex items-center justify-center min-h-screen">
         <div class="text-xl font-semibold title-text">Cargando...</div>
     </div>
@@ -40,7 +38,6 @@
         <div class="max-w-md w-full bg-white p-8 rounded-lg shadow-xl">
             <h1 class="text-3xl font-bold text-center title-text mb-8">Registro de Nacimientos</h1>
             
-            <!-- Formulario de Login -->
             <form id="login-form">
                 <h2 class="text-xl font-semibold text-gray-700 mb-4">Iniciar Sesión</h2>
                 <div class="mb-4">
@@ -53,12 +50,10 @@
                 </div>
                 <button type="submit" class="btn-primary w-full">Ingresar</button>
                 <p class="text-sm text-center mt-4">
-                    ¿No tienes cuenta? 
-                    <a href="#" id="show-signup" class="font-medium text-blue-600 hover:text-blue-500">Regístrate aquí</a>
+                    ¿No tienes cuenta? <a href="#" id="show-signup" class="font-medium text-blue-600 hover:text-blue-500">Regístrate aquí</a>
                 </p>
             </form>
 
-            <!-- Formulario de Registro -->
             <form id="signup-form" class="hidden">
                 <h2 class="text-xl font-semibold text-gray-700 mb-4">Crear Cuenta</h2>
                 <div class="mb-4">
@@ -71,45 +66,33 @@
                 </div>
                 <button type="submit" class="btn-primary w-full">Registrarse</button>
                 <p class="text-sm text-center mt-4">
-                    ¿Ya tienes cuenta? 
-                    <a href="#" id="show-login" class="font-medium text-blue-600 hover:text-blue-500">Inicia sesión</a>
+                    ¿Ya tienes cuenta? <a href="#" id="show-login" class="font-medium text-blue-600 hover:text-blue-500">Inicia sesión</a>
                 </p>
             </form>
         </div>
     </div>
 
-    <!-- Vista Principal de la App -->
+    <!-- App Principal -->
     <div id="app-view" class="hidden">
-        
-        <!-- Cabecera de la App -->
         <header class="bg-blue-600 text-white shadow-lg p-4">
             <div class="container mx-auto flex justify-between items-center">
                 <h1 class="text-2xl font-bold">Registro de Nacimientos</h1>
                 <div class="flex items-center">
                     <span id="user-email" class="text-sm mr-4 hidden md:block"></span>
-                    <button id="logout-button" class="bg-white text-blue-600 font-bold py-2 px-4 rounded-lg shadow hover:bg-blue-100 transition">
-                        Cerrar Sesión
-                    </button>
+                    <button id="logout-button" class="bg-white text-blue-600 font-bold py-2 px-4 rounded-lg shadow hover:bg-blue-100 transition">Cerrar Sesión</button>
                 </div>
             </div>
         </header>
 
-        <!-- Navegación de Pestañas -->
         <nav class="container mx-auto px-4 sm:px-8 mt-8">
             <div class="flex gap-x-2 border-b border-gray-200 bg-gray-100 rounded-t-lg p-2">
-                <button id="tab-ingreso" class="tab-btn active">
-                    Ingreso de Pacientes
-                </button>
-                <button id="tab-consultas" class="tab-btn inactive">
-                    Consultas
-                </button>
+                <button id="tab-ingreso" class="tab-btn active">Ingreso de Pacientes</button>
+                <button id="tab-consultas" class="tab-btn inactive">Consultas</button>
             </div>
         </nav>
 
-        <!-- Contenido de las Pestañas -->
         <main class="container mx-auto px-4 sm:px-8 mb-12">
-            
-            <!-- Pestaña 1: Ingreso de Pacientes -->
+            <!-- Pestaña Ingreso -->
             <div id="ingreso-view" class="p-8 bg-white shadow-lg rounded-b-lg">
                 <h2 class="text-2xl font-semibold title-text mb-6">Nuevo Ingreso de Paciente</h2>
                 
@@ -117,55 +100,27 @@
                     
                     <h3 class="text-lg font-semibold title-text border-b pb-2">Datos del Paciente</h3>
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <div>
-                            <label for="apellido" class="block text-sm font-medium text-gray-700">Apellido</label>
-                            <input type="text" id="apellido" name="apellido" class="form-input mt-1" required>
-                        </div>
-                        <div>
-                            <label for="nombre" class="block text-sm font-medium text-gray-700">Nombre</label>
-                            <input type="text" id="nombre" name="nombre" class="form-input mt-1" required>
-                        </div>
-                        <div>
-                            <label for="fecha_nacimiento" class="block text-sm font-medium text-gray-700">Fecha de Nacimiento</label>
-                            <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" class="form-input mt-1" required>
-                        </div>
-                        <div>
-                            <label for="hora_nacimiento" class="block text-sm font-medium text-gray-700">Hora Nac.</label>
-                            <input type="time" id="hora_nacimiento" name="hora_nacimiento" class="form-input mt-1" required>
-                        </div>
+                        <div><label for="apellido" class="block text-sm font-medium text-gray-700">Apellido</label><input type="text" id="apellido" name="apellido" class="form-input mt-1" required></div>
+                        <div><label for="nombre" class="block text-sm font-medium text-gray-700">Nombre</label><input type="text" id="nombre" name="nombre" class="form-input mt-1" required></div>
+                        <div><label for="fecha_nacimiento" class="block text-sm font-medium text-gray-700">Fecha de Nacimiento</label><input type="date" id="fecha_nacimiento" name="fecha_nacimiento" class="form-input mt-1" required></div>
+                        <div><label for="hora_nacimiento" class="block text-sm font-medium text-gray-700">Hora Nac.</label><input type="time" id="hora_nacimiento" name="hora_nacimiento" class="form-input mt-1" required></div>
                     </div>
                     
                     <hr>
 
                     <h3 class="text-lg font-semibold title-text border-b pb-2">Datos Maternos</h3>
-                    
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                        <div>
-                            <label for="edad_materna" class="block text-sm font-medium text-gray-700">Edad Materna</label>
-                            <input type="number" id="edad_materna" name="edad_materna" class="form-input mt-1" min="10">
-                        </div>
-                        <div>
-                            <label for="g" class="block text-sm font-medium text-gray-700">G</label>
-                            <input type="number" id="g" name="g" class="form-input mt-1" min="0" max="9">
-                        </div>
-                        <div>
-                            <label for="p" class="block text-sm font-medium text-gray-700">P</label>
-                            <input type="number" id="p" name="p" class="form-input mt-1" min="0" max="9">
-                        </div>
-                        <div>
-                            <label for="a" class="block text-sm font-medium text-gray-700">A</label>
-                            <input type="number" id="a" name="a" class="form-input mt-1" min="0" max="9">
-                        </div>
+                        <div><label for="edad_materna" class="block text-sm font-medium text-gray-700">Edad Materna</label><input type="number" id="edad_materna" name="edad_materna" class="form-input mt-1" min="10"></div>
+                        <div><label for="g" class="block text-sm font-medium text-gray-700">G</label><input type="number" id="g" name="g" class="form-input mt-1" min="0" max="9"></div>
+                        <div><label for="p" class="block text-sm font-medium text-gray-700">P</label><input type="number" id="p" name="p" class="form-input mt-1" min="0" max="9"></div>
+                        <div><label for="a" class="block text-sm font-medium text-gray-700">A</label><input type="number" id="a" name="a" class="form-input mt-1" min="0" max="9"></div>
                     </div>
                     
                     <div class="grid grid-cols-1 gap-6 items-center">
                         <div class="flex flex-wrap items-center gap-x-6 gap-y-2">
                             <div class="flex items-center space-x-4">
                                 <label for="controlada" class="block text-sm font-medium text-gray-700">Controlada</label>
-                                <label class="switch">
-                                    <input type="checkbox" id="controlada" name="controlada">
-                                    <span class="slider"></span>
-                                </label>
+                                <label class="switch"><input type="checkbox" id="controlada" name="controlada"><span class="slider"></span></label>
                             </div>
                             <div class="flex-1 min-w-[150px]">
                                 <label for="num_controles" class="block text-sm font-medium text-gray-700">N° de Controles</label>
@@ -174,142 +129,32 @@
                         </div>
                     </div>
 
-                    <!-- Serologías (Colapsable) -->
+                    <!-- Serologías -->
                     <details>
                         <summary>Serologías Maternas</summary>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <!-- VDRL -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">VDRL</label>
-                                <div class="grid grid-cols-3 gap-2 mt-1">
-                                    <input type="date" name="vdrl_fecha" class="form-input col-span-2">
-                                    <select name="vdrl_resultado" class="form-input">
-                                        <option value="-">-</option>
-                                        <option value="+">+</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <!-- HIV -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">HIV</label>
-                                <div class="grid grid-cols-3 gap-2 mt-1">
-                                    <input type="date" name="hiv_fecha" class="form-input col-span-2">
-                                    <select name="hiv_resultado" class="form-input">
-                                        <option value="-">-</option>
-                                        <option value="+">+</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <!-- Chagas -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Chagas</label>
-                                <div class="grid grid-cols-3 gap-2 mt-1">
-                                    <input type="date" name="chagas_fecha" class="form-input col-span-2">
-                                    <select name="chagas_resultado" class="form-input">
-                                        <option value="-">-</option>
-                                        <option value="+">+</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <!-- HBV -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">HBV</label>
-                                <div class="grid grid-cols-3 gap-2 mt-1">
-                                    <input type="date" name="hbv_fecha" class="form-input col-span-2">
-                                    <select name="hbv_resultado" class="form-input">
-                                        <option value="-">-</option>
-                                        <option value="+">+</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <!-- Toxoplasmosis -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Toxoplasmosis</label>
-                                <div class="grid grid-cols-3 gap-2 mt-1">
-                                    <input type="date" name="toxo_fecha" class="form-input col-span-2">
-                                    <select name="toxo_resultado" class="form-input">
-                                        <option value="-">-</option>
-                                        <option value="+">+</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <!-- CMV -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">CMV</label>
-                                <div class="grid grid-cols-3 gap-2 mt-1">
-                                    <input type="date" name="cmv_fecha" class="form-input col-span-2">
-                                    <select name="cmv_resultado" class="form-input">
-                                        <option value="-">-</option>
-                                        <option value="+">+</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <!-- Notas Serologías -->
-                            <div class="md:col-span-3">
-                                <label for="serologias_notas" class="block text-sm font-medium text-gray-700">Notas de Serologías</label>
-                                <textarea id="serologias_notas" name="serologias_notas" class="form-input mt-1" rows="2"></textarea>
-                            </div>
+                            <div><label class="block text-sm font-medium text-gray-700">VDRL</label><div class="grid grid-cols-3 gap-2 mt-1"><input type="date" name="vdrl_fecha" class="form-input col-span-2"><select name="vdrl_resultado" class="form-input"><option value="-">-</option><option value="+">+</option></select></div></div>
+                            <div><label class="block text-sm font-medium text-gray-700">HIV</label><div class="grid grid-cols-3 gap-2 mt-1"><input type="date" name="hiv_fecha" class="form-input col-span-2"><select name="hiv_resultado" class="form-input"><option value="-">-</option><option value="+">+</option></select></div></div>
+                            <div><label class="block text-sm font-medium text-gray-700">Chagas</label><div class="grid grid-cols-3 gap-2 mt-1"><input type="date" name="chagas_fecha" class="form-input col-span-2"><select name="chagas_resultado" class="form-input"><option value="-">-</option><option value="+">+</option></select></div></div>
+                            <div><label class="block text-sm font-medium text-gray-700">HBV</label><div class="grid grid-cols-3 gap-2 mt-1"><input type="date" name="hbv_fecha" class="form-input col-span-2"><select name="hbv_resultado" class="form-input"><option value="-">-</option><option value="+">+</option></select></div></div>
+                            <div><label class="block text-sm font-medium text-gray-700">Toxoplasmosis</label><div class="grid grid-cols-3 gap-2 mt-1"><input type="date" name="toxo_fecha" class="form-input col-span-2"><select name="toxo_resultado" class="form-input"><option value="-">-</option><option value="+">+</option></select></div></div>
+                            <div><label class="block text-sm font-medium text-gray-700">CMV</label><div class="grid grid-cols-3 gap-2 mt-1"><input type="date" name="cmv_fecha" class="form-input col-span-2"><select name="cmv_resultado" class="form-input"><option value="-">-</option><option value="+">+</option></select></div></div>
+                            <div class="md:col-span-3"><label for="serologias_notas" class="block text-sm font-medium text-gray-700">Notas de Serologías</label><textarea id="serologias_notas" name="serologias_notas" class="form-input mt-1" rows="2"></textarea></div>
                         </div>
                     </details>
                     
                     <!-- Grupo/Rh -->
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <div>
-                            <label for="grupo_materno" class="block text-sm font-medium text-gray-700">Grupo Materno</label>
-                            <select id="grupo_materno" name="grupo_materno" class="form-input mt-1">
-                                <option value="">Seleccionar...</option>
-                                <option value="A">A</option>
-                                <option value="B">B</option>
-                                <option value="AB">AB</option>
-                                <option value="0">0</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="rh_materno" class="block text-sm font-medium text-gray-700">Rh Materno</label>
-                            <select id="rh_materno" name="rh_materno" class="form-input mt-1">
-                                <option value="">Seleccionar...</option>
-                                <option value="+">+</option>
-                                <option value="-">-</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="grupo_paciente" class="block text-sm font-medium text-gray-700">Grupo Paciente</label>
-                            <select id="grupo_paciente" name="grupo_paciente" class="form-input mt-1">
-                                <option value="">Seleccionar...</option>
-                                <option value="A">A</option>
-                                <option value="B">B</option>
-                                <option value="AB">AB</option>
-                                <option value="0">0</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="rh_paciente" class="block text-sm font-medium text-gray-700">Rh Paciente</label>
-                            <select id="rh_paciente" name="rh_paciente" class="form-input mt-1">
-                                <option value="">Seleccionar...</option>
-                                <option value="+">+</option>
-                                <option value="-">-</option>
-                            </select>
-                        </div>
+                        <div><label for="grupo_materno" class="block text-sm font-medium text-gray-700">Grupo Materno</label><select id="grupo_materno" name="grupo_materno" class="form-input mt-1"><option value="">Seleccionar...</option><option value="A">A</option><option value="B">B</option><option value="AB">AB</option><option value="0">0</option></select></div>
+                        <div><label for="rh_materno" class="block text-sm font-medium text-gray-700">Rh Materno</label><select id="rh_materno" name="rh_materno" class="form-input mt-1"><option value="">Seleccionar...</option><option value="+">+</option><option value="-">-</option></select></div>
+                        <div><label for="grupo_paciente" class="block text-sm font-medium text-gray-700">Grupo Paciente</label><select id="grupo_paciente" name="grupo_paciente" class="form-input mt-1"><option value="">Seleccionar...</option><option value="A">A</option><option value="B">B</option><option value="AB">AB</option><option value="0">0</option></select></div>
+                        <div><label for="rh_paciente" class="block text-sm font-medium text-gray-700">Rh Paciente</label><select id="rh_paciente" name="rh_paciente" class="form-input mt-1"><option value="">Seleccionar...</option><option value="+">+</option><option value="-">-</option></select></div>
                     </div>
 
                     <!-- PCD y PCI -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
-                        <div>
-                            <label for="pcd" class="block text-sm font-medium text-gray-700">PCD</label>
-                            <select id="pcd" name="pcd" class="form-input mt-1">
-                                <option value="">Seleccionar...</option>
-                                <option value="negativo">Negativo</option>
-                                <option value="positivo">Positivo</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="pci" class="block text-sm font-medium text-gray-700">PCI</label>
-                            <select id="pci" name="pci" class="form-input mt-1">
-                                <option value="">Seleccionar...</option>
-                                <option value="negativo">Negativo</option>
-                                <option value="positivo">Positivo</option>
-                            </select>
-                        </div>
+                        <div><label for="pcd" class="block text-sm font-medium text-gray-700">PCD</label><select id="pcd" name="pcd" class="form-input mt-1"><option value="">Seleccionar...</option><option value="negativo">Negativo</option><option value="positivo">Positivo</option></select></div>
+                        <div><label for="pci" class="block text-sm font-medium text-gray-700">PCI</label><select id="pci" name="pci" class="form-input mt-1"><option value="">Seleccionar...</option><option value="negativo">Negativo</option><option value="positivo">Positivo</option></select></div>
                     </div>
 
                     <!-- Antecedentes Patológicos -->
@@ -318,80 +163,64 @@
                         <div class="pt-4">
                             <label for="antPatologicos" class="block text-sm font-medium text-gray-700">Selección de Antecedentes (múltiple)</label>
                             <select id="antPatologicos" name="antPatologicos" class="form-input mt-1" multiple size="8">
-                                <option value="ninguno">Ninguno</option>
-                                <option value="hta">HTA</option>
-                                <option value="dbt">DBT</option>
-                                <option value="dbt_gestacional">DBT gestacional</option>
-                                <option value="hipotiroidismo">Hipotiroidismo</option>
-                                <option value="hipertiroidismo">Hipertiroidismo</option>
-                                <option value="infeccion_urinaria">Infección Urinaria</option>
-                                <option value="consumo_problematico">Consumo Problemático</option>
-                                <option value="otras">Otras</option>
+                                <option value="ninguno">Ninguno</option><option value="hta">HTA</option><option value="dbt">DBT</option><option value="dbt_gestacional">DBT gestacional</option><option value="hipotiroidismo">Hipotiroidismo</option><option value="hipertiroidismo">Hipertiroidismo</option><option value="infeccion_urinaria">Infección Urinaria</option><option value="consumo_problematico">Consumo Problemático</option><option value="otras">Otras</option>
                             </select>
                             <small class="text-gray-500">Mantén presionada la tecla Ctrl (o Cmd en Mac) para seleccionar varios.</small>
                         </div>
                     </details>
                     
                     <hr>
-                    <h3 class="text-lg font-semibold title-text border-b pb-2">Datos del Nacimiento</h3>
+                    <h3 class="text-lg font-semibold title-text border-b pb-2">Condiciones del Parto</h3>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label for="peso" class="block text-sm font-medium text-gray-700">Peso (gr)</label>
-                            <input type="number" id="peso" name="peso" class="form-input mt-1" min="0">
-                        </div>
-                        <div>
-                            <div class="grid grid-cols-2 gap-6">
-                                <div>
-                                    <label for="talla" class="block text-sm font-medium text-gray-700">Talla (cm)</label>
-                                    <input type="number" id="talla" name="talla" class="form-input mt-1" min="0" step="0.1">
-                                </div>
-                                <div>
-                                    <label for="pc" class="block text-sm font-medium text-gray-700">PC (cm)</label>
-                                    <input type="number" id="pc" name="pc" class="form-input mt-1" min="0" step="0.1">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label for="eg" class="block text-sm font-medium text-gray-700">EG (semanas)</label>
-                            <input type="number" id="eg" name="eg" class="form-input mt-1" min="20" max="45">
-                        </div>
-                        <div>
-                            <div class="grid grid-cols-2 gap-6">
-                                <div>
-                                    <label for="apgar1" class="block text-sm font-medium text-gray-700">Apgar 1</label>
-                                    <input type="number" id="apgar1" name="apgar1" class="form-input mt-1" min="0" max="10">
-                                </div>
-                                <div>
-                                    <label for="apgar5" class="block text-sm font-medium text-gray-700">Apgar 5</label>
-                                    <input type="number" id="apgar5" name="apgar5" class="form-input mt-1" min="0" max="10">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
+                    <!-- NUEVA SECCIÓN: Tipo, Membranas, Líquido, Evolución -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="tipo_nacimiento" class="block text-sm font-medium text-gray-700">Tipo de Nacimiento</label>
                             <select id="tipo_nacimiento" name="tipo_nacimiento" class="form-input mt-1">
-                                <option value="">Seleccionar...</option>
-                                <option value="parto">Parto</option>
-                                <option value="cesarea">Cesárea</option>
+                                <option value="">Seleccionar...</option><option value="parto">Parto</option><option value="cesarea">Cesárea</option>
+                            </select>
+                        </div>
+                        <!-- Membranas -->
+                        <div>
+                            <label for="membranas" class="block text-sm font-medium text-gray-700">Membranas</label>
+                            <select id="membranas" name="membranas" class="form-input mt-1">
+                                <option value="">Seleccionar...</option><option value="rotura_espontanea">Rotura espontánea</option><option value="rotura_artificial">Rotura artificial</option><option value="rotura_prematura">Rotura prematura</option>
+                            </select>
+                        </div>
+                        <!-- Líquido Amniótico -->
+                        <div>
+                            <label for="liquido_amniotico" class="block text-sm font-medium text-gray-700">Líquido Amniótico</label>
+                            <select id="liquido_amniotico" name="liquido_amniotico" class="form-input mt-1">
+                                <option value="">Seleccionar...</option><option value="claro">Claro</option><option value="meconial">Meconial</option>
                             </select>
                         </div>
                         <div>
                             <label for="evolucion" class="block text-sm font-medium text-gray-700">Evolución</label>
                             <select id="evolucion" name="evolucion" class="form-input mt-1">
-                                <option value="">Seleccionar...</option>
-                                <option value="internacion_conjunta">Internación conjunta</option>
-                                <option value="utin">UTIN</option>
-                                <option value="obito">Óbito</option>
+                                <option value="">Seleccionar...</option><option value="internacion_conjunta">Internación conjunta</option><option value="utin">UTIN</option><option value="obito">Óbito</option>
                             </select>
                         </div>
                     </div>
+                    
+                    <hr>
+                    <h3 class="text-lg font-semibold title-text border-b pb-2">Datos del Recién Nacido</h3>
 
+                    <!-- Comienza con Peso, Talla, PC -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div><label for="peso" class="block text-sm font-medium text-gray-700">Peso (gr)</label><input type="number" id="peso" name="peso" class="form-input mt-1" min="0"></div>
+                        <div class="grid grid-cols-2 gap-6">
+                            <div><label for="talla" class="block text-sm font-medium text-gray-700">Talla (cm)</label><input type="number" id="talla" name="talla" class="form-input mt-1" min="0" step="0.1"></div>
+                            <div><label for="pc" class="block text-sm font-medium text-gray-700">PC (cm)</label><input type="number" id="pc" name="pc" class="form-input mt-1" min="0" step="0.1"></div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div><label for="eg" class="block text-sm font-medium text-gray-700">EG (semanas)</label><input type="number" id="eg" name="eg" class="form-input mt-1" min="20" max="45"></div>
+                        <div class="grid grid-cols-2 gap-6">
+                            <div><label for="apgar1" class="block text-sm font-medium text-gray-700">Apgar 1</label><input type="number" id="apgar1" name="apgar1" class="form-input mt-1" min="0" max="10"></div>
+                            <div><label for="apgar5" class="block text-sm font-medium text-gray-700">Apgar 5</label><input type="number" id="apgar5" name="apgar5" class="form-input mt-1" min="0" max="10"></div>
+                        </div>
+                    </div>
+                    
                     <hr>
                     
                     <details>
@@ -399,24 +228,10 @@
                         <div class="pt-4">
                             <label for="diagnostico" class="block text-sm font-medium text-gray-700">Selección de Diagnósticos (múltiple)</label>
                             <select id="diagnostico" name="diagnostico" class="form-input mt-1" multiple size="8">
-                                <option value="rnt_paeg">RNT-PAEG</option>
-                                <option value="rnt_apeg">RNT-APEG</option>
-                                <option value="rnt_bpeg">RNT-BPEG</option>
-                                <option value="rnpt_paeg">RNPT-PAEG</option>
-                                <option value="rnpt_bpeg">RNPT-BPEG</option>
-                                <option value="rnpt_apeg">RNPT-APEG</option>
-                                <option value="rnpost_paeg">RNPOST-PAEG</option>
-                                <option value="rnpost_bpeg">RNPOST-BPEG</option>
-                                <option value="rnpost_apeg">RNPOST-APEG</option>
-                                <option value="asfixia">Asfixia neonatal</option>
-                                <option value="dif_respiratoria">Dif. respiratoria</option>
-                                <option value="causa_social">Causa Social</option>
-                                <option value="hijo_madre_consumo">Hijo de madre con consumo problemático</option>
-                                <option value="otros">Otros</option>
+                                <option value="rnt_paeg">RNT-PAEG</option><option value="rnt_apeg">RNT-APEG</option><option value="rnt_bpeg">RNT-BPEG</option><option value="rnpt_paeg">RNPT-PAEG</option><option value="rnpt_bpeg">RNPT-BPEG</option><option value="rnpt_apeg">RNPT-APEG</option><option value="rnpost_paeg">RNPOST-PAEG</option><option value="rnpost_bpeg">RNPOST-BPEG</option><option value="rnpost_apeg">RNPOST-APEG</option><option value="asfixia">Asfixia neonatal</option><option value="dif_respiratoria">Dif. respiratoria</option><option value="causa_social">Causa Social</option><option value="hijo_madre_consumo">Hijo de madre con consumo problemático</option><option value="otros">Otros</option>
                             </select>
                             <small class="text-gray-500">Mantén presionada la tecla Ctrl (o Cmd en Mac) para seleccionar varios.</small>
                         </div>
-        
                         <div id="diagnostico_otros_wrapper" class="hidden mt-4">
                             <label for="diagnostico_otros" class="block text-sm font-medium text-gray-700">Otros Diagnósticos</label>
                             <input type="text" id="diagnostico_otros" name="diagnostico_otros" class="form-input mt-1">
@@ -425,20 +240,15 @@
 
                     <hr>
                     <h3 class="text-lg font-semibold title-text border-b pb-2">Notas Adicionales</h3>
-                    
-                    <div>
-                        <label for="notas" class="block text-sm font-medium text-gray-700">Notas</label>
-                        <textarea id="notas" name="notas" class="form-input mt-1" rows="4"></textarea>
-                    </div>
+                    <div><label for="notas" class="block text-sm font-medium text-gray-700">Notas</label><textarea id="notas" name="notas" class="form-input mt-1" rows="4"></textarea></div>
 
-                    <!-- Botón de Guardar -->
                     <div class="pt-4 text-right">
                         <button type="submit" class="btn-primary">Guardar Paciente</button>
                     </div>
                 </form>
             </div>
             
-            <!-- Pestaña 2: Consultas -->
+            <!-- Pestaña Consultas -->
             <div id="consultas-view" class="p-8 bg-white shadow-lg rounded-b-lg hidden">
                 
                 <!-- Panel de Búsqueda y Acciones -->
@@ -449,19 +259,10 @@
                         <!-- Filtros de Búsqueda -->
                         <div class="space-y-4">
                             <h3 class="text-lg font-semibold title-text">Filtrar Pacientes</h3>
-                            <div>
-                                <label for="search-apellido" class="block text-sm font-medium text-gray-700">Apellido</label>
-                                <input type="text" id="search-apellido" class="form-input mt-1" placeholder="Buscar por apellido...">
-                            </div>
+                            <div><label for="search-apellido" class="block text-sm font-medium text-gray-700">Apellido</label><input type="text" id="search-apellido" class="form-input mt-1" placeholder="Buscar por apellido..."></div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label for="search-fecha-desde" class="block text-sm font-medium text-gray-700">Nacido desde</label>
-                                    <input type="date" id="search-fecha-desde" class="form-input mt-1">
-                                </div>
-                                <div>
-                                    <label for="search-fecha-hasta" class="block text-sm font-medium text-gray-700">Nacido hasta</label>
-                                    <input type="date" id="search-fecha-hasta" class="form-input mt-1">
-                                </div>
+                                <div><label for="search-fecha-desde" class="block text-sm font-medium text-gray-700">Nacido desde</label><input type="date" id="search-fecha-desde" class="form-input mt-1"></div>
+                                <div><label for="search-fecha-hasta" class="block text-sm font-medium text-gray-700">Nacido hasta</label><input type="date" id="search-fecha-hasta" class="form-input mt-1"></div>
                             </div>
                             <div class="flex gap-4 pt-2">
                                 <button id="search-button" class="btn-primary flex-1">Buscar</button>
@@ -482,9 +283,7 @@
                             <!-- Contador -->
                             <div class="text-right">
                                  <h3 class="text-lg font-semibold title-text mb-3">Total de Nacimientos</h3>
-                                 <p class="text-4xl font-bold text-blue-600">
-                                    <span id="total-nacimientos">0</span>
-                                 </p>
+                                 <p class="text-4xl font-bold text-blue-600"><span id="total-nacimientos">0</span></p>
                             </div>
                         </div>
                     </div>
@@ -523,57 +322,28 @@
             </header>
 
             <form id="edit-form" class="p-8 space-y-6">
-                <!-- Los campos son idénticos al formulario de ingreso -->
                 <h3 class="text-lg font-semibold title-text border-b pb-2">Datos del Paciente</h3>
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Apellido</label>
-                        <input type="text" name="apellido" class="form-input mt-1" required>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Nombre</label>
-                        <input type="text" name="nombre" class="form-input mt-1" required>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Fecha de Nacimiento</label>
-                        <input type="date" name="fecha_nacimiento" class="form-input mt-1" required>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Hora Nac.</label>
-                        <input type="time" name="hora_nacimiento" class="form-input mt-1" required>
-                    </div>
+                    <div><label class="block text-sm font-medium text-gray-700">Apellido</label><input type="text" name="apellido" class="form-input mt-1" required></div>
+                    <div><label class="block text-sm font-medium text-gray-700">Nombre</label><input type="text" name="nombre" class="form-input mt-1" required></div>
+                    <div><label class="block text-sm font-medium text-gray-700">Fecha de Nacimiento</label><input type="date" name="fecha_nacimiento" class="form-input mt-1" required></div>
+                    <div><label class="block text-sm font-medium text-gray-700">Hora Nac.</label><input type="time" name="hora_nacimiento" class="form-input mt-1" required></div>
                 </div>
                 
                 <hr>
                 <h3 class="text-lg font-semibold title-text border-b pb-2">Datos Maternos</h3>
-                
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Edad Materna</label>
-                        <input type="number" name="edad_materna" class="form-input mt-1" min="10">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">G</label>
-                        <input type="number" name="g" class="form-input mt-1" min="0" max="9">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">P</label>
-                        <input type="number" name="p" class="form-input mt-1" min="0" max="9">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">A</label>
-                        <input type="number" name="a" class="form-input mt-1" min="0" max="9">
-                    </div>
+                    <div><label class="block text-sm font-medium text-gray-700">Edad Materna</label><input type="number" name="edad_materna" class="form-input mt-1" min="10"></div>
+                    <div><label class="block text-sm font-medium text-gray-700">G</label><input type="number" name="g" class="form-input mt-1" min="0" max="9"></div>
+                    <div><label class="block text-sm font-medium text-gray-700">P</label><input type="number" name="p" class="form-input mt-1" min="0" max="9"></div>
+                    <div><label class="block text-sm font-medium text-gray-700">A</label><input type="number" name="a" class="form-input mt-1" min="0" max="9"></div>
                 </div>
                 
                 <div class="grid grid-cols-1 gap-6 items-center">
                     <div class="flex flex-wrap items-center gap-x-6 gap-y-2">
                         <div class="flex items-center space-x-4">
                             <label class="block text-sm font-medium text-gray-700">Controlada</label>
-                            <label class="switch">
-                                <input type="checkbox" name="controlada">
-                                <span class="slider"></span>
-                            </label>
+                            <label class="switch"><input type="checkbox" name="controlada"><span class="slider"></span></label>
                         </div>
                         <div class="flex-1 min-w-[150px]">
                             <label class="block text-sm font-medium text-gray-700">N° de Controles</label>
@@ -582,142 +352,32 @@
                     </div>
                 </div>
 
-                <!-- Serologías (Colapsable) -->
+                <!-- Serologías -->
                 <details>
                     <summary>Serologías Maternas</summary>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <!-- VDRL -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">VDRL</label>
-                            <div class="grid grid-cols-3 gap-2 mt-1">
-                                <input type="date" name="vdrl_fecha" class="form-input col-span-2">
-                                <select name="vdrl_resultado" class="form-input">
-                                    <option value="-">-</option>
-                                    <option value="+">+</option>
-                                </select>
-                            </div>
-                        </div>
-                        <!-- HIV -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">HIV</label>
-                            <div class="grid grid-cols-3 gap-2 mt-1">
-                                <input type="date" name="hiv_fecha" class="form-input col-span-2">
-                                <select name="hiv_resultado" class="form-input">
-                                    <option value="-">-</option>
-                                    <option value="+">+</option>
-                                </select>
-                            </div>
-                        </div>
-                        <!-- Chagas -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Chagas</label>
-                            <div class="grid grid-cols-3 gap-2 mt-1">
-                                <input type="date" name="chagas_fecha" class="form-input col-span-2">
-                                <select name="chagas_resultado" class="form-input">
-                                    <option value="-">-</option>
-                                    <option value="+">+</option>
-                                </select>
-                            </div>
-                        </div>
-                        <!-- HBV -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">HBV</label>
-                            <div class="grid grid-cols-3 gap-2 mt-1">
-                                <input type="date" name="hbv_fecha" class="form-input col-span-2">
-                                <select name="hbv_resultado" class="form-input">
-                                    <option value="-">-</option>
-                                    <option value="+">+</option>
-                                </select>
-                            </div>
-                        </div>
-                        <!-- Toxoplasmosis -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Toxoplasmosis</label>
-                            <div class="grid grid-cols-3 gap-2 mt-1">
-                                <input type="date" name="toxo_fecha" class="form-input col-span-2">
-                                <select name="toxo_resultado" class="form-input">
-                                    <option value="-">-</option>
-                                    <option value="+">+</option>
-                                </select>
-                            </div>
-                        </div>
-                        <!-- CMV -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">CMV</label>
-                            <div class="grid grid-cols-3 gap-2 mt-1">
-                                <input type="date" name="cmv_fecha" class="form-input col-span-2">
-                                <select name="cmv_resultado" class="form-input">
-                                    <option value="-">-</option>
-                                    <option value="+">+</option>
-                                </select>
-                            </div>
-                        </div>
-                        <!-- Notas Serologías -->
-                        <div class="md:col-span-3">
-                            <label class="block text-sm font-medium text-gray-700">Notas de Serologías</label>
-                            <textarea name="serologias_notas" class="form-input mt-1" rows="2"></textarea>
-                        </div>
+                        <div><label class="block text-sm font-medium text-gray-700">VDRL</label><div class="grid grid-cols-3 gap-2 mt-1"><input type="date" name="vdrl_fecha" class="form-input col-span-2"><select name="vdrl_resultado" class="form-input"><option value="-">-</option><option value="+">+</option></select></div></div>
+                        <div><label class="block text-sm font-medium text-gray-700">HIV</label><div class="grid grid-cols-3 gap-2 mt-1"><input type="date" name="hiv_fecha" class="form-input col-span-2"><select name="hiv_resultado" class="form-input"><option value="-">-</option><option value="+">+</option></select></div></div>
+                        <div><label class="block text-sm font-medium text-gray-700">Chagas</label><div class="grid grid-cols-3 gap-2 mt-1"><input type="date" name="chagas_fecha" class="form-input col-span-2"><select name="chagas_resultado" class="form-input"><option value="-">-</option><option value="+">+</option></select></div></div>
+                        <div><label class="block text-sm font-medium text-gray-700">HBV</label><div class="grid grid-cols-3 gap-2 mt-1"><input type="date" name="hbv_fecha" class="form-input col-span-2"><select name="hbv_resultado" class="form-input"><option value="-">-</option><option value="+">+</option></select></div></div>
+                        <div><label class="block text-sm font-medium text-gray-700">Toxoplasmosis</label><div class="grid grid-cols-3 gap-2 mt-1"><input type="date" name="toxo_fecha" class="form-input col-span-2"><select name="toxo_resultado" class="form-input"><option value="-">-</option><option value="+">+</option></select></div></div>
+                        <div><label class="block text-sm font-medium text-gray-700">CMV</label><div class="grid grid-cols-3 gap-2 mt-1"><input type="date" name="cmv_fecha" class="form-input col-span-2"><select name="cmv_resultado" class="form-input"><option value="-">-</option><option value="+">+</option></select></div></div>
+                        <div class="md:col-span-3"><label class="block text-sm font-medium text-gray-700">Notas de Serologías</label><textarea name="serologias_notas" class="form-input mt-1" rows="2"></textarea></div>
                     </div>
                 </details>
                 
                 <!-- Grupo/Rh -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Grupo Materno</label>
-                        <select name="grupo_materno" class="form-input mt-1">
-                            <option value="">Seleccionar...</option>
-                            <option value="A">A</option>
-                            <option value="B">B</option>
-                            <option value="AB">AB</option>
-                            <option value="0">0</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Rh Materno</label>
-                        <select name="rh_materno" class="form-input mt-1">
-                            <option value="">Seleccionar...</option>
-                            <option value="+">+</option>
-                            <option value="-">-</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Grupo Paciente</label>
-                        <select name="grupo_paciente" class="form-input mt-1">
-                            <option value="">Seleccionar...</option>
-                            <option value="A">A</option>
-                            <option value="B">B</option>
-                            <option value="AB">AB</option>
-                            <option value="0">0</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Rh Paciente</label>
-                        <select name="rh_paciente" class="form-input mt-1">
-                            <option value="">Seleccionar...</option>
-                            <option value="+">+</option>
-                            <option value="-">-</option>
-                        </select>
-                    </div>
+                    <div><label class="block text-sm font-medium text-gray-700">Grupo Materno</label><select name="grupo_materno" class="form-input mt-1"><option value="">Seleccionar...</option><option value="A">A</option><option value="B">B</option><option value="AB">AB</option><option value="0">0</option></select></div>
+                    <div><label class="block text-sm font-medium text-gray-700">Rh Materno</label><select name="rh_materno" class="form-input mt-1"><option value="">Seleccionar...</option><option value="+">+</option><option value="-">-</option></select></div>
+                    <div><label class="block text-sm font-medium text-gray-700">Grupo Paciente</label><select name="grupo_paciente" class="form-input mt-1"><option value="">Seleccionar...</option><option value="A">A</option><option value="B">B</option><option value="AB">AB</option><option value="0">0</option></select></div>
+                    <div><label class="block text-sm font-medium text-gray-700">Rh Paciente</label><select name="rh_paciente" class="form-input mt-1"><option value="">Seleccionar...</option><option value="+">+</option><option value="-">-</option></select></div>
                 </div>
 
-                <!-- PCD y PCI en el modal de edición también -->
+                <!-- PCD y PCI en modal -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">PCD</label>
-                        <select name="pcd" class="form-input mt-1">
-                            <option value="">Seleccionar...</option>
-                            <option value="negativo">Negativo</option>
-                            <option value="positivo">Positivo</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">PCI</label>
-                        <select name="pci" class="form-input mt-1">
-                            <option value="">Seleccionar...</option>
-                            <option value="negativo">Negativo</option>
-                            <option value="positivo">Positivo</option>
-                        </select>
-                    </div>
+                    <div><label class="block text-sm font-medium text-gray-700">PCD</label><select name="pcd" class="form-input mt-1"><option value="">Seleccionar...</option><option value="negativo">Negativo</option><option value="positivo">Positivo</option></select></div>
+                    <div><label class="block text-sm font-medium text-gray-700">PCI</label><select name="pci" class="form-input mt-1"><option value="">Seleccionar...</option><option value="negativo">Negativo</option><option value="positivo">Positivo</option></select></div>
                 </div>
 
                 <!-- Antecedentes Patológicos -->
@@ -726,80 +386,61 @@
                     <div class="pt-4">
                         <label class="block text-sm font-medium text-gray-700">Selección de Antecedentes (múltiple)</label>
                         <select name="antPatologicos" class="form-input mt-1" multiple size="8">
-                            <option value="ninguno">Ninguno</option>
-                            <option value="hta">HTA</option>
-                            <option value="dbt">DBT</option>
-                            <option value="dbt_gestacional">DBT gestacional</option>
-                            <option value="hipotiroidismo">Hipotiroidismo</option>
-                            <option value="hipertiroidismo">Hipertiroidismo</option>
-                            <option value="infeccion_urinaria">Infección Urinaria</option>
-                            <option value="consumo_problematico">Consumo Problemático</option>
-                            <option value="otras">Otras</option>
+                            <option value="ninguno">Ninguno</option><option value="hta">HTA</option><option value="dbt">DBT</option><option value="dbt_gestacional">DBT gestacional</option><option value="hipotiroidismo">Hipotiroidismo</option><option value="hipertiroidismo">Hipertiroidismo</option><option value="infeccion_urinaria">Infeccion Urinaria</option><option value="consumo_problematico">Consumo Problemático</option><option value="otras">Otras</option>
                         </select>
                         <small class="text-gray-500">Mantén presionada la tecla Ctrl (o Cmd en Mac) para seleccionar varios.</small>
                     </div>
                 </details>
                 
                 <hr>
-                <h3 class="text-lg font-semibold title-text border-b pb-2">Datos del Nacimiento</h3>
+                <h3 class="text-lg font-semibold title-text border-b pb-2">Condiciones del Parto</h3>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Peso (gr)</label>
-                        <input type="number" name="peso" class="form-input mt-1" min="0">
-                    </div>
-                    <div>
-                        <div class="grid grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Talla (cm)</label>
-                                <input type="number" name="talla" class="form-input mt-1" min="0" step="0.1">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">PC (cm)</label>
-                                <input type="number" name="pc" class="form-input mt-1" min="0" step="0.1">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">EG (semanas)</label>
-                        <input type="number" name="eg" class="form-input mt-1" min="20" max="45">
-                    </div>
-                    <div>
-                        <div class="grid grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Apgar 1</label>
-                                <input type="number" name="apgar1" class="form-input mt-1" min="0" max="10">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Apgar 5</label>
-                                <input type="number" name="apgar5" class="form-input mt-1" min="0" max="10">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
+                <!-- LAYOUT 2x2: Tipo, Membranas, Líquido, Evolución en MODAL -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Tipo de Nacimiento</label>
                         <select name="tipo_nacimiento" class="form-input mt-1">
-                            <option value="">Seleccionar...</option>
-                            <option value="parto">Parto</option>
-                            <option value="cesarea">Cesárea</option>
+                            <option value="">Seleccionar...</option><option value="parto">Parto</option><option value="cesarea">Cesárea</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Membranas</label>
+                        <select name="membranas" class="form-input mt-1">
+                            <option value="">Seleccionar...</option><option value="rotura_espontanea">Rotura espontánea</option><option value="rotura_artificial">Rotura artificial</option><option value="rotura_prematura">Rotura prematura</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Líquido Amniótico</label>
+                        <select name="liquido_amniotico" class="form-input mt-1">
+                            <option value="">Seleccionar...</option><option value="claro">Claro</option><option value="meconial">Meconial</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Evolución</label>
                         <select name="evolucion" class="form-input mt-1">
-                            <option value="">Seleccionar...</option>
-                            <option value="internacion_conjunta">Internación conjunta</option>
-                            <option value="utin">UTIN</option>
-                            <option value="obito">Óbito</option>
+                            <option value="">Seleccionar...</option><option value="internacion_conjunta">Internación conjunta</option><option value="utin">UTIN</option><option value="obito">Óbito</option>
                         </select>
                     </div>
                 </div>
 
+                <hr>
+                <h3 class="text-lg font-semibold title-text border-b pb-2">Datos del Recién Nacido</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div><label class="block text-sm font-medium text-gray-700">Peso (gr)</label><input type="number" name="peso" class="form-input mt-1" min="0"></div>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div><label class="block text-sm font-medium text-gray-700">Talla (cm)</label><input type="number" name="talla" class="form-input mt-1" min="0" step="0.1"></div>
+                        <div><label class="block text-sm font-medium text-gray-700">PC (cm)</label><input type="number" name="pc" class="form-input mt-1" min="0" step="0.1"></div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div><label class="block text-sm font-medium text-gray-700">EG (semanas)</label><input type="number" name="eg" class="form-input mt-1" min="20" max="45"></div>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div><label class="block text-sm font-medium text-gray-700">Apgar 1</label><input type="number" name="apgar1" class="form-input mt-1" min="0" max="10"></div>
+                        <div><label class="block text-sm font-medium text-gray-700">Apgar 5</label><input type="number" name="apgar5" class="form-input mt-1" min="0" max="10"></div>
+                    </div>
+                </div>
+                
                 <hr>
                 
                 <details>
@@ -807,21 +448,9 @@
                     <div class="pt-4">
                         <label class="block text-sm font-medium text-gray-700">Selección de Diagnósticos (múltiple)</label>
                         <select name="diagnostico" class="form-input mt-1" multiple size="8">
-                            <option value="rnt_paeg">RNT-PAEG</option>
-                            <option value="rnt_apeg">RNT-APEG</option>
-                            <option value="rnt_bpeg">RNT-BPEG</option>
-                            <option value="rnpt_paeg">RNPT-PAEG</option>
-                            <option value="rnpt_bpeg">RNPT-BPEG</option>
-                            <option value="rnpt_apeg">RNPT-APEG</option>
-                            <option value="rnpost_paeg">RNPOST-PAEG</option>
-                            <option value="rnpost_bpeg">RNPOST-BPEG</option>
-                            <option value="rnpost_apeg">RNPOST-APEG</option>
-                            <option value="asfixia">Asfixia neonatal</option>
-                            <option value="dif_respiratoria">Dif. respiratoria</option>
-                            <option value="causa_social">Causa Social</option>
-                            <option value="hijo_madre_consumo">Hijo de madre con consumo problemático</option>
-                            <option value="otros">Otros</option>
+                            <option value="rnt_paeg">RNT-PAEG</option><option value="rnt_apeg">RNT-APEG</option><option value="rnt_bpeg">RNT-BPEG</option><option value="rnpt_paeg">RNPT-PAEG</option><option value="rnpt_bpeg">RNPT-BPEG</option><option value="rnpt_apeg">RNPT-APEG</option><option value="rnpost_paeg">RNPOST-PAEG</option><option value="rnpost_bpeg">RNPOST-BPEG</option><option value="rnpost_apeg">RNPOST-APEG</option><option value="asfixia">Asfixia neonatal</option><option value="dif_respiratoria">Dif. respiratoria</option><option value="causa_social">Causa Social</option><option value="hijo_madre_consumo">Hijo de madre con consumo problemático</option><option value="otros">Otros</option>
                         </select>
+                        <small class="text-gray-500">Mantén presionada la tecla Ctrl (o Cmd en Mac) para seleccionar varios.</small>
                     </div>
     
                     <div id="edit_diagnostico_otros_wrapper" class="hidden mt-4">
@@ -832,13 +461,8 @@
 
                 <hr>
                 <h3 class="text-lg font-semibold title-text border-b pb-2">Notas Adicionales</h3>
+                <div><label class="block text-sm font-medium text-gray-700">Notas</label><textarea name="notas" class="form-input mt-1" rows="4"></textarea></div>
                 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Notas</label>
-                    <textarea name="notas" class="form-input mt-1" rows="4"></textarea>
-                </div>
-                
-                <!-- Botones del Modal -->
                 <footer class="flex justify-end gap-4 pt-4">
                     <button type="button" class="btn-secondary" id="cancel-edit-button">Cancelar</button>
                     <button type="submit" class="btn-primary">Guardar Cambios</button>

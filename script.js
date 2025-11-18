@@ -198,7 +198,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // Guardar PCD y PCI
             pacienteData['pcd'] = document.getElementById('pcd').value;
             pacienteData['pci'] = document.getElementById('pci').value;
-
+            // Membranas y Liquido Amniotico ya se guardan por FormData
+            
             pacienteData.createdAt = Timestamp.now();
             pacienteData.createdBy = currentUser.email;
             pacienteData.lastModifiedBy = currentUser.email;
@@ -453,14 +454,16 @@ document.addEventListener('DOMContentLoaded', () => {
             controlada: "Controlada",
             num_controles: "N° Controles",
             antPatologicos: "Ant. Patológicos",
+            tipo_nacimiento: "Tipo Nacimiento",
+            membranas: "Membranas", 
+            liquido_amniotico: "Liq. Amniótico", 
+            evolucion: "Evolución",
             peso: "Peso (gr)",
             talla: "Talla (cm)",
             pc: "PC (cm)",
             eg: "EG (sem)",
             apgar1: "Apgar 1",
             apgar5: "Apgar 5",
-            tipo_nacimiento: "Tipo Nacimiento",
-            evolucion: "Evolución",
             grupo_materno: "Grupo Materno",
             rh_materno: "Rh Materno",
             grupo_paciente: "Grupo Paciente",
