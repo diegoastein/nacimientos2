@@ -32,6 +32,8 @@
 
         // --- Configuración de Firebase ---
         // IMPORTANTE: Reemplaza esto con la configuración de tu proyecto Firebase
+        
+      
       const firebaseConfig = {
   apiKey: "AIzaSyCmuO4U_fDthWu_vY-ghx9marNtF78_vzM",
   authDomain: "nacimientos2.firebaseapp.com",
@@ -40,7 +42,7 @@
   messagingSenderId: "228024131760",
   appId: "1:228024131760:web:8159300ab19043453d9b75"
 };
-      
+        
         // --- Inicialización ---
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -417,6 +419,7 @@
             });
 
             // Mostrar/Ocultar campo "Otros" en Diagnóstico
+            // *** FIX: El listener ahora apunta a #diagnostico (que ya tiene ID) ***
             document.getElementById('diagnostico').addEventListener('change', (e) => {
                 const selected = Array.from(e.target.selectedOptions).map(opt => opt.value);
                 const otrosInput = document.getElementById('diagnostico_otros_wrapper');
@@ -701,6 +704,7 @@
                     apellido: "Apellido",
                     nombre: "Nombre",
                     fecha_nacimiento: "Fecha Nacimiento",
+                    hora_nacimiento: "Hora Nacimiento",
                     // ... (añadir todas las cabeceras que se quieran exportar)
                     edad_materna: "Edad Materna",
                     g: "G",
@@ -947,7 +951,7 @@
                 <form id="ingreso-form" class="space-y-6">
                     
                     <h3 class="text-lg font-semibold title-text border-b pb-2">Datos del Paciente</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                         <div>
                             <label for="apellido" class="block text-sm font-medium text-gray-700">Apellido</label>
                             <input type="text" id="apellido" name="apellido" class="form-input mt-1" required>
@@ -960,9 +964,14 @@
                             <label for="fecha_nacimiento" class="block text-sm font-medium text-gray-700">Fecha de Nacimiento</label>
                             <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" class="form-input mt-1" required>
                         </div>
+                        <div>
+                            <label for="hora_nacimiento" class="block text-sm font-medium text-gray-700">Hora Nac.</label>
+                            <input type="time" id="hora_nacimiento" name="hora_nacimiento" class="form-input mt-1" required>
+                        </div>
                     </div>
                     
                     <hr>
+
                     <h3 class="text-lg font-semibold title-text border-b pb-2">Datos Maternos</h3>
                     
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -987,7 +996,7 @@
                     <div class="grid grid-cols-1 gap-6 items-center">
                         <div class="flex flex-wrap items-center gap-x-6 gap-y-2">
                             <div class="flex items-center space-x-4">
-                                <label class="block text-sm font-medium text-gray-700">Controlada</label>
+                                <label for="controlada" class="block text-sm font-medium text-gray-700">Controlada</label>
                                 <label class="switch">
                                     <input type="checkbox" id="controlada" name="controlada">
                                     <span class="slider"></span>
@@ -1072,8 +1081,8 @@
                             </div>
                             <!-- Notas Serologías -->
                             <div class="md:col-span-3">
-                                <label class="block text-sm font-medium text-gray-700">Notas de Serologías</label>
-                                <textarea name="serologias_notas" class="form-input mt-1" rows="2"></textarea>
+                                <label for="serologias_notas" class="block text-sm font-medium text-gray-700">Notas de Serologías</label>
+                                <textarea id="serologias_notas" name="serologias_notas" class="form-input mt-1" rows="2"></textarea>
                             </div>
                         </div>
                     </details>
@@ -1139,7 +1148,6 @@
                     </details>
                     
                     <hr>
-                    
                     <h3 class="text-lg font-semibold title-text border-b pb-2">Datos del Nacimiento</h3>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1198,7 +1206,7 @@
                             </select>
                         </div>
                     </div>
-
+                    
                     <!-- REEMPLAZADO: Grupo/Rh movido arriba -->
 
                     <hr>
@@ -1206,7 +1214,8 @@
                     <details>
                         <summary>Diagnóstico</summary>
                         <div class="pt-4">
-                            <label for="diagnostico" class="block text-sm font-medium text-gray-700">Selección de Diagnósticos (múltiple)</label>
+                            <label class="block text-sm font-medium text-gray-700">Selección de Diagnósticos (múltiple)</label>
+                            <!-- *** FIX: Añadido id="diagnostico" *** -->
                             <select id="diagnostico" name="diagnostico" class="form-input mt-1" multiple size="8">
                                 <option value="rnt_paeg">RNT-PAEG</option>
                                 <option value="rnt_apeg">RNT-APEG</option>
@@ -1225,9 +1234,9 @@
                             </select>
                             <small class="text-gray-500">Mantén presionada la tecla Ctrl (o Cmd en Mac) para seleccionar varios.</small>
                         </div>
-    
+        
                         <div id="diagnostico_otros_wrapper" class="hidden mt-4">
-                            <label for="diagnostico_otros" class="block text-sm font-medium text-gray-700">Otros Diagnósticos</to-label>
+                            <label for="diagnostico_otros" class="block text-sm font-medium text-gray-700">Otros Diagnósticos</label>
                             <input type="text" id="diagnostico_otros" name="diagnostico_otros" class="form-input mt-1">
                         </div>
                     </details>
@@ -1241,64 +1250,60 @@
                     </div>
 
                     <!-- Botón de Guardar -->
-                    <div class="text-right pt-4">
-                        <button type="submit" class="btn-primary">
-                            Guardar Paciente
-                        </button>
+                    <div class="pt-4 text-right">
+                        <button type="submit" class="btn-primary">Guardar Paciente</button>
                     </div>
                 </form>
             </div>
-
+            
             <!-- Pestaña 2: Consultas -->
-            <div id="consultas-view" class="hidden p-8 bg-white shadow-lg rounded-b-lg">
+            <div id="consultas-view" class="p-8 bg-white shadow-lg rounded-b-lg hidden">
                 
-                <!-- Panel de Control: Búsqueda y Exportación -->
-                <div class="bg-blue-50 border border-blue-200 p-6 rounded-lg shadow-md mb-8 space-y-6">
-                    <div>
-                        <h2 class="text-xl font-semibold title-text mb-4">Herramientas de Búsqueda</h2>
-                        <!-- Fila de Búsqueda -->
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                            <!-- Campo de búsqueda por Apellido -->
-                            <div class="md:col-span-2">
-                                <label for="search-apellido" class="block text-sm font-medium text-gray-700">Buscar por Apellido</label>
-                                <input type="text" id="search-apellido" class="form-input mt-1" placeholder="Ej: Pérez">
-                            </div>
-                            <!-- Campo de búsqueda por Fecha Desde -->
-                            <div>
-                                <label for="search-fecha-desde" class="block text-sm font-medium text-gray-700">Nacido desde</label>
-                                <input type="date" id="search-fecha-desde" class="form-input mt-1">
-                            </div>
-                            <!-- Campo de búsqueda por Fecha Hasta -->
-                            <div>
-                                <label for="search-fecha-hasta" class="block text-sm font-medium text-gray-700">Nacido hasta</label>
-                                <input type="date" id="search-fecha-hasta" class="form-input mt-1">
-                            </div>
-                        </div>
-                        <!-- Botón de Búsqueda -->
-                        <div class="text-right mt-4 flex justify-end gap-4">
-                            <button id="clear-search-button" class="btn-secondary">Limpiar</button>
-                            <button id="search-button" class="btn-primary">Buscar</button>
-                        </div>
-                    </div>
+                <!-- Panel de Búsqueda y Acciones -->
+                <div class="bg-blue-50 p-6 rounded-lg shadow-inner mb-8 border border-blue-200">
+                    <h2 class="text-2xl font-semibold title-text mb-6">Consultas y Reportes</h2>
                     
-                    <hr>
-
-                    <!-- Fila de Exportación y Contador -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-                        <!-- Exportación -->
-                        <div>
-                            <h3 class="text-lg font-semibold title-text mb-3">Exportar a Hoja de Cálculo (.csv)</h3>
-                            <div class="flex flex-col sm:flex-row gap-4">
-                                <button id="export-filtered-button" class="btn-secondary">Exportar solo <b>filtrados</b></button>
-                                <button id="export-all-button" class="btn-secondary">Exportar <b>todos</b></button>
+                        <!-- Filtros de Búsqueda -->
+                        <div class="space-y-4">
+                            <h3 class="text-lg font-semibold title-text">Filtrar Pacientes</h3>
+                            <div>
+                                <label for="search-apellido" class="block text-sm font-medium text-gray-700">Apellido</label>
+                                <input type="text" id="search-apellido" class="form-input mt-1" placeholder="Buscar por apellido...">
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="search-fecha-desde" class="block text-sm font-medium text-gray-700">Nacido desde</label>
+                                    <input type="date" id="search-fecha-desde" class="form-input mt-1">
+                                </div>
+                                <div>
+                                    <label for="search-fecha-hasta" class="block text-sm font-medium text-gray-700">Nacido hasta</H1>
+                                    <input type="date" id="search-fecha-hasta" class="form-input mt-1">
+                                </div>
+                            </div>
+                            <div class="flex gap-4 pt-2">
+                                <button id="search-button" class="btn-primary flex-1">Buscar</button>
+                                <button id="clear-search-button" class="btn-secondary flex-1">Limpiar</button>
                             </div>
                         </div>
-                        <!-- Contador -->
-                        <div class="text-right">
-                             <h3 class="text-lg font-semibold title-text mb-3">Total de Nacimientos</h3>
-                             <p class="text-4xl font-bold text-blue-600">
-                                <span id="total-nacimientos">0</span>
-                             </p>
+
+                        <!-- Fila de Exportación y Contador -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                            <!-- Exportación -->
+                            <div>
+                                <h3 class="text-lg font-semibold title-text mb-3">Exportar a Hoja de Cálculo (.csv)</h3>
+                                <div class="flex flex-col sm:flex-row gap-4">
+                                    <button id="export-filtered-button" class="btn-secondary">Exportar solo <b>filtrados</b></button>
+                                    <button id="export-all-button" class="btn-secondary">Exportar <b>todos</b></button>
+                                </div>
+                            </div>
+                            <!-- Contador -->
+                            <div class="text-right">
+                                 <h3 class="text-lg font-semibold title-text mb-3">Total de Nacimientos</h3>
+                                 <p class="text-4xl font-bold text-blue-600">
+                                    <span id="total-nacimientos">0</span>
+                                 </p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1338,7 +1343,7 @@
             <form id="edit-form" class="p-8 space-y-6">
                 <!-- Los campos son idénticos al formulario de ingreso -->
                 <h3 class="text-lg font-semibold title-text border-b pb-2">Datos del Paciente</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Apellido</label>
                         <input type="text" name="apellido" class="form-input mt-1" required>
@@ -1350,6 +1355,10 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Fecha de Nacimiento</label>
                         <input type="date" name="fecha_nacimiento" class="form-input mt-1" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Hora Nac.</label>
+                        <input type="time" name="hora_nacimiento" class="form-input mt-1" required>
                     </div>
                 </div>
                 
@@ -1392,7 +1401,7 @@
                 </div>
 
                 <!-- Serologías (Colapsable) -->
-                <details open>
+                <details>
                     <summary>Serologías Maternas</summary>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <!-- VDRL -->
@@ -1510,7 +1519,7 @@
                 </div>
 
                 <!-- Antecedentes Patológicos -->
-                <details open>
+                <details>
                     <summary>Antecedentes Patológicos</summary>
                     <div class="pt-4">
                         <label class="block text-sm font-medium text-gray-700">Selección de Antecedentes (múltiple)</label>
@@ -1593,7 +1602,7 @@
 
                 <hr>
                 
-                <details open>
+                <details>
                     <summary>Diagnóstico</summary>
                     <div class="pt-4">
                         <label class="block text-sm font-medium text-gray-700">Selección de Diagnósticos (múltiple)</label>
@@ -1603,14 +1612,16 @@
                             <option value="rnt_bpeg">RNT-BPEG</option>
                             <option value="rnpt_paeg">RNPT-PAEG</option>
                             <option value="rnpt_bpeg">RNPT-BPEG</option>
-                                <option value="rnpost_bpeg">RNPOST-BPEG</option>
-                                <option value="rnpost_apeg">RNPOST-APEG</option>
-                                <option value="asfixia">Asfixia neonatal</option>
-                                <option value="dif_respiratoria">Dif. respiratoria</option>
-                                <option value="causa_social">Causa Social</option>
-                                <option value="hijo_madre_consumo">Hijo de madre con consumo problemático</option>
-                                <option value="otros">Otros</option>
-                            </select>
+                            <option value="rnpt_apeg">RNPT-APEG</option>
+                            <option value="rnpost_paeg">RNPOST-PAEG</option>
+                            <option value="rnpost_bpeg">RNPOST-BPEG</option>
+                            <option value="rnpost_apeg">RNPOST-APEG</option>
+                            <option value="asfixia">Asfixia neonatal</option>
+                            <option value="dif_respiratoria">Dif. respiratoria</option>
+                            <option value="causa_social">Causa Social</option>
+                            <option value="hijo_madre_consumo">Hijo de madre con consumo problemático</option>
+                            <option value="otros">Otros</option>
+                        </select>
                     </div>
     
                     <div id="edit_diagnostico_otros_wrapper" class="hidden mt-4">
