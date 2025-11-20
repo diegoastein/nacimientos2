@@ -22,6 +22,7 @@ import {
 
 // --- Configuración de Firebase ---
 // ⚠️ ¡ATENCIÓN! PEGA TUS CREDENCIALES DE FIREBASE AQUÍ ⚠️
+
 const firebaseConfig = {
   apiKey: "AIzaSyCmuO4U_fDthWu_vY-ghx9marNtF78_vzM",
   authDomain: "nacimientos2.firebaseapp.com",
@@ -195,10 +196,11 @@ document.addEventListener('DOMContentLoaded', () => {
             pacienteData['diagnostico'] = Array.from(document.getElementById('diagnostico').selectedOptions).map(opt => opt.value);
             pacienteData['diagnostico_otros'] = document.getElementById('diagnostico_otros').value;
             pacienteData['antPatologicos'] = Array.from(document.getElementById('antPatologicos').selectedOptions).map(opt => opt.value);
-            // Guardar PCD y PCI
+            
+            // Campos adicionales
             pacienteData['pcd'] = document.getElementById('pcd').value;
             pacienteData['pci'] = document.getElementById('pci').value;
-            // Membranas y Liquido Amniotico ya se guardan por FormData
+            pacienteData['presentacion'] = document.getElementById('presentacion').value; // NUEVO CAMPO
             
             pacienteData.createdAt = Timestamp.now();
             pacienteData.createdBy = currentUser.email;
@@ -257,13 +259,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Lógica del botón de búsqueda
     searchButton.addEventListener('click', () => {
         const apellido = document.getElementById('search-apellido').value.toLowerCase().trim();
         const fechaDesde = document.getElementById('search-fecha-desde').value;
         const fechaHasta = document.getElementById('search-fecha-hasta').value;
 
         if (!apellido && !fechaDesde && !fechaHasta) {
-            showToast("Por favor, ingrese un criterio de búsqueda.", "error");
+            showToast("Por favor, ingrese un apellido o un rango de fechas para buscar.", "error");
             renderTable([], false);
             exportFilteredButton.dataset.filteredData = JSON.stringify([]);
             return;
@@ -311,9 +314,9 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (pacientes.length === 0) {
             if (isSearchResult) {
-                pacientesTbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500">No se encontraron pacientes.</td></tr>';
+                pacientesTbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500">No se encontraron pacientes con esos criterios.</td></tr>';
             } else {
-                 pacientesTbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500">Realice una búsqueda para ver resultados.</td></tr>';
+                 pacientesTbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500">Realice una búsqueda por Apellido o Fecha para ver los resultados.</td></tr>';
             }
             return;
         }
@@ -342,7 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Edición ---
+    // --- Lógica de Edición (Modal) ---
 
     function openEditModal(patientId) {
         const paciente = allPatients.find(p => p.id === patientId);
@@ -351,6 +354,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Llenar el formulario del modal
         editForm.dataset.id = patientId;
         for (const key in paciente) {
             const input = editForm.elements[key];
@@ -361,17 +365,31 @@ document.addEventListener('DOMContentLoaded', () => {
                     Array.from(input.options).forEach(opt => {
                         opt.selected = paciente[key] && paciente[key].includes(opt.value);
                     });
-                    if (input.name === 'diagnostico') input.dispatchEvent(new Event('change'));
+                    if (input.name === 'diagnostico') {
+                        input.dispatchEvent(new Event('change'));
+                    }
                 } else {
                     input.value = paciente[key];
                 }
             }
         }
+        
+        // Abrir <details> que tengan contenido seleccionado (o cerrar si están vacíos)
+        editForm.querySelectorAll('details').forEach(d => {
+            d.open = false; 
+            const selects = d.querySelectorAll('select[multiple]');
+            let hasSelection = false;
+            selects.forEach(s => {
+                if (paciente[s.name] && paciente[s.name].length > 0) hasSelection = true;
+            });
+            if (hasSelection) d.open = true;
+        });
+        
         editModal.classList.remove('hidden');
     }
 
     function closeEditModal() {
-                 editModal.classList.add('hidden');
+         editModal.classList.add('hidden');
     }
 
     closeEditModalButton.addEventListener('click', closeEditModal);
@@ -380,7 +398,10 @@ document.addEventListener('DOMContentLoaded', () => {
     editForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const patientId = e.target.dataset.id;
-        if (!patientId || !currentUser) return;
+        if (!patientId || !currentUser) {
+            showToast("Error: No se pudo guardar", "error");
+            return;
+        }
 
         try {
             const formData = new FormData(editForm);
@@ -393,6 +414,7 @@ document.addEventListener('DOMContentLoaded', () => {
             updatedData['diagnostico'] = Array.from(editForm.elements['diagnostico'].selectedOptions).map(opt => opt.value);
             updatedData['diagnostico_otros'] = editForm.elements['diagnostico_otros'].value;
             updatedData['antPatologicos'] = Array.from(editForm.elements['antPatologicos'].selectedOptions).map(opt => opt.value);
+            
             updatedData.lastModifiedBy = currentUser.email;
             updatedData.lastModifiedAt = Timestamp.now();
 
@@ -404,15 +426,17 @@ document.addEventListener('DOMContentLoaded', () => {
             searchButton.click();
             
         } catch (error) {
-            console.error("Error actualizando:", error);
+            console.error("Error actualizando paciente:", error);
             showToast(`Error al actualizar: ${getFirebaseErrorMessage(error)}`, 'error');
         }
     });
 
-    // --- Borrado ---
+    // --- Lógica de Borrado ---
 
     async function deletePatient(patientId) {
-        if (!confirm("¿Estás seguro de que deseas borrar este paciente?")) return;
+        if (!confirm("¿Estás seguro de que deseas borrar este paciente? Esta acción es irreversible.")) {
+            return;
+        }
 
         try {
             const patientData = allPatients.find(p => p.id === patientId);
@@ -420,21 +444,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 patientId: patientId,
                 deletedBy: currentUser.email,
                 deletedAt: Timestamp.now(),
-                patientData: patientData || {}
+                patientData: patientData || {} // Guardar copia
             };
             await addDoc(auditLogsCollection, logData);
-            await deleteDoc(doc(db, "pacientes", patientId));
+
+            const patientDocRef = doc(db, "pacientes", patientId);
+            await deleteDoc(patientDocRef);
 
             showToast("Paciente borrado exitosamente", "success");
             searchButton.click();
 
         } catch (error) {
-            console.error("Error borrando:", error);
+            console.error("Error borrando paciente:", error);
             showToast(`Error al borrar: ${getFirebaseErrorMessage(error)}`, 'error');
         }
     }
     
-    // --- Exportación ---
+    // --- Lógica de Exportación a CSV ---
 
     function exportToCSV(data, filename) {
         if (data.length === 0) {
@@ -442,6 +468,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Definir cabeceras fijas para asegurar el orden y legibilidad
         const headersMap = {
             apellido: "Apellido",
             nombre: "Nombre",
@@ -455,8 +482,9 @@ document.addEventListener('DOMContentLoaded', () => {
             num_controles: "N° Controles",
             antPatologicos: "Ant. Patológicos",
             tipo_nacimiento: "Tipo Nacimiento",
-            membranas: "Membranas", 
-            liquido_amniotico: "Liq. Amniótico", 
+            presentacion: "Presentación", // NUEVO
+            membranas: "Membranas",
+            liquido_amniotico: "Liq. Amniótico",
             evolucion: "Evolución",
             peso: "Peso (gr)",
             talla: "Talla (cm)",
@@ -546,7 +574,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function getFirebaseErrorMessage(error) {
-        // (Mismos mensajes de error que antes)
         return error.message;
     }
 

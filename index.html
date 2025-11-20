@@ -3,7 +3,7 @@
 
   <head>
     <meta charset="UTF-8">
-    <title>nacimientos2</title>
+    <title>registro de nacimientos</title>
     <link rel="stylesheet" href="./style.css">
 
   </head>
@@ -16,19 +16,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro de Nacimientos</title>
     
-    <!-- Tailwind CSS -->
+    <!-- Tailwind CSS (Framework de diseño) -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Estilos personalizados -->
+    <!-- Tu hoja de estilos personalizada -->
     <link rel="stylesheet" href="styles.css">
     
-    <!-- Lógica de la App -->
+    <!-- Tu lógica de la aplicación (Firebase + Funcionalidad) -->
     <script type="module" src="app.js"></script>
 </head>
 
 <body class="bg-sky-50 text-gray-900">
 
-    <!-- Vista de Carga -->
+    <!-- Vista de Carga Inicial -->
     <div id="loading-view" class="flex items-center justify-center min-h-screen">
         <div class="text-xl font-semibold title-text">Cargando...</div>
     </div>
@@ -38,6 +38,7 @@
         <div class="max-w-md w-full bg-white p-8 rounded-lg shadow-xl">
             <h1 class="text-3xl font-bold text-center title-text mb-8">Registro de Nacimientos</h1>
             
+            <!-- Formulario de Login -->
             <form id="login-form">
                 <h2 class="text-xl font-semibold text-gray-700 mb-4">Iniciar Sesión</h2>
                 <div class="mb-4">
@@ -50,10 +51,12 @@
                 </div>
                 <button type="submit" class="btn-primary w-full">Ingresar</button>
                 <p class="text-sm text-center mt-4">
-                    ¿No tienes cuenta? <a href="#" id="show-signup" class="font-medium text-blue-600 hover:text-blue-500">Regístrate aquí</a>
+                    ¿No tienes cuenta? 
+                    <a href="#" id="show-signup" class="font-medium text-blue-600 hover:text-blue-500">Regístrate aquí</a>
                 </p>
             </form>
 
+            <!-- Formulario de Registro -->
             <form id="signup-form" class="hidden">
                 <h2 class="text-xl font-semibold text-gray-700 mb-4">Crear Cuenta</h2>
                 <div class="mb-4">
@@ -66,33 +69,45 @@
                 </div>
                 <button type="submit" class="btn-primary w-full">Registrarse</button>
                 <p class="text-sm text-center mt-4">
-                    ¿Ya tienes cuenta? <a href="#" id="show-login" class="font-medium text-blue-600 hover:text-blue-500">Inicia sesión</a>
+                    ¿Ya tienes cuenta? 
+                    <a href="#" id="show-login" class="font-medium text-blue-600 hover:text-blue-500">Inicia sesión</a>
                 </p>
             </form>
         </div>
     </div>
 
-    <!-- App Principal -->
+    <!-- Vista Principal de la App -->
     <div id="app-view" class="hidden">
+        
+        <!-- Cabecera de la App -->
         <header class="bg-blue-600 text-white shadow-lg p-4">
             <div class="container mx-auto flex justify-between items-center">
                 <h1 class="text-2xl font-bold">Registro de Nacimientos</h1>
                 <div class="flex items-center">
                     <span id="user-email" class="text-sm mr-4 hidden md:block"></span>
-                    <button id="logout-button" class="bg-white text-blue-600 font-bold py-2 px-4 rounded-lg shadow hover:bg-blue-100 transition">Cerrar Sesión</button>
+                    <button id="logout-button" class="bg-white text-blue-600 font-bold py-2 px-4 rounded-lg shadow hover:bg-blue-100 transition">
+                        Cerrar Sesión
+                    </button>
                 </div>
             </div>
         </header>
 
+        <!-- Navegación de Pestañas -->
         <nav class="container mx-auto px-4 sm:px-8 mt-8">
             <div class="flex gap-x-2 border-b border-gray-200 bg-gray-100 rounded-t-lg p-2">
-                <button id="tab-ingreso" class="tab-btn active">Ingreso de Pacientes</button>
-                <button id="tab-consultas" class="tab-btn inactive">Consultas</button>
+                <button id="tab-ingreso" class="tab-btn active">
+                    Ingreso de Pacientes
+                </button>
+                <button id="tab-consultas" class="tab-btn inactive">
+                    Consultas
+                </button>
             </div>
         </nav>
 
+        <!-- Contenido de las Pestañas -->
         <main class="container mx-auto px-4 sm:px-8 mb-12">
-            <!-- Pestaña Ingreso -->
+            
+            <!-- Pestaña 1: Ingreso de Pacientes -->
             <div id="ingreso-view" class="p-8 bg-white shadow-lg rounded-b-lg">
                 <h2 class="text-2xl font-semibold title-text mb-6">Nuevo Ingreso de Paciente</h2>
                 
@@ -109,6 +124,7 @@
                     <hr>
 
                     <h3 class="text-lg font-semibold title-text border-b pb-2">Datos Maternos</h3>
+                    
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                         <div><label for="edad_materna" class="block text-sm font-medium text-gray-700">Edad Materna</label><input type="number" id="edad_materna" name="edad_materna" class="form-input mt-1" min="10"></div>
                         <div><label for="g" class="block text-sm font-medium text-gray-700">G</label><input type="number" id="g" name="g" class="form-input mt-1" min="0" max="9"></div>
@@ -129,7 +145,7 @@
                         </div>
                     </div>
 
-                    <!-- Serologías -->
+                    <!-- Serologías (Colapsable) -->
                     <details>
                         <summary>Serologías Maternas</summary>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -172,7 +188,7 @@
                     <hr>
                     <h3 class="text-lg font-semibold title-text border-b pb-2">Condiciones del Parto</h3>
                     
-                    <!-- NUEVA SECCIÓN: Tipo, Membranas, Líquido, Evolución -->
+                    <!-- LAYOUT 2x2: Tipo, Presentación, Membranas, Líquido, Evolución -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="tipo_nacimiento" class="block text-sm font-medium text-gray-700">Tipo de Nacimiento</label>
@@ -180,14 +196,18 @@
                                 <option value="">Seleccionar...</option><option value="parto">Parto</option><option value="cesarea">Cesárea</option>
                             </select>
                         </div>
-                        <!-- Membranas -->
+                         <div>
+                            <label for="presentacion" class="block text-sm font-medium text-gray-700">Presentación</label>
+                            <select id="presentacion" name="presentacion" class="form-input mt-1">
+                                <option value="">Seleccionar...</option><option value="cefalica">Cefálica</option><option value="transversa">Transversa</option>
+                            </select>
+                        </div>
                         <div>
                             <label for="membranas" class="block text-sm font-medium text-gray-700">Membranas</label>
                             <select id="membranas" name="membranas" class="form-input mt-1">
                                 <option value="">Seleccionar...</option><option value="rotura_espontanea">Rotura espontánea</option><option value="rotura_artificial">Rotura artificial</option><option value="rotura_prematura">Rotura prematura</option>
                             </select>
                         </div>
-                        <!-- Líquido Amniótico -->
                         <div>
                             <label for="liquido_amniotico" class="block text-sm font-medium text-gray-700">Líquido Amniótico</label>
                             <select id="liquido_amniotico" name="liquido_amniotico" class="form-input mt-1">
@@ -232,6 +252,7 @@
                             </select>
                             <small class="text-gray-500">Mantén presionada la tecla Ctrl (o Cmd en Mac) para seleccionar varios.</small>
                         </div>
+        
                         <div id="diagnostico_otros_wrapper" class="hidden mt-4">
                             <label for="diagnostico_otros" class="block text-sm font-medium text-gray-700">Otros Diagnósticos</label>
                             <input type="text" id="diagnostico_otros" name="diagnostico_otros" class="form-input mt-1">
@@ -240,15 +261,20 @@
 
                     <hr>
                     <h3 class="text-lg font-semibold title-text border-b pb-2">Notas Adicionales</h3>
-                    <div><label for="notas" class="block text-sm font-medium text-gray-700">Notas</label><textarea id="notas" name="notas" class="form-input mt-1" rows="4"></textarea></div>
+                    
+                    <div>
+                        <label for="notas" class="block text-sm font-medium text-gray-700">Notas</label>
+                        <textarea id="notas" name="notas" class="form-input mt-1" rows="4"></textarea>
+                    </div>
 
+                    <!-- Botón de Guardar -->
                     <div class="pt-4 text-right">
                         <button type="submit" class="btn-primary">Guardar Paciente</button>
                     </div>
                 </form>
             </div>
             
-            <!-- Pestaña Consultas -->
+            <!-- Pestaña 2: Consultas -->
             <div id="consultas-view" class="p-8 bg-white shadow-lg rounded-b-lg hidden">
                 
                 <!-- Panel de Búsqueda y Acciones -->
@@ -283,7 +309,9 @@
                             <!-- Contador -->
                             <div class="text-right">
                                  <h3 class="text-lg font-semibold title-text mb-3">Total de Nacimientos</h3>
-                                 <p class="text-4xl font-bold text-blue-600"><span id="total-nacimientos">0</span></p>
+                                 <p class="text-4xl font-bold text-blue-600">
+                                    <span id="total-nacimientos">0</span>
+                                 </p>
                             </div>
                         </div>
                     </div>
@@ -332,6 +360,7 @@
                 
                 <hr>
                 <h3 class="text-lg font-semibold title-text border-b pb-2">Datos Maternos</h3>
+                
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                     <div><label class="block text-sm font-medium text-gray-700">Edad Materna</label><input type="number" name="edad_materna" class="form-input mt-1" min="10"></div>
                     <div><label class="block text-sm font-medium text-gray-700">G</label><input type="number" name="g" class="form-input mt-1" min="0" max="9"></div>
@@ -386,7 +415,10 @@
                     <div class="pt-4">
                         <label class="block text-sm font-medium text-gray-700">Selección de Antecedentes (múltiple)</label>
                         <select name="antPatologicos" class="form-input mt-1" multiple size="8">
-                            <option value="ninguno">Ninguno</option><option value="hta">HTA</option><option value="dbt">DBT</option><option value="dbt_gestacional">DBT gestacional</option><option value="hipotiroidismo">Hipotiroidismo</option><option value="hipertiroidismo">Hipertiroidismo</option><option value="infeccion_urinaria">Infeccion Urinaria</option><option value="consumo_problematico">Consumo Problemático</option><option value="otras">Otras</option>
+                            <option value="ninguno">Ninguno</option><option value="hta">HTA</option><option value="dbt">DBT</option><option value="dbt_gestacional">DBT gestacional</option>
+                            <option value="hipotiroidismo">Hipotiroidismo</option><option value="hipertiroidismo">Hipertiroidismo</option>
+                            <option value="infeccion_urinaria">Infección Urinaria</option><option value="consumo_problematico">Consumo Problemático</option>
+                            <option value="otras">Otras</option>
                         </select>
                         <small class="text-gray-500">Mantén presionada la tecla Ctrl (o Cmd en Mac) para seleccionar varios.</small>
                     </div>
@@ -395,12 +427,18 @@
                 <hr>
                 <h3 class="text-lg font-semibold title-text border-b pb-2">Condiciones del Parto</h3>
                 
-                <!-- LAYOUT 2x2: Tipo, Membranas, Líquido, Evolución en MODAL -->
+                <!-- LAYOUT 2x2: Tipo, Presentación, Membranas, Líquido, Evolución en MODAL -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Tipo de Nacimiento</label>
                         <select name="tipo_nacimiento" class="form-input mt-1">
                             <option value="">Seleccionar...</option><option value="parto">Parto</option><option value="cesarea">Cesárea</option>
+                        </select>
+                    </div>
+                     <div>
+                        <label class="block text-sm font-medium text-gray-700">Presentación</label>
+                        <select name="presentacion" class="form-input mt-1">
+                            <option value="">Seleccionar...</option><option value="cefalica">Cefálica</option><option value="transversa">Transversa</option>
                         </select>
                     </div>
                     <div>
@@ -461,8 +499,13 @@
 
                 <hr>
                 <h3 class="text-lg font-semibold title-text border-b pb-2">Notas Adicionales</h3>
-                <div><label class="block text-sm font-medium text-gray-700">Notas</label><textarea name="notas" class="form-input mt-1" rows="4"></textarea></div>
                 
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Notas</label>
+                    <textarea name="notas" class="form-input mt-1" rows="4"></textarea>
+                </div>
+                
+                <!-- Botones del Modal -->
                 <footer class="flex justify-end gap-4 pt-4">
                     <button type="button" class="btn-secondary" id="cancel-edit-button">Cancelar</button>
                     <button type="submit" class="btn-primary">Guardar Cambios</button>
