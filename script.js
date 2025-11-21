@@ -165,11 +165,15 @@ document.addEventListener('DOMContentLoaded', () => {
             tabConsultas.classList.add('active');
             tabConsultas.classList.remove('inactive');
             
+            // Limpiar inputs
             document.getElementById('search-apellido').value = '';
             document.getElementById('search-fecha-desde').value = '';
             document.getElementById('search-fecha-hasta').value = '';
-            renderTable([], false);
-            exportFilteredButton.dataset.filteredData = JSON.stringify([]);
+
+            // Mostrar los últimos 3 por defecto
+            const last3 = allPatients.slice(0, 3);
+            renderTable(last3, true);
+            exportFilteredButton.dataset.filteredData = JSON.stringify(last3);
         }
     }
 
@@ -200,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Campos adicionales
             pacienteData['pcd'] = document.getElementById('pcd').value;
             pacienteData['pci'] = document.getElementById('pci').value;
-            pacienteData['presentacion'] = document.getElementById('presentacion').value; // NUEVO CAMPO
+            pacienteData['presentacion'] = document.getElementById('presentacion').value;
             
             pacienteData.createdAt = Timestamp.now();
             pacienteData.createdBy = currentUser.email;
@@ -252,11 +256,37 @@ document.addEventListener('DOMContentLoaded', () => {
         
         patientsListenerUnsubscribe = onSnapshot(patientsCollection, (snapshot) => {
             allPatients = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            totalNacimientosSpan.textContent = allPatients.length;
+            
+            // Ordenar por fecha de creación/nacimiento (más reciente primero) para que "últimos 3" funcione
+            allPatients.sort((a, b) => {
+                const dateA = a.createdAt ? a.createdAt.toDate() : (a.fecha_nacimiento ? new Date(a.fecha_nacimiento) : new Date(0));
+                const dateB = b.createdAt ? b.createdAt.toDate() : (b.fecha_nacimiento ? new Date(b.fecha_nacimiento) : new Date(0));
+                return dateB - dateA; // Descendente
+            });
+
+            // Calcular nacimientos del mes en curso
+            const currentCount = countCurrentMonthBirths(allPatients);
+            totalNacimientosSpan.textContent = currentCount;
+
         }, (error) => {
             console.error("Error en listener:", error);
             showToast("Error de conexión en tiempo real", "error");
         });
+    }
+
+    function countCurrentMonthBirths(patients) {
+        const now = new Date();
+        const currentMonth = now.getMonth(); // 0-11
+        const currentYear = now.getFullYear();
+
+        return patients.filter(p => {
+            if (!p.fecha_nacimiento) return false;
+            // fecha_nacimiento viene como YYYY-MM-DD
+            const parts = p.fecha_nacimiento.split('-');
+            const pYear = parseInt(parts[0]);
+            const pMonth = parseInt(parts[1]) - 1; // Ajustar a 0-11
+            return pMonth === currentMonth && pYear === currentYear;
+        }).length;
     }
 
     // Lógica del botón de búsqueda
@@ -265,10 +295,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const fechaDesde = document.getElementById('search-fecha-desde').value;
         const fechaHasta = document.getElementById('search-fecha-hasta').value;
 
+        // Si no hay filtros, mostrar últimos 3
         if (!apellido && !fechaDesde && !fechaHasta) {
-            showToast("Por favor, ingrese un apellido o un rango de fechas para buscar.", "error");
-            renderTable([], false);
-            exportFilteredButton.dataset.filteredData = JSON.stringify([]);
+            showToast("Mostrando últimos ingresos...", "success");
+            const last3 = allPatients.slice(0, 3);
+            renderTable(last3, true);
+            exportFilteredButton.dataset.filteredData = JSON.stringify(last3);
             return;
         }
 
@@ -304,8 +336,12 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('search-apellido').value = '';
         document.getElementById('search-fecha-desde').value = '';
         document.getElementById('search-fecha-hasta').value = '';
-        renderTable([], false);
-        exportFilteredButton.dataset.filteredData = JSON.stringify([]);
+        
+        // Al limpiar, volver a mostrar los últimos 3
+        const last3 = allPatients.slice(0, 3);
+        renderTable(last3, true);
+        exportFilteredButton.dataset.filteredData = JSON.stringify(last3);
+        
         showToast("Búsqueda limpiada", "success");
     });
     
@@ -324,6 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
         pacientes.forEach(p => {
             const tr = document.createElement('tr');
             tr.className = 'hover:bg-gray-50';
+            // Se agrega el botón de Compartir
             tr.innerHTML = `
                 <td class="p-4 whitespace-nowrap">${p.apellido || ''}</td>
                 <td class="p-4 whitespace-nowrap">${p.nombre || ''}</td>
@@ -331,6 +368,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td class="p-4 whitespace-nowrap">${p.diagnostico ? p.diagnostico.join(', ') : ''}</td>
                 <td class="p-4 whitespace-nowrap text-right">
                     <button class="btn-edit" data-id="${p.id}">Editar</button>
+                    <button class="btn-share" data-id="${p.id}">Compartir</button>
                     <button class="btn-danger ml-2" data-id="${p.id}">Borrar</button>
                 </td>
             `;
@@ -343,6 +381,47 @@ document.addEventListener('DOMContentLoaded', () => {
         pacientesTbody.querySelectorAll('.btn-danger').forEach(btn => {
             btn.addEventListener('click', (e) => deletePatient(e.target.dataset.id));
         });
+        pacientesTbody.querySelectorAll('.btn-share').forEach(btn => {
+            btn.addEventListener('click', (e) => sharePatient(e.target.dataset.id));
+        });
+    }
+
+    // --- Funcionalidad de Compartir ---
+    async function sharePatient(patientId) {
+        const p = allPatients.find(x => x.id === patientId);
+        if (!p) return;
+
+        // Formato del texto a compartir
+        const text = `*Registro de Nacimiento*
+Apellido: ${p.apellido}
+Nombre: ${p.nombre}
+Fecha Nac: ${formatDate(p.fecha_nacimiento)} ${p.hora_nacimiento ? p.hora_nacimiento : ''}
+Peso: ${p.peso || '-'} gr
+Talla: ${p.talla || '-'} cm
+PC: ${p.pc || '-'} cm
+Apgar: ${p.apgar1 || '-'}/${p.apgar5 || '-'}
+Diagnóstico: ${p.diagnostico ? p.diagnostico.join(', ') : 'S/D'}
+Notas: ${p.notas || '-'}`;
+
+        // Intentar usar la API nativa de compartir (móviles)
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: 'Datos del Paciente',
+                    text: text
+                });
+            } catch (err) {
+                console.log('Usuario canceló compartir o error:', err);
+            }
+        } else {
+            // Fallback: Copiar al portapapeles
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Datos copiados al portapapeles', 'success');
+            }).catch(err => {
+                showToast('Error al copiar datos', 'error');
+                console.error(err);
+            });
+        }
     }
 
     // --- Lógica de Edición (Modal) ---
@@ -374,7 +453,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
-        // Abrir <details> que tengan contenido seleccionado (o cerrar si están vacíos)
+        // Abrir <details> que tengan contenido seleccionado
         editForm.querySelectorAll('details').forEach(d => {
             d.open = false; 
             const selects = d.querySelectorAll('select[multiple]');
@@ -423,7 +502,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             showToast("Paciente actualizado exitosamente", "success");
             closeEditModal();
-            searchButton.click();
+            
+            // Refrescar la vista actual
+            const currentSearchApellido = document.getElementById('search-apellido').value;
+            if(!currentSearchApellido) {
+                 // Si no hay búsqueda, refrescar los "últimos 3"
+                 const last3 = allPatients.slice(0, 3);
+                 renderTable(last3, true);
+            } else {
+                 searchButton.click();
+            }
             
         } catch (error) {
             console.error("Error actualizando paciente:", error);
@@ -452,7 +540,16 @@ document.addEventListener('DOMContentLoaded', () => {
             await deleteDoc(patientDocRef);
 
             showToast("Paciente borrado exitosamente", "success");
-            searchButton.click();
+            
+            // Actualizar vista
+            setTimeout(() => {
+                if(!document.getElementById('search-apellido').value) {
+                     const last3 = allPatients.slice(0, 3);
+                     renderTable(last3, true);
+                } else {
+                     searchButton.click();
+                }
+            }, 500);
 
         } catch (error) {
             console.error("Error borrando paciente:", error);
@@ -468,7 +565,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Definir cabeceras fijas para asegurar el orden y legibilidad
         const headersMap = {
             apellido: "Apellido",
             nombre: "Nombre",
@@ -482,7 +578,7 @@ document.addEventListener('DOMContentLoaded', () => {
             num_controles: "N° Controles",
             antPatologicos: "Ant. Patológicos",
             tipo_nacimiento: "Tipo Nacimiento",
-            presentacion: "Presentación", // NUEVO
+            presentacion: "Presentación",
             membranas: "Membranas",
             liquido_amniotico: "Liq. Amniótico",
             evolucion: "Evolución",
