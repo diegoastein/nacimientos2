@@ -10,11 +10,14 @@ import {
     getFirestore, 
     collection, 
     addDoc, 
+    query, 
+    getDocs, 
     onSnapshot,
     doc, 
     updateDoc, 
     deleteDoc,
-    Timestamp,
+    where,
+    Timestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // --- Configuración de Firebase ---
@@ -28,29 +31,21 @@ const firebaseConfig = {
   messagingSenderId: "228024131760",
   appId: "1:228024131760:web:8159300ab19043453d9b75"
 };
-let app, auth, db;
 
-// Inicialización de Firebase
-try {
-    app = initializeApp(firebaseConfig);
-    auth = getAuth(app);
-    db = getFirestore(app);
-} catch (error) {
-    console.error("CRITICAL ERROR: Fallo al inicializar Firebase. Revisa tus credenciales.", error);
-    // Continuamos para que el script pueda mostrar la vista de Login
-}
+// --- Inicialización ---
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
 let currentUser = null;
 let allPatients = []; 
-// Se requiere que estas colecciones solo se usen si la DB se inicializó correctamente
-const patientsCollection = db ? collection(db, "pacientes") : null;
-const auditLogsCollection = db ? collection(db, "logs_borrado") : null;
+const patientsCollection = collection(db, "pacientes");
+const auditLogsCollection = collection(db, "logs_borrado");
 let patientsListenerUnsubscribe = null; 
 
 // --- Lógica de UI ---
 
-// Función principal que se llama al final del body (en index.html)
-function initApp() {
+document.addEventListener('DOMContentLoaded', () => {
     const loginView = document.getElementById('login-view');
     const appView = document.getElementById('app-view');
     const loadingView = document.getElementById('loading-view');
@@ -59,8 +54,7 @@ function initApp() {
     const totalNacimientosSpan = document.getElementById('total-nacimientos');
     const exportAllButton = document.getElementById('export-all-button');
     const exportFilteredButton = document.getElementById('export-filtered-button');
-    const ultimosPacientesDiv = document.getElementById('ultimos-pacientes'); 
-    
+
     const loginForm = document.getElementById('login-form');
     const signupForm = document.getElementById('signup-form');
     const showSignupLink = document.getElementById('show-signup');
@@ -82,15 +76,6 @@ function initApp() {
     const cancelEditButton = document.getElementById('cancel-edit-button');
     
     const toast = document.getElementById('toast');
-    
-    // Si la inicialización de Firebase falló, mostramos el login y un error
-    if (!auth) {
-        loadingView.classList.add('hidden');
-        loginView.classList.remove('hidden');
-        showToast("Error CRÍTICO: Revisa tus credenciales de Firebase.", 'error');
-        return; 
-    }
-
 
     // --- Lógica de Autenticación ---
 
@@ -215,7 +200,7 @@ function initApp() {
             // Campos adicionales
             pacienteData['pcd'] = document.getElementById('pcd').value;
             pacienteData['pci'] = document.getElementById('pci').value;
-            pacienteData['presentacion'] = document.getElementById('presentacion').value; 
+            pacienteData['presentacion'] = document.getElementById('presentacion').value; // NUEVO CAMPO
             
             pacienteData.createdAt = Timestamp.now();
             pacienteData.createdBy = currentUser.email;
@@ -230,7 +215,7 @@ function initApp() {
             
         } catch (error) {
             console.error("Error guardando paciente:", error);
-            showToast(`Error al guardar: ${getFirebaseErrorMessage(error)}`, 'error');
+            showToast(`Error: ${getFirebaseErrorMessage(error)}`, 'error');
         }
     });
 
@@ -263,76 +248,16 @@ function initApp() {
     // --- Consultas ---
     
     function setupRealtimeListener() {
-        if (!patientsCollection) return; 
-
         if (patientsListenerUnsubscribe) patientsListenerUnsubscribe();
         
         patientsListenerUnsubscribe = onSnapshot(patientsCollection, (snapshot) => {
             allPatients = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            
-            // --- Lógica del Contador Mensual y Últimos 3 ---
-            const now = new Date();
-            const currentMonth = now.getMonth();
-            const currentYear = now.getFullYear();
-
-            const monthlyPatients = allPatients.filter(p => {
-                // Si createdAt es un objeto Timestamp, lo convertimos a Date
-                const createdAt = p.createdAt && p.createdAt.toDate ? p.createdAt.toDate() : new Date(0);
-                return createdAt.getMonth() === currentMonth && createdAt.getFullYear() === currentYear;
-            });
-
-            totalNacimientosSpan.textContent = monthlyPatients.length;
-
-            // Ordenar por fecha de creación descendente y tomar los primeros 3
-            const sortedPatients = allPatients.sort((a, b) => {
-                const dateA = a.createdAt && a.createdAt.toDate ? a.createdAt.toDate() : new Date(0);
-                const dateB = b.createdAt && b.createdAt.toDate ? b.createdAt.toDate() : new Date(0);
-                return dateB - dateA;
-            });
-            const lastThree = sortedPatients.slice(0, 3);
-            renderLastThree(lastThree);
-            // --- Fin Lógica ---
-
+            totalNacimientosSpan.textContent = allPatients.length;
         }, (error) => {
             console.error("Error en listener:", error);
             showToast("Error de conexión en tiempo real", "error");
         });
     }
-
-    function renderLastThree(pacientes) {
-        ultimosPacientesDiv.innerHTML = '';
-        if (pacientes.length === 0) {
-            ultimosPacientesDiv.innerHTML = '<p class="text-gray-500 italic">Aún no hay pacientes registrados en el sistema.</p>';
-            return;
-        }
-        
-        const grid = document.createElement('div');
-        grid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4';
-
-        pacientes.forEach(p => {
-            const createdAtDate = p.createdAt && p.createdAt.toDate ? p.createdAt.toDate() : new Date();
-            const createdTimeString = createdAtDate.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
-            
-            const card = document.createElement('div');
-            card.className = 'bg-gray-50 p-4 rounded-lg shadow border border-blue-200';
-            card.innerHTML = `
-                <p class="font-bold text-lg text-blue-600">${p.apellido || '-'}, ${p.nombre || '-'}</p>
-                <p class="text-sm text-gray-700">Nac: ${formatDate(p.fecha_nacimiento)} - ${p.hora_nacimiento || '-'}</p>
-                <p class="text-xs text-gray-500">Ingresado: ${formatDate(createdAtDate)} ${createdTimeString}</p>
-                <p class="text-sm mt-2">Diag: ${p.diagnostico ? p.diagnostico.slice(0, 2).join(', ') + (p.diagnostico.length > 2 ? '...' : '') : '-'}</p>
-                <button class="btn-edit mt-2 text-xs" data-id="${p.id}">Editar</button>
-            `;
-            grid.appendChild(card);
-        });
-        
-        ultimosPacientesDiv.appendChild(grid);
-        
-        // Conectar eventos de los botones de edición dentro de los cards
-        ultimosPacientesDiv.querySelectorAll('.btn-edit').forEach(btn => {
-            btn.addEventListener('click', (e) => openEditModal(e.target.dataset.id));
-        });
-    }
-
 
     // Lógica del botón de búsqueda
     searchButton.addEventListener('click', () => {
@@ -496,7 +421,7 @@ function initApp() {
             const patientDocRef = doc(db, "pacientes", patientId);
             await updateDoc(patientDocRef, updatedData);
 
-            showToast("Paciente actualizado exitosamente", 'success');
+            showToast("Paciente actualizado exitosamente", "success");
             closeEditModal();
             searchButton.click();
             
@@ -526,7 +451,7 @@ function initApp() {
             const patientDocRef = doc(db, "pacientes", patientId);
             await deleteDoc(patientDocRef);
 
-            showToast("Paciente borrado exitosamente", 'success');
+            showToast("Paciente borrado exitosamente", "success");
             searchButton.click();
 
         } catch (error) {
@@ -557,7 +482,7 @@ function initApp() {
             num_controles: "N° Controles",
             antPatologicos: "Ant. Patológicos",
             tipo_nacimiento: "Tipo Nacimiento",
-            presentacion: "Presentación", // AÑADIDO
+            presentacion: "Presentación", // NUEVO
             membranas: "Membranas",
             liquido_amniotico: "Liq. Amniótico",
             evolucion: "Evolución",
@@ -651,7 +576,6 @@ function initApp() {
     function getFirebaseErrorMessage(error) {
         return error.message;
     }
-} // Fin de initApp
 
-// Hacemos la función global para que el index.html pueda llamarla
-window.initApp = initApp;
+    switchTab('ingreso');
+});
