@@ -10,7 +10,7 @@ body {
 
 /* Botones */
 .btn-primary {
-    background-color: #1d4ed8;
+    background-color: #2563eb;
     color: white;
     padding: 0.75rem 1.5rem;
     border-radius: 0.5rem;
@@ -19,55 +19,58 @@ body {
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 .btn-primary:hover {
-    background-color: #0c388a;
+    background-color: #1d4ed8;
 }
+
 .btn-secondary {
-    background-color: #e5e7eb;
-    color: #4b5563;
+    background-color: #f3f4f6;
+    color: #374151;
     padding: 0.75rem 1.5rem;
     border-radius: 0.5rem;
     font-weight: 600;
+    border: 1px solid #d1d5db;
     transition: background-color 0.3s;
 }
 .btn-secondary:hover {
-    background-color: #d1d5db;
+    background-color: #e5e7eb;
 }
 
-/* Botón de detalle en tablas (Azul para reporte, Rojo para log) */
-.btn-detail {
-    background-color: #3b82f6; 
+.btn-danger {
+    background-color: #dc2626;
     color: white;
-    padding: 0.3rem 0.6rem;
-    border-radius: 0.4rem;
-    font-size: 0.8rem;
-    transition: background-color 0.3s;
-}
-.btn-detail:hover {
-    background-color: #2563eb;
-}
-
-.btn-detail-log {
-    background-color: #dc2626; 
-    color: white;
-    padding: 0.3rem 0.6rem;
-    border-radius: 0.4rem;
-    font-size: 0.8rem;
-    transition: background-color 0.3s;
-}
-.btn-detail-log:hover {
-    background-color: #b91c1c;
-}
-
-.btn-export {
-    background-color: #059669;
-    color: white;
-    padding: 0.75rem 1.5rem;
+    padding: 0.5rem 1rem;
     border-radius: 0.5rem;
     font-weight: 600;
     transition: background-color 0.3s;
 }
-.btn-export:hover {
-    background-color: #047857;
+.btn-danger:hover {
+    background-color: #b91c1c;
+}
+
+.btn-edit {
+    background-color: #f97316;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+.btn-edit:hover {
+    background-color: #ea580c;
+}
+
+/* --- NUEVO: Botón Compartir --- */
+.btn-share {
+    background-color: #10b981; /* Verde Emerald */
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: background-color 0.3s;
+    margin-left: 0.5rem; 
+}
+.btn-share:hover {
+    background-color: #059669;
 }
 
 /* Formularios */
@@ -79,8 +82,8 @@ body {
     transition: border-color 0.3s, box-shadow 0.3s;
 }
 .form-input:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
     outline: none;
 }
 
@@ -92,8 +95,8 @@ body {
     transition: background-color 0.3s, color 0.3s;
 }
 .tab-btn.active {
-    background-color: #f3f4f6;
-    color: #1d4ed8;
+    background-color: white;
+    color: #2563eb;
     box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 .tab-btn.inactive {
@@ -101,8 +104,63 @@ body {
     color: #6b7280;
 }
 .tab-btn.inactive:hover {
-    background-color: #e0f2fe;
-    color: #1d4ed8;
+    background-color: #ebf8ff;
+    color: #2563eb;
+}
+
+/* Detalles Colapsables */
+details {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+}
+details summary {
+    font-weight: 600;
+    padding: 1rem;
+    cursor: pointer;
+    background-color: #f9fafb;
+    border-radius: 0.5rem 0.5rem 0 0;
+}
+details[open] summary {
+    border-bottom: 1px solid #e5e7eb;
+}
+details div {
+    padding: 1.5rem;
+    background-color: white;
+}
+
+/* Switch SI/NO */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+input:checked + .slider {
+    background-color: #2563eb;
+}
+input:checked + .slider:before {
+    transform: translateX(26px);
 }
 
 /* Toast */
