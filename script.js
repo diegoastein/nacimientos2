@@ -11,13 +11,12 @@ import {
     collection, 
     addDoc, 
     query, 
-    getDocs, 
     onSnapshot,
     doc, 
     updateDoc, 
     deleteDoc,
-    where,
-    Timestamp
+    Timestamp,
+    // Eliminado: enablePersistence para evitar el error "Cargando..."
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // --- Configuración de Firebase ---
@@ -31,11 +30,11 @@ const firebaseConfig = {
   messagingSenderId: "228024131760",
   appId: "1:228024131760:web:8159300ab19043453d9b75"
 };
-
 // --- Inicialización ---
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
 
 let currentUser = null;
 let allPatients = []; 
@@ -54,7 +53,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const totalNacimientosSpan = document.getElementById('total-nacimientos');
     const exportAllButton = document.getElementById('export-all-button');
     const exportFilteredButton = document.getElementById('export-filtered-button');
-
+    const ultimosPacientesDiv = document.getElementById('ultimos-pacientes'); 
+    
     const loginForm = document.getElementById('login-form');
     const signupForm = document.getElementById('signup-form');
     const showSignupLink = document.getElementById('show-signup');
@@ -215,7 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
         } catch (error) {
             console.error("Error guardando paciente:", error);
-            showToast(`Error: ${getFirebaseErrorMessage(error)}`, 'error');
+            showToast(`Error al guardar: ${getFirebaseErrorMessage(error)}`, 'error');
         }
     });
 
@@ -252,12 +252,70 @@ document.addEventListener('DOMContentLoaded', () => {
         
         patientsListenerUnsubscribe = onSnapshot(patientsCollection, (snapshot) => {
             allPatients = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            totalNacimientosSpan.textContent = allPatients.length;
+            
+            // --- Lógica del Contador Mensual y Últimos 3 ---
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+
+            const monthlyPatients = allPatients.filter(p => {
+                // Si createdAt es un objeto Timestamp, lo convertimos a Date
+                const createdAt = p.createdAt && p.createdAt.toDate ? p.createdAt.toDate() : new Date(0);
+                return createdAt.getMonth() === currentMonth && createdAt.getFullYear() === currentYear;
+            });
+
+            totalNacimientosSpan.textContent = monthlyPatients.length;
+
+            // Ordenar por fecha de creación descendente y tomar los primeros 3
+            const sortedPatients = allPatients.sort((a, b) => {
+                const dateA = a.createdAt && a.createdAt.toDate ? a.createdAt.toDate() : new Date(0);
+                const dateB = b.createdAt && b.createdAt.toDate ? b.createdAt.toDate() : new Date(0);
+                return dateB - dateA;
+            });
+            const lastThree = sortedPatients.slice(0, 3);
+            renderLastThree(lastThree);
+            // --- Fin Lógica ---
+
         }, (error) => {
             console.error("Error en listener:", error);
             showToast("Error de conexión en tiempo real", "error");
         });
     }
+
+    function renderLastThree(pacientes) {
+        ultimosPacientesDiv.innerHTML = '';
+        if (pacientes.length === 0) {
+            ultimosPacientesDiv.innerHTML = '<p class="text-gray-500 italic">Aún no hay pacientes registrados en el sistema.</p>';
+            return;
+        }
+        
+        const grid = document.createElement('div');
+        grid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4';
+
+        pacientes.forEach(p => {
+            const createdAtDate = p.createdAt && p.createdAt.toDate ? p.createdAt.toDate() : new Date();
+            const createdTimeString = createdAtDate.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+            
+            const card = document.createElement('div');
+            card.className = 'bg-gray-50 p-4 rounded-lg shadow border border-blue-200';
+            card.innerHTML = `
+                <p class="font-bold text-lg text-blue-600">${p.apellido || '-'}, ${p.nombre || '-'}</p>
+                <p class="text-sm text-gray-700">Nac: ${formatDate(p.fecha_nacimiento)} - ${p.hora_nacimiento || '-'}</p>
+                <p class="text-xs text-gray-500">Ingresado: ${formatDate(createdAtDate)} ${createdTimeString}</p>
+                <p class="text-sm mt-2">Diag: ${p.diagnostico ? p.diagnostico.slice(0, 2).join(', ') + (p.diagnostico.length > 2 ? '...' : '') : '-'}</p>
+                <button class="btn-edit mt-2 text-xs" data-id="${p.id}">Editar</button>
+            `;
+            grid.appendChild(card);
+        });
+        
+        ultimosPacientesDiv.appendChild(grid);
+        
+        // Conectar eventos de los botones de edición dentro de los cards
+        ultimosPacientesDiv.querySelectorAll('.btn-edit').forEach(btn => {
+            btn.addEventListener('click', (e) => openEditModal(e.target.dataset.id));
+        });
+    }
+
 
     // Lógica del botón de búsqueda
     searchButton.addEventListener('click', () => {
@@ -421,7 +479,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const patientDocRef = doc(db, "pacientes", patientId);
             await updateDoc(patientDocRef, updatedData);
 
-            showToast("Paciente actualizado exitosamente", "success");
+            showToast("Paciente actualizado exitosamente", 'success');
             closeEditModal();
             searchButton.click();
             
@@ -451,7 +509,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const patientDocRef = doc(db, "pacientes", patientId);
             await deleteDoc(patientDocRef);
 
-            showToast("Paciente borrado exitosamente", "success");
+            showToast("Paciente borrado exitosamente", 'success');
             searchButton.click();
 
         } catch (error) {
@@ -482,7 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
             num_controles: "N° Controles",
             antPatologicos: "Ant. Patológicos",
             tipo_nacimiento: "Tipo Nacimiento",
-            presentacion: "Presentación", // NUEVO
+            presentacion: "Presentación", // AÑADIDO
             membranas: "Membranas",
             liquido_amniotico: "Liq. Amniótico",
             evolucion: "Evolución",
