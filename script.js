@@ -170,10 +170,23 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('search-fecha-desde').value = '';
             document.getElementById('search-fecha-hasta').value = '';
 
-            // Mostrar los últimos 3 por defecto
+            // Intentar mostrar los últimos 3. Si allPatients ya tiene datos, se muestran.
+            // Si no, se mostrarán cuando el listener reciba los datos.
+            updateTableDefault();
+        }
+    }
+    
+    function updateTableDefault() {
+        // Muestra los últimos 3 si no hay búsqueda activa
+        const apellido = document.getElementById('search-apellido').value;
+        const fechaDesde = document.getElementById('search-fecha-desde').value;
+        const fechaHasta = document.getElementById('search-fecha-hasta').value;
+
+        if (!apellido && !fechaDesde && !fechaHasta) {
             const last3 = allPatients.slice(0, 3);
-            renderTable(last3, true);
-            exportFilteredButton.dataset.filteredData = JSON.stringify(last3);
+            renderTable(last3, true); // 'true' para que no muestre el mensaje de "realice búsqueda"
+            const exportFilteredButton = document.getElementById('export-filtered-button');
+            if(exportFilteredButton) exportFilteredButton.dataset.filteredData = JSON.stringify(last3);
         }
     }
 
@@ -257,7 +270,8 @@ document.addEventListener('DOMContentLoaded', () => {
         patientsListenerUnsubscribe = onSnapshot(patientsCollection, (snapshot) => {
             allPatients = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             
-            // Ordenar por fecha de creación/nacimiento (más reciente primero) para que "últimos 3" funcione
+            // Ordenar por fecha de creación/nacimiento (más reciente primero)
+            // Priorizamos createdAt para orden exacto de carga, fallback a fecha_nacimiento
             allPatients.sort((a, b) => {
                 const dateA = a.createdAt ? a.createdAt.toDate() : (a.fecha_nacimiento ? new Date(a.fecha_nacimiento) : new Date(0));
                 const dateB = b.createdAt ? b.createdAt.toDate() : (b.fecha_nacimiento ? new Date(b.fecha_nacimiento) : new Date(0));
@@ -267,6 +281,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // Calcular nacimientos del mes en curso
             const currentCount = countCurrentMonthBirths(allPatients);
             totalNacimientosSpan.textContent = currentCount;
+
+            // Actualizar la tabla automáticamente si estamos en vista por defecto (sin filtros)
+            // Esto corrige que "no aparezcan" si la carga es lenta.
+            updateTableDefault();
 
         }, (error) => {
             console.error("Error en listener:", error);
@@ -281,7 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         return patients.filter(p => {
             if (!p.fecha_nacimiento) return false;
-            // fecha_nacimiento viene como YYYY-MM-DD
+            // fecha_nacimiento es YYYY-MM-DD
             const parts = p.fecha_nacimiento.split('-');
             const pYear = parseInt(parts[0]);
             const pMonth = parseInt(parts[1]) - 1; // Ajustar a 0-11
@@ -295,12 +313,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const fechaDesde = document.getElementById('search-fecha-desde').value;
         const fechaHasta = document.getElementById('search-fecha-hasta').value;
 
-        // Si no hay filtros, mostrar últimos 3
         if (!apellido && !fechaDesde && !fechaHasta) {
+            // Si apretan buscar sin nada, mostramos los últimos 3
             showToast("Mostrando últimos ingresos...", "success");
-            const last3 = allPatients.slice(0, 3);
-            renderTable(last3, true);
-            exportFilteredButton.dataset.filteredData = JSON.stringify(last3);
+            updateTableDefault();
             return;
         }
 
@@ -338,10 +354,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('search-fecha-hasta').value = '';
         
         // Al limpiar, volver a mostrar los últimos 3
-        const last3 = allPatients.slice(0, 3);
-        renderTable(last3, true);
-        exportFilteredButton.dataset.filteredData = JSON.stringify(last3);
-        
+        updateTableDefault();
         showToast("Búsqueda limpiada", "success");
     });
     
@@ -360,7 +373,7 @@ document.addEventListener('DOMContentLoaded', () => {
         pacientes.forEach(p => {
             const tr = document.createElement('tr');
             tr.className = 'hover:bg-gray-50';
-            // Se agrega el botón de Compartir
+            // Botón de compartir agregado aquí
             tr.innerHTML = `
                 <td class="p-4 whitespace-nowrap">${p.apellido || ''}</td>
                 <td class="p-4 whitespace-nowrap">${p.nombre || ''}</td>
@@ -391,7 +404,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const p = allPatients.find(x => x.id === patientId);
         if (!p) return;
 
-        // Formato del texto a compartir
+        // Texto para compartir
         const text = `*Registro de Nacimiento*
 Apellido: ${p.apellido}
 Nombre: ${p.nombre}
@@ -403,7 +416,7 @@ Apgar: ${p.apgar1 || '-'}/${p.apgar5 || '-'}
 Diagnóstico: ${p.diagnostico ? p.diagnostico.join(', ') : 'S/D'}
 Notas: ${p.notas || '-'}`;
 
-        // Intentar usar la API nativa de compartir (móviles)
+        // API Share (Móviles)
         if (navigator.share) {
             try {
                 await navigator.share({
@@ -414,7 +427,7 @@ Notas: ${p.notas || '-'}`;
                 console.log('Usuario canceló compartir o error:', err);
             }
         } else {
-            // Fallback: Copiar al portapapeles
+            // Fallback: Copiar al portapapeles (PC)
             navigator.clipboard.writeText(text).then(() => {
                 showToast('Datos copiados al portapapeles', 'success');
             }).catch(err => {
@@ -453,7 +466,7 @@ Notas: ${p.notas || '-'}`;
             }
         }
         
-        // Abrir <details> que tengan contenido seleccionado
+        // Abrir <details> con contenido
         editForm.querySelectorAll('details').forEach(d => {
             d.open = false; 
             const selects = d.querySelectorAll('select[multiple]');
@@ -503,15 +516,8 @@ Notas: ${p.notas || '-'}`;
             showToast("Paciente actualizado exitosamente", "success");
             closeEditModal();
             
-            // Refrescar la vista actual
-            const currentSearchApellido = document.getElementById('search-apellido').value;
-            if(!currentSearchApellido) {
-                 // Si no hay búsqueda, refrescar los "últimos 3"
-                 const last3 = allPatients.slice(0, 3);
-                 renderTable(last3, true);
-            } else {
-                 searchButton.click();
-            }
+            // Refrescar vista
+            updateTableDefault();
             
         } catch (error) {
             console.error("Error actualizando paciente:", error);
@@ -532,7 +538,7 @@ Notas: ${p.notas || '-'}`;
                 patientId: patientId,
                 deletedBy: currentUser.email,
                 deletedAt: Timestamp.now(),
-                patientData: patientData || {} // Guardar copia
+                patientData: patientData || {} 
             };
             await addDoc(auditLogsCollection, logData);
 
@@ -541,16 +547,9 @@ Notas: ${p.notas || '-'}`;
 
             showToast("Paciente borrado exitosamente", "success");
             
-            // Actualizar vista
-            setTimeout(() => {
-                if(!document.getElementById('search-apellido').value) {
-                     const last3 = allPatients.slice(0, 3);
-                     renderTable(last3, true);
-                } else {
-                     searchButton.click();
-                }
-            }, 500);
-
+            // La vista se actualizará sola por el listener, pero podemos forzar si es necesario
+            // updateTableDefault es llamado en onSnapshot
+            
         } catch (error) {
             console.error("Error borrando paciente:", error);
             showToast(`Error al borrar: ${getFirebaseErrorMessage(error)}`, 'error');
