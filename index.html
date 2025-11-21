@@ -1,15 +1,4 @@
 <!DOCTYPE html>
-<html lang="en">
-
-  <head>
-    <meta charset="UTF-8">
-    <title>registro de nacimientos</title>
-    <link rel="stylesheet" href="./style.css">
-
-  </head>
-    
-  <body>
-  <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -308,7 +297,7 @@
                             </div>
                             <!-- Contador -->
                             <div class="text-right">
-                                 <h3 class="text-lg font-semibold title-text mb-3">Total de Nacimientos</h3>
+                                 <h3 class="text-lg font-semibold title-text mb-3">Nacimientos en el Mes</h3>
                                  <p class="text-4xl font-bold text-blue-600">
                                     <span id="total-nacimientos">0</span>
                                  </p>
@@ -317,6 +306,12 @@
                     </div>
                 </div>
 
+                <!-- Últimos 5 Pacientes Ingresados -->
+                <h3 class="text-xl font-semibold title-text mb-4">Últimos 5 Ingresos</h3>
+                <div id="ultimos-pacientes" class="mb-8">
+                    <p class="text-gray-500 italic">Cargando últimos pacientes...</p>
+                </div>
+                
                 <!-- Tabla de Resultados -->
                 <h2 class="text-xl font-semibold title-text mb-4">Resultados de la Búsqueda</h2>
                 <div class="overflow-x-auto bg-white rounded-lg shadow">
@@ -518,9 +513,4 @@
     <div id="toast"></div>
 
 </body>
-</html>
-    <script type="module" src="./script.js"></script>
-
-  </body>
-  
 </html>
