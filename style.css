@@ -171,3 +171,26 @@ input:checked + .slider:before {
 }
 #toast.success { background-color: #16a34a; }
 #toast.error { background-color: #dc2626; }
+/* ... (MANTENER TODO LO ANTERIOR) ... */
+
+/* Toast (esto ya estaba, dejalo igual) */
+#toast {
+    /* ... */
+}
+/* ... */
+
+/* --- AGREGAR ESTO AL FINAL --- */
+
+/* Botón Compartir */
+.btn-share {
+    background-color: #10b981; /* Verde Emerald */
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: background-color 0.3s;
+    margin-left: 0.5rem; /* Separación de los otros botones */
+}
+.btn-share:hover {
+    background-color: #059669;
+}
