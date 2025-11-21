@@ -170,23 +170,23 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('search-fecha-desde').value = '';
             document.getElementById('search-fecha-hasta').value = '';
 
-            // Intentar mostrar los últimos 3. Si allPatients ya tiene datos, se muestran.
-            // Si no, se mostrarán cuando el listener reciba los datos.
+            // Intentar mostrar la tabla si ya hay datos
             updateTableDefault();
         }
     }
     
+    // Esta función decide si mostrar los últimos 3
     function updateTableDefault() {
-        // Muestra los últimos 3 si no hay búsqueda activa
         const apellido = document.getElementById('search-apellido').value;
         const fechaDesde = document.getElementById('search-fecha-desde').value;
         const fechaHasta = document.getElementById('search-fecha-hasta').value;
 
+        // Solo si NO hay filtros activos
         if (!apellido && !fechaDesde && !fechaHasta) {
             const last3 = allPatients.slice(0, 3);
-            renderTable(last3, true); // 'true' para que no muestre el mensaje de "realice búsqueda"
-            const exportFilteredButton = document.getElementById('export-filtered-button');
-            if(exportFilteredButton) exportFilteredButton.dataset.filteredData = JSON.stringify(last3);
+            renderTable(last3, true); // true = evita el mensaje de "haga búsqueda"
+            const exportBtn = document.getElementById('export-filtered-button');
+            if(exportBtn) exportBtn.dataset.filteredData = JSON.stringify(last3);
         }
     }
 
@@ -214,7 +214,6 @@ document.addEventListener('DOMContentLoaded', () => {
             pacienteData['diagnostico_otros'] = document.getElementById('diagnostico_otros').value;
             pacienteData['antPatologicos'] = Array.from(document.getElementById('antPatologicos').selectedOptions).map(opt => opt.value);
             
-            // Campos adicionales
             pacienteData['pcd'] = document.getElementById('pcd').value;
             pacienteData['pci'] = document.getElementById('pci').value;
             pacienteData['presentacion'] = document.getElementById('presentacion').value;
@@ -270,20 +269,23 @@ document.addEventListener('DOMContentLoaded', () => {
         patientsListenerUnsubscribe = onSnapshot(patientsCollection, (snapshot) => {
             allPatients = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             
-            // Ordenar por fecha de creación/nacimiento (más reciente primero)
-            // Priorizamos createdAt para orden exacto de carga, fallback a fecha_nacimiento
+            // Ordenar: Intenta por fecha creación, sino por fecha nacimiento, sino al final
             allPatients.sort((a, b) => {
-                const dateA = a.createdAt ? a.createdAt.toDate() : (a.fecha_nacimiento ? new Date(a.fecha_nacimiento) : new Date(0));
-                const dateB = b.createdAt ? b.createdAt.toDate() : (b.fecha_nacimiento ? new Date(b.fecha_nacimiento) : new Date(0));
-                return dateB - dateA; // Descendente
+                const getMs = (p) => {
+                    if (p.createdAt && p.createdAt.toDate) return p.createdAt.toDate().getTime();
+                    if (p.fecha_nacimiento) {
+                        const d = new Date(p.fecha_nacimiento);
+                        if (!isNaN(d.getTime())) return d.getTime();
+                    }
+                    return 0;
+                };
+                return getMs(b) - getMs(a); // Descendente
             });
 
-            // Calcular nacimientos del mes en curso
-            const currentCount = countCurrentMonthBirths(allPatients);
-            totalNacimientosSpan.textContent = currentCount;
+            // Calcular mes actual
+            totalNacimientosSpan.textContent = countCurrentMonthBirths(allPatients);
 
-            // Actualizar la tabla automáticamente si estamos en vista por defecto (sin filtros)
-            // Esto corrige que "no aparezcan" si la carga es lenta.
+            // ACTUALIZAR TABLA INMEDIATAMENTE si estamos en la vista por defecto
             updateTableDefault();
 
         }, (error) => {
@@ -294,27 +296,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function countCurrentMonthBirths(patients) {
         const now = new Date();
-        const currentMonth = now.getMonth(); // 0-11
+        const currentMonth = now.getMonth();
         const currentYear = now.getFullYear();
 
         return patients.filter(p => {
             if (!p.fecha_nacimiento) return false;
-            // fecha_nacimiento es YYYY-MM-DD
             const parts = p.fecha_nacimiento.split('-');
+            if(parts.length < 2) return false;
             const pYear = parseInt(parts[0]);
-            const pMonth = parseInt(parts[1]) - 1; // Ajustar a 0-11
+            const pMonth = parseInt(parts[1]) - 1;
             return pMonth === currentMonth && pYear === currentYear;
         }).length;
     }
 
-    // Lógica del botón de búsqueda
     searchButton.addEventListener('click', () => {
         const apellido = document.getElementById('search-apellido').value.toLowerCase().trim();
         const fechaDesde = document.getElementById('search-fecha-desde').value;
         const fechaHasta = document.getElementById('search-fecha-hasta').value;
 
         if (!apellido && !fechaDesde && !fechaHasta) {
-            // Si apretan buscar sin nada, mostramos los últimos 3
             showToast("Mostrando últimos ingresos...", "success");
             updateTableDefault();
             return;
@@ -352,8 +352,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('search-apellido').value = '';
         document.getElementById('search-fecha-desde').value = '';
         document.getElementById('search-fecha-hasta').value = '';
-        
-        // Al limpiar, volver a mostrar los últimos 3
         updateTableDefault();
         showToast("Búsqueda limpiada", "success");
     });
@@ -363,9 +361,9 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (pacientes.length === 0) {
             if (isSearchResult) {
-                pacientesTbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500">No se encontraron pacientes con esos criterios.</td></tr>';
+                pacientesTbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500">No se encontraron registros.</td></tr>';
             } else {
-                 pacientesTbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500">Realice una búsqueda por Apellido o Fecha para ver los resultados.</td></tr>';
+                 pacientesTbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500">Realice una búsqueda.</td></tr>';
             }
             return;
         }
@@ -373,7 +371,6 @@ document.addEventListener('DOMContentLoaded', () => {
         pacientes.forEach(p => {
             const tr = document.createElement('tr');
             tr.className = 'hover:bg-gray-50';
-            // Botón de compartir agregado aquí
             tr.innerHTML = `
                 <td class="p-4 whitespace-nowrap">${p.apellido || ''}</td>
                 <td class="p-4 whitespace-nowrap">${p.nombre || ''}</td>
@@ -394,17 +391,17 @@ document.addEventListener('DOMContentLoaded', () => {
         pacientesTbody.querySelectorAll('.btn-danger').forEach(btn => {
             btn.addEventListener('click', (e) => deletePatient(e.target.dataset.id));
         });
+        // Delegación robusta del botón compartir
         pacientesTbody.querySelectorAll('.btn-share').forEach(btn => {
             btn.addEventListener('click', (e) => sharePatient(e.target.dataset.id));
         });
     }
 
-    // --- Funcionalidad de Compartir ---
+    // --- Funcionalidad de Compartir (MEJORADA) ---
     async function sharePatient(patientId) {
         const p = allPatients.find(x => x.id === patientId);
         if (!p) return;
 
-        // Texto para compartir
         const text = `*Registro de Nacimiento*
 Apellido: ${p.apellido}
 Nombre: ${p.nombre}
@@ -416,25 +413,56 @@ Apgar: ${p.apgar1 || '-'}/${p.apgar5 || '-'}
 Diagnóstico: ${p.diagnostico ? p.diagnostico.join(', ') : 'S/D'}
 Notas: ${p.notas || '-'}`;
 
-        // API Share (Móviles)
+        // 1. Intentar API Nativa (Móviles / HTTPS)
         if (navigator.share) {
             try {
                 await navigator.share({
                     title: 'Datos del Paciente',
                     text: text
                 });
+                return;
             } catch (err) {
-                console.log('Usuario canceló compartir o error:', err);
+                console.log("Share API cancelado o falló, intentando fallback...");
             }
-        } else {
-            // Fallback: Copiar al portapapeles (PC)
+        } 
+        
+        // 2. Intentar Clipboard moderno
+        if (navigator.clipboard && window.isSecureContext) {
             navigator.clipboard.writeText(text).then(() => {
-                showToast('Datos copiados al portapapeles', 'success');
-            }).catch(err => {
-                showToast('Error al copiar datos', 'error');
-                console.error(err);
+                showToast('Copiado al portapapeles', 'success');
+            }).catch(() => {
+                // Si falla, fallback manual
+                fallbackCopyTextToClipboard(text);
             });
+        } else {
+            // 3. Fallback manual (funciona siempre)
+            fallbackCopyTextToClipboard(text);
         }
+    }
+
+    function fallbackCopyTextToClipboard(text) {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        
+        // Evitar scroll al bottom
+        textArea.style.top = "0";
+        textArea.style.left = "0";
+        textArea.style.position = "fixed";
+
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        try {
+            const successful = document.execCommand('copy');
+            if (successful) showToast('Copiado al portapapeles', 'success');
+            else showToast('No se pudo copiar automáticamente', 'error');
+        } catch (err) {
+            console.error('Fallback: Oops, unable to copy', err);
+            showToast('Error al copiar', 'error');
+        }
+
+        document.body.removeChild(textArea);
     }
 
     // --- Lógica de Edición (Modal) ---
@@ -446,7 +474,6 @@ Notas: ${p.notas || '-'}`;
             return;
         }
 
-        // Llenar el formulario del modal
         editForm.dataset.id = patientId;
         for (const key in paciente) {
             const input = editForm.elements[key];
@@ -466,7 +493,6 @@ Notas: ${p.notas || '-'}`;
             }
         }
         
-        // Abrir <details> con contenido
         editForm.querySelectorAll('details').forEach(d => {
             d.open = false; 
             const selects = d.querySelectorAll('select[multiple]');
@@ -515,8 +541,6 @@ Notas: ${p.notas || '-'}`;
 
             showToast("Paciente actualizado exitosamente", "success");
             closeEditModal();
-            
-            // Refrescar vista
             updateTableDefault();
             
         } catch (error) {
@@ -546,9 +570,7 @@ Notas: ${p.notas || '-'}`;
             await deleteDoc(patientDocRef);
 
             showToast("Paciente borrado exitosamente", "success");
-            
-            // La vista se actualizará sola por el listener, pero podemos forzar si es necesario
-            // updateTableDefault es llamado en onSnapshot
+            // La tabla se actualizará automáticamente por el listener
             
         } catch (error) {
             console.error("Error borrando paciente:", error);
