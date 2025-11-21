@@ -402,16 +402,64 @@ document.addEventListener('DOMContentLoaded', () => {
         const p = allPatients.find(x => x.id === patientId);
         if (!p) return;
 
-        const text = `*Registro de Nacimiento*
-Apellido: ${p.apellido}
-Nombre: ${p.nombre}
-Fecha Nac: ${formatDate(p.fecha_nacimiento)} ${p.hora_nacimiento ? p.hora_nacimiento : ''}
+        // Función auxiliar para formatear array a texto
+        const formatArray = (arr) => Array.isArray(arr) && arr.length > 0 ? arr.join('; ') : 'Ninguno';
+        
+        // Función auxiliar para obtener fecha y hora de Firebase Timestamp
+        const formatTimestamp = (ts) => ts && ts.toDate ? ts.toDate().toLocaleString('es-AR') : '-';
+        
+        // Función auxiliar para obtener SI/NO de boolean
+        const formatBoolean = (val) => val ? 'SI' : 'NO';
+
+        const text = `*Registro de Nacimiento - ${p.apellido || '-'}, ${p.nombre || '-'}*
+
+--- Datos del Paciente ---
+Apellido: ${p.apellido || '-'}
+Nombre: ${p.nombre || '-'}
+Fecha Nacimiento: ${formatDate(p.fecha_nacimiento)}
+Hora Nacimiento: ${p.hora_nacimiento || '-'}
+
+--- Datos del Recién Nacido ---
 Peso: ${p.peso || '-'} gr
 Talla: ${p.talla || '-'} cm
 PC: ${p.pc || '-'} cm
-Apgar: ${p.apgar1 || '-'}/${p.apgar5 || '-'}
-Diagnóstico: ${p.diagnostico ? p.diagnostico.join(', ') : 'S/D'}
-Notas: ${p.notas || '-'}`;
+EG: ${p.eg || '-'} semanas
+Apgar 1/5: ${p.apgar1 || '-'}/${p.apgar5 || '-'}
+Diagnóstico: ${formatArray(p.diagnostico)}
+Otros Diag.: ${p.diagnostico_otros || '-'}
+
+--- Condiciones del Parto ---
+Tipo Nacimiento: ${p.tipo_nacimiento || '-'}
+Presentación: ${p.presentacion || '-'}
+Membranas: ${p.membranas || '-'}
+Líquido Amniótico: ${p.liquido_amniotico || '-'}
+Evolución: ${p.evolucion || '-'}
+
+--- Datos Maternos y Antecedentes ---
+Edad Materna: ${p.edad_materna || '-'}
+G/P/A: ${p.g || '-'}/${p.p || '-'}/${p.a || '-'}
+Controlada: ${formatBoolean(p.controlada)} (${p.num_controles || 0} controles)
+Ant. Patológicos: ${formatArray(p.antPatologicos)}
+
+Grupo/Rh Materno: ${p.grupo_materno || '-'} / ${p.rh_materno || '-'}
+Grupo/Rh Paciente: ${p.grupo_paciente || '-'} / ${p.rh_paciente || '-'}
+PCD/PCI: ${p.pcd || '-'} / ${p.pci || '-'}
+
+--- Serologías Maternas ---
+VDRL: ${p.vdrl_resultado || '-'} (${formatDate(p.vdrl_fecha)})
+HIV: ${p.hiv_resultado || '-'} (${formatDate(p.hiv_fecha)})
+Chagas: ${p.chagas_resultado || '-'} (${formatDate(p.chagas_fecha)})
+HBV: ${p.hbv_resultado || '-'} (${formatDate(p.hbv_fecha)})
+Toxoplasmosis: ${p.toxo_resultado || '-'} (${formatDate(p.toxo_fecha)})
+CMV: ${p.cmv_resultado || '-'} (${formatDate(p.cmv_fecha)})
+Notas Serologías: ${p.serologias_notas || '-'}
+
+--- Notas Adicionales ---
+Notas: ${p.notas || '-'}
+
+--- Auditoría ---
+Creado Por: ${p.createdBy || '-'} en ${formatTimestamp(p.createdAt)}
+Modificado Por: ${p.lastModifiedBy || '-'} en ${formatTimestamp(p.lastModifiedAt)}`;
 
         // 1. Intentar API Nativa (Móviles / HTTPS)
         if (navigator.share) {
