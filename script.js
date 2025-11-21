@@ -10,17 +10,16 @@ import {
     getFirestore, 
     collection, 
     addDoc, 
-    query, 
     onSnapshot,
     doc, 
     updateDoc, 
     deleteDoc,
     Timestamp,
-    // Eliminado: enablePersistence para evitar el error "Cargando..."
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // --- Configuración de Firebase ---
 // ⚠️ ¡ATENCIÓN! PEGA TUS CREDENCIALES DE FIREBASE AQUÍ ⚠️
+
 const firebaseConfig = {
   apiKey: "AIzaSyCmuO4U_fDthWu_vY-ghx9marNtF78_vzM",
   authDomain: "nacimientos2.firebaseapp.com",
@@ -29,23 +28,29 @@ const firebaseConfig = {
   messagingSenderId: "228024131760",
   appId: "1:228024131760:web:8159300ab19043453d9b75"
 };
+let app, auth, db;
 
-
-// --- Inicialización ---
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
+// Inicialización de Firebase
+try {
+    app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    db = getFirestore(app);
+} catch (error) {
+    console.error("CRITICAL ERROR: Fallo al inicializar Firebase. Revisa tus credenciales.", error);
+    // Continuamos para que el script pueda mostrar la vista de Login
+}
 
 let currentUser = null;
 let allPatients = []; 
-const patientsCollection = collection(db, "pacientes");
-const auditLogsCollection = collection(db, "logs_borrado");
+// Se requiere que estas colecciones solo se usen si la DB se inicializó correctamente
+const patientsCollection = db ? collection(db, "pacientes") : null;
+const auditLogsCollection = db ? collection(db, "logs_borrado") : null;
 let patientsListenerUnsubscribe = null; 
 
 // --- Lógica de UI ---
 
-document.addEventListener('DOMContentLoaded', () => {
+// Función principal que se llama al final del body (en index.html)
+function initApp() {
     const loginView = document.getElementById('login-view');
     const appView = document.getElementById('app-view');
     const loadingView = document.getElementById('loading-view');
@@ -77,6 +82,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const cancelEditButton = document.getElementById('cancel-edit-button');
     
     const toast = document.getElementById('toast');
+    
+    // Si la inicialización de Firebase falló, mostramos el login y un error
+    if (!auth) {
+        loadingView.classList.add('hidden');
+        loginView.classList.remove('hidden');
+        showToast("Error CRÍTICO: Revisa tus credenciales de Firebase.", 'error');
+        return; 
+    }
+
 
     // --- Lógica de Autenticación ---
 
@@ -201,7 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Campos adicionales
             pacienteData['pcd'] = document.getElementById('pcd').value;
             pacienteData['pci'] = document.getElementById('pci').value;
-            pacienteData['presentacion'] = document.getElementById('presentacion').value; // NUEVO CAMPO
+            pacienteData['presentacion'] = document.getElementById('presentacion').value; 
             
             pacienteData.createdAt = Timestamp.now();
             pacienteData.createdBy = currentUser.email;
@@ -249,6 +263,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Consultas ---
     
     function setupRealtimeListener() {
+        if (!patientsCollection) return; 
+
         if (patientsListenerUnsubscribe) patientsListenerUnsubscribe();
         
         patientsListenerUnsubscribe = onSnapshot(patientsCollection, (snapshot) => {
@@ -635,6 +651,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function getFirebaseErrorMessage(error) {
         return error.message;
     }
+} // Fin de initApp
 
-    switchTab('ingreso');
-});
+// Hacemos la función global para que el index.html pueda llamarla
+window.initApp = initApp;
