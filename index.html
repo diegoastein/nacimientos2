@@ -1,44 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
-
-  <head>
-    <meta charset="UTF-8">
-    <title>registro de nacimientos</title>
-    <link rel="stylesheet" href="./style.css">
-
-  </head>
-    
-  <body>
-  <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro de Nacimientos</title>
     
-    <!-- Tailwind CSS (Framework de diseño) -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Tu hoja de estilos personalizada -->
-    <link rel="stylesheet" href="styles.css">
-    
-    <!-- Tu lógica de la aplicación (Firebase + Funcionalidad) -->
-    <script type="module" src="app.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body class="bg-sky-50 text-gray-900">
 
-    <!-- Vista de Carga Inicial -->
     <div id="loading-view" class="flex items-center justify-center min-h-screen">
         <div class="text-xl font-semibold title-text">Cargando...</div>
     </div>
 
-    <!-- Vista de Login -->
     <div id="login-view" class="hidden min-h-screen bg-gray-100 flex items-center justify-center p-4">
         <div class="max-w-md w-full bg-white p-8 rounded-lg shadow-xl">
             <h1 class="text-3xl font-bold text-center title-text mb-8">Registro de Nacimientos</h1>
             
-            <!-- Formulario de Login -->
             <form id="login-form">
                 <h2 class="text-xl font-semibold text-gray-700 mb-4">Iniciar Sesión</h2>
                 <div class="mb-4">
@@ -56,7 +37,6 @@
                 </p>
             </form>
 
-            <!-- Formulario de Registro -->
             <form id="signup-form" class="hidden">
                 <h2 class="text-xl font-semibold text-gray-700 mb-4">Crear Cuenta</h2>
                 <div class="mb-4">
@@ -76,10 +56,8 @@
         </div>
     </div>
 
-    <!-- Vista Principal de la App -->
     <div id="app-view" class="hidden">
         
-        <!-- Cabecera de la App -->
         <header class="bg-blue-600 text-white shadow-lg p-4">
             <div class="container mx-auto flex justify-between items-center">
                 <h1 class="text-2xl font-bold">Registro de Nacimientos</h1>
@@ -92,7 +70,6 @@
             </div>
         </header>
 
-        <!-- Navegación de Pestañas -->
         <nav class="container mx-auto px-4 sm:px-8 mt-8">
             <div class="flex gap-x-2 border-b border-gray-200 bg-gray-100 rounded-t-lg p-2">
                 <button id="tab-ingreso" class="tab-btn active">
@@ -104,10 +81,8 @@
             </div>
         </nav>
 
-        <!-- Contenido de las Pestañas -->
         <main class="container mx-auto px-4 sm:px-8 mb-12">
             
-            <!-- Pestaña 1: Ingreso de Pacientes -->
             <div id="ingreso-view" class="p-8 bg-white shadow-lg rounded-b-lg">
                 <h2 class="text-2xl font-semibold title-text mb-6">Nuevo Ingreso de Paciente</h2>
                 
@@ -145,7 +120,6 @@
                         </div>
                     </div>
 
-                    <!-- Serologías (Colapsable) -->
                     <details>
                         <summary>Serologías Maternas</summary>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -159,7 +133,6 @@
                         </div>
                     </details>
                     
-                    <!-- Grupo/Rh -->
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                         <div><label for="grupo_materno" class="block text-sm font-medium text-gray-700">Grupo Materno</label><select id="grupo_materno" name="grupo_materno" class="form-input mt-1"><option value="">Seleccionar...</option><option value="A">A</option><option value="B">B</option><option value="AB">AB</option><option value="0">0</option></select></div>
                         <div><label for="rh_materno" class="block text-sm font-medium text-gray-700">Rh Materno</label><select id="rh_materno" name="rh_materno" class="form-input mt-1"><option value="">Seleccionar...</option><option value="+">+</option><option value="-">-</option></select></div>
@@ -167,13 +140,11 @@
                         <div><label for="rh_paciente" class="block text-sm font-medium text-gray-700">Rh Paciente</label><select id="rh_paciente" name="rh_paciente" class="form-input mt-1"><option value="">Seleccionar...</option><option value="+">+</option><option value="-">-</option></select></div>
                     </div>
 
-                    <!-- PCD y PCI -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
                         <div><label for="pcd" class="block text-sm font-medium text-gray-700">PCD</label><select id="pcd" name="pcd" class="form-input mt-1"><option value="">Seleccionar...</option><option value="negativo">Negativo</option><option value="positivo">Positivo</option></select></div>
                         <div><label for="pci" class="block text-sm font-medium text-gray-700">PCI</label><select id="pci" name="pci" class="form-input mt-1"><option value="">Seleccionar...</option><option value="negativo">Negativo</option><option value="positivo">Positivo</option></select></div>
                     </div>
 
-                    <!-- Antecedentes Patológicos -->
                     <details>
                         <summary>Antecedentes Patológicos</summary>
                         <div class="pt-4">
@@ -188,7 +159,6 @@
                     <hr>
                     <h3 class="text-lg font-semibold title-text border-b pb-2">Condiciones del Parto</h3>
                     
-                    <!-- LAYOUT 2x2: Tipo, Presentación, Membranas, Líquido, Evolución -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="tipo_nacimiento" class="block text-sm font-medium text-gray-700">Tipo de Nacimiento</label>
@@ -225,7 +195,6 @@
                     <hr>
                     <h3 class="text-lg font-semibold title-text border-b pb-2">Datos del Recién Nacido</h3>
 
-                    <!-- Comienza con Peso, Talla, PC -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div><label for="peso" class="block text-sm font-medium text-gray-700">Peso (gr)</label><input type="number" id="peso" name="peso" class="form-input mt-1" min="0"></div>
                         <div class="grid grid-cols-2 gap-6">
@@ -267,22 +236,18 @@
                         <textarea id="notas" name="notas" class="form-input mt-1" rows="4"></textarea>
                     </div>
 
-                    <!-- Botón de Guardar -->
                     <div class="pt-4 text-right">
                         <button type="submit" class="btn-primary">Guardar Paciente</button>
                     </div>
                 </form>
             </div>
             
-            <!-- Pestaña 2: Consultas -->
             <div id="consultas-view" class="p-8 bg-white shadow-lg rounded-b-lg hidden">
                 
-                <!-- Panel de Búsqueda y Acciones -->
                 <div class="bg-blue-50 p-6 rounded-lg shadow-inner mb-8 border border-blue-200">
                     <h2 class="text-2xl font-semibold title-text mb-6">Consultas y Reportes</h2>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-                        <!-- Filtros de Búsqueda -->
                         <div class="space-y-4">
                             <h3 class="text-lg font-semibold title-text">Filtrar Pacientes</h3>
                             <div><label for="search-apellido" class="block text-sm font-medium text-gray-700">Apellido</label><input type="text" id="search-apellido" class="form-input mt-1" placeholder="Buscar por apellido..."></div>
@@ -296,9 +261,7 @@
                             </div>
                         </div>
 
-                        <!-- Fila de Exportación y Contador -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-                            <!-- Exportación -->
                             <div>
                                 <h3 class="text-lg font-semibold title-text mb-3">Exportar a Hoja de Cálculo (.csv)</h3>
                                 <div class="flex flex-col sm:flex-row gap-4">
@@ -306,9 +269,8 @@
                                     <button id="export-all-button" class="btn-secondary">Exportar <b>todos</b></button>
                                 </div>
                             </div>
-                            <!-- Contador -->
                             <div class="text-right">
-                                 <h3 class="text-lg font-semibold title-text mb-3">Total de Nacimientos</h3>
+                                 <h3 class="text-lg font-semibold title-text mb-3">Total Nacimientos (Mes en curso)</h3>
                                  <p class="text-4xl font-bold text-blue-600">
                                     <span id="total-nacimientos">0</span>
                                  </p>
@@ -317,7 +279,6 @@
                     </div>
                 </div>
 
-                <!-- Tabla de Resultados -->
                 <h2 class="text-xl font-semibold title-text mb-4">Resultados de la Búsqueda</h2>
                 <div class="overflow-x-auto bg-white rounded-lg shadow">
                     <table class="min-w-full divide-y divide-gray-200">
@@ -331,8 +292,7 @@
                             </tr>
                         </thead>
                         <tbody id="pacientes-tbody" class="divide-y divide-gray-200">
-                            <tr><td colspan="5" class="p-4 text-center text-gray-500">Realice una búsqueda por Apellido o Fecha para ver los resultados.</td></tr>
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
             </div>
@@ -340,7 +300,6 @@
         </main>
     </div>
 
-    <!-- Modal de Edición -->
     <div id="edit-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             
@@ -381,7 +340,6 @@
                     </div>
                 </div>
 
-                <!-- Serologías -->
                 <details>
                     <summary>Serologías Maternas</summary>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -395,7 +353,6 @@
                     </div>
                 </details>
                 
-                <!-- Grupo/Rh -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                     <div><label class="block text-sm font-medium text-gray-700">Grupo Materno</label><select name="grupo_materno" class="form-input mt-1"><option value="">Seleccionar...</option><option value="A">A</option><option value="B">B</option><option value="AB">AB</option><option value="0">0</option></select></div>
                     <div><label class="block text-sm font-medium text-gray-700">Rh Materno</label><select name="rh_materno" class="form-input mt-1"><option value="">Seleccionar...</option><option value="+">+</option><option value="-">-</option></select></div>
@@ -403,13 +360,11 @@
                     <div><label class="block text-sm font-medium text-gray-700">Rh Paciente</label><select name="rh_paciente" class="form-input mt-1"><option value="">Seleccionar...</option><option value="+">+</option><option value="-">-</option></select></div>
                 </div>
 
-                <!-- PCD y PCI en modal -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
                     <div><label class="block text-sm font-medium text-gray-700">PCD</label><select name="pcd" class="form-input mt-1"><option value="">Seleccionar...</option><option value="negativo">Negativo</option><option value="positivo">Positivo</option></select></div>
                     <div><label class="block text-sm font-medium text-gray-700">PCI</label><select name="pci" class="form-input mt-1"><option value="">Seleccionar...</option><option value="negativo">Negativo</option><option value="positivo">Positivo</option></select></div>
                 </div>
 
-                <!-- Antecedentes Patológicos -->
                 <details>
                     <summary>Antecedentes Patológicos</summary>
                     <div class="pt-4">
@@ -427,7 +382,6 @@
                 <hr>
                 <h3 class="text-lg font-semibold title-text border-b pb-2">Condiciones del Parto</h3>
                 
-                <!-- LAYOUT 2x2: Tipo, Presentación, Membranas, Líquido, Evolución en MODAL -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Tipo de Nacimiento</label>
@@ -505,7 +459,6 @@
                     <textarea name="notas" class="form-input mt-1" rows="4"></textarea>
                 </div>
                 
-                <!-- Botones del Modal -->
                 <footer class="flex justify-end gap-4 pt-4">
                     <button type="button" class="btn-secondary" id="cancel-edit-button">Cancelar</button>
                     <button type="submit" class="btn-primary">Guardar Cambios</button>
@@ -514,13 +467,9 @@
         </div>
     </div>
     
-    <!-- Toast / Notificación -->
     <div id="toast"></div>
 
-</body>
-</html>
-    <script type="module" src="./script.js"></script>
+    <script type="module" src="script.js"></script>
 
-  </body>
-  
+</body>
 </html>
