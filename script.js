@@ -11,12 +11,10 @@ import {
     collection, 
     addDoc, 
     query, 
-    getDocs, 
     onSnapshot,
     doc, 
     updateDoc, 
     deleteDoc,
-    where,
     Timestamp,
     enablePersistence // Importación clave para offline
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -37,11 +35,11 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Habilitar persistencia offline inmediatamente
+// Habilitar persistencia offline de forma robusta
 try {
     enablePersistence(db).catch(err => {
         if (err.code == 'failed-precondition') {
-            console.warn("Múltiples pestañas abiertas, persistencia no habilitada.");
+            console.warn("Múltiples pestañas abiertas o entorno no apto, persistencia no habilitada.");
         } else if (err.code == 'unimplemented') {
             console.warn("El navegador no soporta persistencia offline.");
         }
@@ -223,7 +221,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             await addDoc(patientsCollection, pacienteData);
             
-            showToast('Paciente guardado exitosamente (Sincronizando...)', 'success');
+            // Mensaje mejorado para soporte offline
+            showToast('Paciente guardado (Sincronizando con el servidor...)', 'success');
             ingresoForm.reset();
             document.getElementById('diagnostico_otros_wrapper').classList.add('hidden');
             document.querySelectorAll('#ingreso-form details').forEach(d => d.open = false);
