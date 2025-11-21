@@ -193,4 +193,19 @@ input:checked + .slider:before {
 }
 .btn-share:hover {
     background-color: #059669;
+    /* --- AGREGAR ESTO AL FINAL DEL ARCHIVO style.css --- */
+
+/* Botón Compartir */
+.btn-share {
+    background-color: #10b981; /* Verde Emerald */
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: background-color 0.3s;
+    margin-left: 0.5rem; /* Separación del botón Editar */
+}
+.btn-share:hover {
+    background-color: #059669;
+}
 }
