@@ -75,6 +75,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeEditModalButton = document.getElementById('close-edit-modal');
     const cancelEditButton = document.getElementById('cancel-edit-button');
     
+    // Referencia al botón de guardar del modal (oculto por defecto)
+    const saveEditButton = document.getElementById('save-edit-button');
+    
     const toast = document.getElementById('toast');
 
     // --- Lógica de Autenticación ---
@@ -175,7 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Esta función decide si mostrar los últimos 3
+    // Función para mostrar por defecto los últimos 3 si no hay filtros
     function updateTableDefault() {
         const apellido = document.getElementById('search-apellido').value;
         const fechaDesde = document.getElementById('search-fecha-desde').value;
@@ -184,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Solo si NO hay filtros activos
         if (!apellido && !fechaDesde && !fechaHasta) {
             const last3 = allPatients.slice(0, 3);
-            renderTable(last3, true); // true = evita el mensaje de "haga búsqueda"
+            renderTable(last3, true); 
             const exportBtn = document.getElementById('export-filtered-button');
             if(exportBtn) exportBtn.dataset.filteredData = JSON.stringify(last3);
         }
@@ -193,14 +196,23 @@ document.addEventListener('DOMContentLoaded', () => {
     tabIngreso.addEventListener('click', () => switchTab('ingreso'));
     tabConsultas.addEventListener('click', () => switchTab('consultas'));
 
-    // --- Ingreso ---
+    // --- Ingreso (CON PREVENCIÓN DE DOBLE GUARDADO) ---
 
     ingresoForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        
         if (!currentUser) {
             showToast('Error: Debes estar logueado', 'error');
             return;
         }
+
+        // 1. Identificamos el botón y lo deshabilitamos para evitar doble click
+        const submitButton = ingresoForm.querySelector('button[type="submit"]');
+        const originalText = submitButton.textContent;
+        
+        submitButton.disabled = true;
+        submitButton.textContent = 'Guardando...';
+        submitButton.classList.add('opacity-50', 'cursor-not-allowed');
 
         try {
             const formData = new FormData(ingresoForm);
@@ -232,6 +244,11 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error("Error guardando paciente:", error);
             showToast(`Error: ${getFirebaseErrorMessage(error)}`, 'error');
+        } finally {
+            // 2. Reactivamos el botón SIEMPRE, haya error o éxito
+            submitButton.disabled = false;
+            submitButton.textContent = originalText;
+            submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
         }
     });
 
@@ -269,7 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
         patientsListenerUnsubscribe = onSnapshot(patientsCollection, (snapshot) => {
             allPatients = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             
-            // Ordenar: Intenta por fecha creación, sino por fecha nacimiento, sino al final
+            // Ordenar por fecha de creación o nacimiento (descendente)
             allPatients.sort((a, b) => {
                 const getMs = (p) => {
                     if (p.createdAt && p.createdAt.toDate) return p.createdAt.toDate().getTime();
@@ -279,13 +296,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     return 0;
                 };
-                return getMs(b) - getMs(a); // Descendente
+                return getMs(b) - getMs(a);
             });
 
             // Calcular mes actual
             totalNacimientosSpan.textContent = countCurrentMonthBirths(allPatients);
 
-            // ACTUALIZAR TABLA INMEDIATAMENTE si estamos en la vista por defecto
+            // Actualizar tabla
             updateTableDefault();
 
         }, (error) => {
@@ -371,15 +388,17 @@ document.addEventListener('DOMContentLoaded', () => {
         pacientes.forEach(p => {
             const tr = document.createElement('tr');
             tr.className = 'hover:bg-gray-50';
+            
+            // --- TABLA: Los 3 botones al final, alineados a la derecha ---
             tr.innerHTML = `
                 <td class="p-4 whitespace-nowrap">${p.apellido || ''}</td>
                 <td class="p-4 whitespace-nowrap">${p.nombre || ''}</td>
                 <td class="p-4 whitespace-nowrap">${formatDate(p.fecha_nacimiento)}</td>
                 <td class="p-4 whitespace-nowrap">${p.diagnostico ? p.diagnostico.join(', ') : ''}</td>
                 <td class="p-4 whitespace-nowrap text-right">
-                    <button class="btn-edit" data-id="${p.id}">Editar</button>
-                    <button class="btn-share" data-id="${p.id}">Compartir</button>
-                    <button class="btn-danger ml-2" data-id="${p.id}">Borrar</button>
+                    <button class="btn-edit" data-id="${p.id}">Ver / Editar</button>
+                    <button class="btn-share ml-1" data-id="${p.id}">Compartir</button>
+                    <button class="btn-danger ml-1" data-id="${p.id}">Borrar</button>
                 </td>
             `;
             pacientesTbody.appendChild(tr);
@@ -391,24 +410,18 @@ document.addEventListener('DOMContentLoaded', () => {
         pacientesTbody.querySelectorAll('.btn-danger').forEach(btn => {
             btn.addEventListener('click', (e) => deletePatient(e.target.dataset.id));
         });
-        // Delegación robusta del botón compartir
         pacientesTbody.querySelectorAll('.btn-share').forEach(btn => {
             btn.addEventListener('click', (e) => sharePatient(e.target.dataset.id));
         });
     }
 
-    // --- Funcionalidad de Compartir (MEJORADA) ---
+    // --- Funcionalidad de Compartir ---
     async function sharePatient(patientId) {
         const p = allPatients.find(x => x.id === patientId);
         if (!p) return;
 
-        // Función auxiliar para formatear array a texto
         const formatArray = (arr) => Array.isArray(arr) && arr.length > 0 ? arr.join('; ') : 'Ninguno';
-        
-        // Función auxiliar para obtener fecha y hora de Firebase Timestamp
         const formatTimestamp = (ts) => ts && ts.toDate ? ts.toDate().toLocaleString('es-AR') : '-';
-        
-        // Función auxiliar para obtener SI/NO de boolean
         const formatBoolean = (val) => val ? 'SI' : 'NO';
 
         const text = `*Registro de Nacimiento - ${p.apellido || '-'}, ${p.nombre || '-'}*
@@ -461,7 +474,7 @@ Notas: ${p.notas || '-'}
 Creado Por: ${p.createdBy || '-'} en ${formatTimestamp(p.createdAt)}
 Modificado Por: ${p.lastModifiedBy || '-'} en ${formatTimestamp(p.lastModifiedAt)}`;
 
-        // 1. Intentar API Nativa (Móviles / HTTPS)
+        // API Nativa
         if (navigator.share) {
             try {
                 await navigator.share({
@@ -474,16 +487,14 @@ Modificado Por: ${p.lastModifiedBy || '-'} en ${formatTimestamp(p.lastModifiedAt
             }
         } 
         
-        // 2. Intentar Clipboard moderno
+        // Clipboard API
         if (navigator.clipboard && window.isSecureContext) {
             navigator.clipboard.writeText(text).then(() => {
                 showToast('Copiado al portapapeles', 'success');
             }).catch(() => {
-                // Si falla, fallback manual
                 fallbackCopyTextToClipboard(text);
             });
         } else {
-            // 3. Fallback manual (funciona siempre)
             fallbackCopyTextToClipboard(text);
         }
     }
@@ -491,12 +502,9 @@ Modificado Por: ${p.lastModifiedBy || '-'} en ${formatTimestamp(p.lastModifiedAt
     function fallbackCopyTextToClipboard(text) {
         const textArea = document.createElement("textarea");
         textArea.value = text;
-        
-        // Evitar scroll al bottom
         textArea.style.top = "0";
         textArea.style.left = "0";
         textArea.style.position = "fixed";
-
         document.body.appendChild(textArea);
         textArea.focus();
         textArea.select();
@@ -515,12 +523,23 @@ Modificado Por: ${p.lastModifiedBy || '-'} en ${formatTimestamp(p.lastModifiedAt
 
     // --- Lógica de Edición (Modal) ---
 
+    // Detectar cualquier cambio en el formulario para mostrar el botón de guardar
+    editForm.addEventListener('input', () => {
+        saveEditButton.classList.remove('hidden');
+    });
+    editForm.addEventListener('change', () => {
+        saveEditButton.classList.remove('hidden');
+    });
+
     function openEditModal(patientId) {
         const paciente = allPatients.find(p => p.id === patientId);
         if (!paciente) {
             showToast("Error: Paciente no encontrado", "error");
             return;
         }
+        
+        // --- Ocultamos el botón de guardar al abrir ---
+        saveEditButton.classList.add('hidden');
 
         editForm.dataset.id = patientId;
         for (const key in paciente) {
@@ -618,7 +637,6 @@ Modificado Por: ${p.lastModifiedBy || '-'} en ${formatTimestamp(p.lastModifiedAt
             await deleteDoc(patientDocRef);
 
             showToast("Paciente borrado exitosamente", "success");
-            // La tabla se actualizará automáticamente por el listener
             
         } catch (error) {
             console.error("Error borrando paciente:", error);
