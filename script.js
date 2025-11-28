@@ -389,7 +389,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const tr = document.createElement('tr');
             tr.className = 'hover:bg-gray-50';
             
-            // --- TABLA: Los 3 botones al final, alineados a la derecha ---
+            // --- TABLA: Botones a la derecha. Texto siempre "Ver / Editar" ---
             tr.innerHTML = `
                 <td class="p-4 whitespace-nowrap">${p.apellido || ''}</td>
                 <td class="p-4 whitespace-nowrap">${p.nombre || ''}</td>
