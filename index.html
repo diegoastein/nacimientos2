@@ -280,6 +280,11 @@
                 </div>
 
                 <h2 class="text-xl font-semibold title-text mb-4">Resultados de la Búsqueda - Se muestran los ultimos 3 nacimientos</h2>
+                
+                <div class="md:hidden text-right mb-2 text-sm text-blue-600 italic animate-pulse">
+                    &larr; Desliza la tabla para ver botones &rarr;
+                </div>
+                
                 <div class="overflow-x-auto bg-white rounded-lg shadow">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-100">
@@ -357,7 +362,7 @@
                     <div><label class="block text-sm font-medium text-gray-700">Grupo Materno</label><select name="grupo_materno" class="form-input mt-1"><option value="">Seleccionar...</option><option value="A">A</option><option value="B">B</option><option value="AB">AB</option><option value="0">0</option></select></div>
                     <div><label class="block text-sm font-medium text-gray-700">Rh Materno</label><select name="rh_materno" class="form-input mt-1"><option value="">Seleccionar...</option><option value="+">+</option><option value="-">-</option></select></div>
                     <div><label class="block text-sm font-medium text-gray-700">Grupo Paciente</label><select name="grupo_paciente" class="form-input mt-1"><option value="">Seleccionar...</option><option value="A">A</option><option value="B">B</option><option value="AB">AB</option><option value="0">0</option></select></div>
-                    <div><label class="block text-sm font-medium text-gray-700">Rh Paciente</label><select name="rh_paciente" class="form-input mt-1"><option value="">Seleccionar...</option><option value="+">+</option><option value="-">-</option></select></div>
+                    <div><label class="block text-sm font-medium text-gray-700">Rh Paciente</label><select name="rh_paciente" class="form-input mt-1"><option value="+">+</option><option value="-">-</option></select></div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
@@ -460,8 +465,8 @@
                 </div>
                 
                 <footer class="flex justify-end gap-4 pt-4">
-                    <button type="button" class="btn-secondary" id="cancel-edit-button">Cancelar</button>
-                    <button type="submit" class="btn-primary">Guardar Cambios</button>
+                    <button type="button" class="btn-secondary" id="cancel-edit-button">Cerrar</button>
+                    <button type="submit" class="btn-primary hidden" id="save-edit-button">Guardar Cambios</button>
                 </footer>
             </form>
         </div>
