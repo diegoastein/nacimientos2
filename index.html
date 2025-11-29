@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro de Nacimientos + Dashboard</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Chart.js para los gráficos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
@@ -110,12 +108,10 @@
 
 <body class="bg-sky-50 text-gray-900">
 
-    <!-- Loading View -->
     <div id="loading-view" class="flex items-center justify-center min-h-screen">
         <div class="text-xl font-semibold title-text animate-pulse">Cargando aplicación...</div>
     </div>
 
-    <!-- Login View -->
     <div id="login-view" class="hidden min-h-screen bg-gray-100 flex items-center justify-center p-4">
         <div class="max-w-md w-full bg-white p-8 rounded-lg shadow-xl">
             <h1 class="text-3xl font-bold text-center title-text mb-8">Registro de Nacimientos</h1>
@@ -156,7 +152,6 @@
         </div>
     </div>
 
-    <!-- Main App View -->
     <div id="app-view" class="hidden">
         
         <header class="bg-blue-600 text-white shadow-lg p-4">
@@ -191,12 +186,10 @@
 
         <main class="container mx-auto px-4 sm:px-8 mb-12">
             
-            <!-- VISTA INGRESO -->
             <div id="ingreso-view" class="p-8 bg-white shadow-lg rounded-b-lg">
                 <h2 class="text-2xl font-semibold title-text mb-6">Nuevo Ingreso de Paciente</h2>
                 
                 <form id="ingreso-form" class="space-y-6">
-                    <!-- Datos Paciente -->
                     <h3 class="text-lg font-semibold title-text border-b pb-2">Datos del Paciente</h3>
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                         <div><label for="apellido" class="block text-sm font-medium text-gray-700">Apellido</label><input type="text" id="apellido" name="apellido" class="form-input mt-1" required></div>
@@ -206,7 +199,6 @@
                     </div>
                     
                     <hr>
-                    <!-- Datos Maternos -->
                     <h3 class="text-lg font-semibold title-text border-b pb-2">Datos Maternos</h3>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                         <div><label for="edad_materna" class="block text-sm font-medium text-gray-700">Edad Materna</label><input type="number" id="edad_materna" name="edad_materna" class="form-input mt-1" min="10"></div>
@@ -265,7 +257,6 @@
                     </details>
                     
                     <hr>
-                    <!-- Condiciones Parto -->
                     <h3 class="text-lg font-semibold title-text border-b pb-2">Condiciones del Parto</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
@@ -303,7 +294,6 @@
                     </div>
                     
                     <hr>
-                    <!-- Datos Recién Nacido -->
                     <h3 class="text-lg font-semibold title-text border-b pb-2">Datos del Recién Nacido</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div><label for="peso" class="block text-sm font-medium text-gray-700">Peso (gr)</label><input type="number" id="peso" name="peso" class="form-input mt-1" min="0"></div>
@@ -321,7 +311,6 @@
                     </div>
                     
                     <hr>
-                    <!-- Diagnóstico -->
                     <details>
                         <summary>Diagnóstico</summary>
                         <div class="pt-4">
@@ -351,7 +340,6 @@
                 </form>
             </div>
             
-            <!-- VISTA CONSULTAS -->
             <div id="consultas-view" class="p-8 bg-white shadow-lg rounded-b-lg hidden">
                 <div class="bg-blue-50 p-6 rounded-lg shadow-inner mb-8 border border-blue-200">
                     <h2 class="text-2xl font-semibold title-text mb-6">Consultas y Reportes</h2>
@@ -388,7 +376,18 @@
                     </div>
                 </div>
 
+                <div id="default-results-notice" class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4" role="alert">
+                    <p class="font-bold">Aviso:</p>
+                    <p class="text-sm">Se muestran los 3 pacientes más recientes. Utilice los filtros para realizar una búsqueda específica.</p>
+                </div>
+
                 <h2 class="text-xl font-semibold title-text mb-4">Resultados</h2>
+                
+                <div class="md:hidden bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-3 mb-4 text-sm" role="alert">
+                    <p class="font-semibold">Información:</p>
+                    <p>Desplácese horizontalmente en la tabla para ver los botones de acción (Editar, Compartir, Borrar).</p>
+                </div>
+                
                 <div class="overflow-x-auto bg-white rounded-lg shadow">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-100">
@@ -405,10 +404,8 @@
                 </div>
             </div>
 
-            <!-- VISTA DASHBOARD (LAYOUT ACTUALIZADO) -->
             <div id="dashboard-view" class="bg-white shadow-lg rounded-b-lg hidden p-4 sm:p-8">
                 
-                <!-- Header con Filtros -->
                 <div class="flex flex-col md:flex-row justify-between items-end md:items-center mb-6 border-b pb-4 gap-4">
                     <div>
                         <h2 class="text-2xl font-semibold title-text">Tablero Estadístico</h2>
@@ -438,7 +435,6 @@
                     </div>
                 </div>
 
-                <!-- KPIs (Arriba) -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
                     <div class="dash-card border-l-4 border-blue-500">
                         <span class="dash-stat-label">Total (Periodo Seleccionado)</span>
@@ -454,10 +450,8 @@
                     </div>
                 </div>
 
-                <!-- Grilla de Gráficos (2x2) -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     
-                    <!-- Chart 1: Evolución / Destino RN (NUEVO) -->
                     <div class="dash-card">
                         <h3 class="text-lg font-bold text-gray-700 mb-4 text-center">Evolución / Destino del RN</h3>
                         <div class="relative w-full h-64 flex justify-center">
@@ -465,7 +459,6 @@
                         </div>
                     </div>
 
-                    <!-- Chart 2: Tipo de Nacimiento -->
                     <div class="dash-card">
                         <h3 class="text-lg font-bold text-gray-700 mb-4 text-center">Tipo de Nacimiento</h3>
                         <div class="relative w-full h-64 flex justify-center">
@@ -473,7 +466,6 @@
                         </div>
                     </div>
 
-                    <!-- Chart 3: Edad Gestacional -->
                     <div class="dash-card">
                         <h3 class="text-lg font-bold text-gray-700 mb-4 text-center">Término vs Pretérmino</h3>
                         <div class="relative w-full h-64 flex justify-center">
@@ -482,7 +474,6 @@
                         <p class="text-xs text-gray-400 mt-2 text-center">*Pretérmino: < 37 semanas</p>
                     </div>
 
-                    <!-- Chart 4: Control Prenatal -->
                     <div class="dash-card">
                         <h3 class="text-lg font-bold text-gray-700 mb-4 text-center">Control Prenatal</h3>
                         <div class="relative w-full h-64 flex justify-center">
@@ -496,7 +487,6 @@
         </main>
     </div>
 
-    <!-- Modal Editar (Igual que antes) -->
     <div id="edit-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <header class="flex justify-between items-center p-6 border-b">
@@ -504,40 +494,155 @@
                 <button id="close-edit-modal" class="text-gray-400 hover:text-gray-600 text-3xl">&times;</button>
             </header>
             <form id="edit-form" class="p-8 space-y-6">
-                <!-- Estructura simplificada para el ejemplo -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div><label>Apellido</label><input type="text" name="apellido" class="form-input"></div>
-                    <div><label>Nombre</label><input type="text" name="nombre" class="form-input"></div>
-                    <div><label>Fecha Nac.</label><input type="date" name="fecha_nacimiento" class="form-input"></div>
-                    <div><label>Hora Nac.</label><input type="time" name="hora_nacimiento" class="form-input"></div>
-                    <!-- Campos ocultos necesarios para evitar errores de JS al setear valores -->
-                    <input type="hidden" name="edad_materna">
-                    <input type="hidden" name="g"> <input type="hidden" name="p"> <input type="hidden" name="a">
-                    <input type="checkbox" name="controlada" class="hidden"> <input type="hidden" name="num_controles">
-                    <input type="hidden" name="vdrl_fecha"> <input type="hidden" name="vdrl_resultado">
-                    <input type="hidden" name="hiv_fecha"> <input type="hidden" name="hiv_resultado">
-                    <input type="hidden" name="chagas_fecha"> <input type="hidden" name="chagas_resultado">
-                    <input type="hidden" name="hbv_fecha"> <input type="hidden" name="hbv_resultado">
-                    <input type="hidden" name="toxo_fecha"> <input type="hidden" name="toxo_resultado">
-                    <input type="hidden" name="cmv_fecha"> <input type="hidden" name="cmv_resultado">
-                    <input type="hidden" name="serologias_notas">
-                    <select name="grupo_materno" class="hidden"></select> <select name="rh_materno" class="hidden"></select>
-                    <select name="grupo_paciente" class="hidden"></select> <select name="rh_paciente" class="hidden"></select>
-                    <select name="pcd" class="hidden"></select> <select name="pci" class="hidden"></select>
-                    <select name="antPatologicos" multiple class="hidden"></select>
-                    <select name="tipo_nacimiento" class="hidden"><option value="parto">Parto</option><option value="cesarea">Cesárea</option></select>
-                    <select name="presentacion" class="hidden"></select> <select name="membranas" class="hidden"></select>
-                    <select name="liquido_amniotico" class="hidden"></select> <select name="evolucion" class="hidden"></select>
-                    <input type="hidden" name="peso"> <input type="hidden" name="talla"> <input type="hidden" name="pc"> <input type="hidden" name="eg">
-                    <input type="hidden" name="apgar1"> <input type="hidden" name="apgar5">
-                    <select name="diagnostico" multiple class="hidden"></select> <input type="hidden" name="diagnostico_otros">
-                    <textarea name="notas" class="hidden"></textarea>
+                <input type="hidden" name="id_paciente_edit">
+                
+                <h3 class="text-lg font-semibold title-text border-b pb-2">Datos del Paciente</h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div><label for="edit-apellido" class="block text-sm font-medium text-gray-700">Apellido</label><input type="text" id="edit-apellido" name="apellido" class="form-input mt-1" required></div>
+                    <div><label for="edit-nombre" class="block text-sm font-medium text-gray-700">Nombre</label><input type="text" id="edit-nombre" name="nombre" class="form-input mt-1" required></div>
+                    <div><label for="edit-fecha_nacimiento" class="block text-sm font-medium text-gray-700">Fecha de Nacimiento</label><input type="date" id="edit-fecha_nacimiento" name="fecha_nacimiento" class="form-input mt-1" required></div>
+                    <div><label for="edit-hora_nacimiento" class="block text-sm font-medium text-gray-700">Hora Nac.</label><input type="time" id="edit-hora_nacimiento" name="hora_nacimiento" class="form-input mt-1" required></div>
                 </div>
-                <div class="text-red-500 text-sm">* Edición simplificada en esta vista unificada. Implementar campos completos igual que en Ingreso.</div>
+                
+                <hr>
+                <h3 class="text-lg font-semibold title-text border-b pb-2">Datos Maternos</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div><label for="edit-edad_materna" class="block text-sm font-medium text-gray-700">Edad Materna</label><input type="number" id="edit-edad_materna" name="edad_materna" class="form-input mt-1" min="10"></div>
+                    <div><label for="edit-g" class="block text-sm font-medium text-gray-700">G</label><input type="number" id="edit-g" name="g" class="form-input mt-1" min="0" max="15"></div>
+                    <div><label for="edit-p" class="block text-sm font-medium text-gray-700">P</label><input type="number" id="edit-p" name="p" class="form-input mt-1" min="0" max="15"></div>
+                    <div><label for="edit-a" class="block text-sm font-medium text-gray-700">A</label><input type="number" id="edit-a" name="a" class="form-input mt-1" min="0" max="15"></div>
+                </div>
+                
+                <div class="grid grid-cols-1 gap-6 items-center">
+                    <div class="flex flex-wrap items-center gap-x-6 gap-y-2">
+                        <div class="flex items-center space-x-4">
+                            <label for="edit-controlada" class="block text-sm font-medium text-gray-700">Controlada</label>
+                            <label class="switch"><input type="checkbox" id="edit-controlada" name="controlada"><span class="slider"></span></label>
+                        </div>
+                        <div class="flex-1 min-w-[150px]">
+                            <label for="edit-num_controles" class="block text-sm font-medium text-gray-700">N° de Controles</label>
+                            <input type="number" id="edit-num_controles" name="num_controles" class="form-input mt-1" min="0" max="99">
+                        </div>
+                    </div>
+                </div>
+
+                <details id="edit-serologias-details">
+                    <summary>Serologías Maternas</summary>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div><label class="block text-sm font-medium text-gray-700">VDRL</label><div class="grid grid-cols-3 gap-2 mt-1"><input type="date" name="vdrl_fecha" class="form-input col-span-2"><select name="vdrl_resultado" class="form-input"><option value="-">-</option><option value="+">+</option></select></div></div>
+                        <div><label class="block text-sm font-medium text-gray-700">HIV</label><div class="grid grid-cols-3 gap-2 mt-1"><input type="date" name="hiv_fecha" class="form-input col-span-2"><select name="hiv_resultado" class="form-input"><option value="-">-</option><option value="+">+</option></select></div></div>
+                        <div><label class="block text-sm font-medium text-gray-700">Chagas</label><div class="grid grid-cols-3 gap-2 mt-1"><input type="date" name="chagas_fecha" class="form-input col-span-2"><select name="chagas_resultado" class="form-input"><option value="-">-</option><option value="+">+</option></select></div></div>
+                        <div><label class="block text-sm font-medium text-gray-700">HBV</label><div class="grid grid-cols-3 gap-2 mt-1"><input type="date" name="hbv_fecha" class="form-input col-span-2"><select name="hbv_resultado" class="form-input"><option value="-">-</option><option value="+">+</option></select></div></div>
+                        <div><label class="block text-sm font-medium text-gray-700">Toxoplasmosis</label><div class="grid grid-cols-3 gap-2 mt-1"><input type="date" name="toxo_fecha" class="form-input col-span-2"><select name="toxo_resultado" class="form-input"><option value="-">-</option><option value="+">+</option></select></div></div>
+                        <div><label class="block text-sm font-medium text-gray-700">CMV</label><div class="grid grid-cols-3 gap-2 mt-1"><input type="date" name="cmv_fecha" class="form-input col-span-2"><select name="cmv_resultado" class="form-input"><option value="-">-</option><option value="+">+</option></select></div></div>
+                        <div class="md:col-span-3"><label for="edit-serologias_notas" class="block text-sm font-medium text-gray-700">Notas de Serologías</label><textarea id="edit-serologias_notas" name="serologias_notas" class="form-input mt-1" rows="2"></textarea></div>
+                    </div>
+                </details>
+                
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div><label for="edit-grupo_materno" class="block text-sm font-medium text-gray-700">Grupo Materno</label><select id="edit-grupo_materno" name="grupo_materno" class="form-input mt-1"><option value="">Seleccionar...</option><option value="A">A</option><option value="B">B</option><option value="AB">AB</option><option value="0">0</option></select></div>
+                    <div><label for="edit-rh_materno" class="block text-sm font-medium text-gray-700">Rh Materno</label><select id="edit-rh_materno" name="rh_materno" class="form-input mt-1"><option value="">Seleccionar...</option><option value="+">+</option><option value="-">-</option></select></div>
+                    <div><label for="edit-grupo_paciente" class="block text-sm font-medium text-gray-700">Grupo Paciente</label><select id="edit-grupo_paciente" name="grupo_paciente" class="form-input mt-1"><option value="">Seleccionar...</option><option value="A">A</option><option value="B">B</option><option value="AB">AB</option><option value="0">0</option></select></div>
+                    <div><label for="edit-rh_paciente" class="block text-sm font-medium text-gray-700">Rh Paciente</label><select id="edit-rh_paciente" name="rh_paciente" class="form-input mt-1"><option value="">Seleccionar...</option><option value="+">+</option><option value="-">-</option></select></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
+                    <div><label for="edit-pcd" class="block text-sm font-medium text-gray-700">PCD</label><select id="edit-pcd" name="pcd" class="form-input mt-1"><option value="">Seleccionar...</option><option value="negativo">Negativo</option><option value="positivo">Positivo</option></select></div>
+                    <div><label for="edit-pci" class="block text-sm font-medium text-gray-700">PCI</label><select id="edit-pci" name="pci" class="form-input mt-1"><option value="">Seleccionar...</option><option value="negativo">Negativo</option><option value="positivo">Positivo</option></select></div>
+                </div>
+
+                <details id="edit-antpatologicos-details">
+                    <summary>Antecedentes Patológicos</summary>
+                    <div class="pt-4">
+                        <label for="edit-antPatologicos" class="block text-sm font-medium text-gray-700">Selección de Antecedentes (múltiple)</label>
+                        <select id="edit-antPatologicos" name="antPatologicos" class="form-input mt-1" multiple size="6">
+                            <option value="ninguno">Ninguno</option><option value="hta">HTA</option><option value="dbt">DBT</option><option value="dbt_gestacional">DBT gestacional</option><option value="hipotiroidismo">Hipotiroidismo</option><option value="hipertiroidismo">Hipertiroidismo</option><option value="infeccion_urinaria">Infección Urinaria</option><option value="consumo_problematico">Consumo Problemático</option><option value="otras">Otras</option>
+                        </select>
+                        <small class="text-gray-500">Ctrl + Click para seleccionar varios.</small>
+                    </div>
+                </details>
+                
+                <hr>
+                <h3 class="text-lg font-semibold title-text border-b pb-2">Condiciones del Parto</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="edit-tipo_nacimiento" class="block text-sm font-medium text-gray-700">Tipo de Nacimiento</label>
+                        <select id="edit-tipo_nacimiento" name="tipo_nacimiento" class="form-input mt-1">
+                            <option value="">Seleccionar...</option><option value="parto">Parto</option><option value="cesarea">Cesárea</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="edit-presentacion" class="block text-sm font-medium text-gray-700">Presentación</label>
+                        <select id="edit-presentacion" name="presentacion" class="form-input mt-1">
+                            <option value="">Seleccionar...</option><option value="cefalica">Cefálica</option><option value="transversa">Transversa</option>
+                            <option value="podalica">Podálica</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="edit-membranas" class="block text-sm font-medium text-gray-700">Membranas</label>
+                        <select id="edit-membranas" name="membranas" class="form-input mt-1">
+                            <option value="">Seleccionar...</option><option value="rotura_espontanea">Rotura espontánea</option><option value="rotura_artificial">Rotura artificial</option><option value="rotura_prematura">Rotura prematura</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="edit-liquido_amniotico" class="block text-sm font-medium text-gray-700">Líquido Amniótico</label>
+                        <select id="edit-liquido_amniotico" name="liquido_amniotico" class="form-input mt-1">
+                            <option value="">Seleccionar...</option><option value="claro">Claro</option><option value="meconial">Meconial</option>
+                            <option value="sanguinolento">Sanguinolento</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="edit-evolucion" class="block text-sm font-medium text-gray-700">Evolución</label>
+                        <select id="edit-evolucion" name="evolucion" class="form-input mt-1">
+                            <option value="">Seleccionar...</option><option value="internacion_conjunta">Internación conjunta</option><option value="utin">UTIN</option><option value="obito">Óbito</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <hr>
+                <h3 class="text-lg font-semibold title-text border-b pb-2">Datos del Recién Nacido</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div><label for="edit-peso" class="block text-sm font-medium text-gray-700">Peso (gr)</label><input type="number" id="edit-peso" name="peso" class="form-input mt-1" min="0"></div>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div><label for="edit-talla" class="block text-sm font-medium text-gray-700">Talla (cm)</label><input type="number" id="edit-talla" name="talla" class="form-input mt-1" min="0" step="0.1"></div>
+                        <div><label for="edit-pc" class="block text-sm font-medium text-gray-700">PC (cm)</label><input type="number" id="edit-pc" name="pc" class="form-input mt-1" min="0" step="0.1"></div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div><label for="edit-eg" class="block text-sm font-medium text-gray-700">EG (semanas)</label><input type="number" id="edit-eg" name="eg" class="form-input mt-1" min="20" max="45"></div>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div><label for="edit-apgar1" class="block text-sm font-medium text-gray-700">Apgar 1</label><input type="number" id="edit-apgar1" name="apgar1" class="form-input mt-1" min="0" max="10"></div>
+                        <div><label for="edit-apgar5" class="block text-sm font-medium text-gray-700">Apgar 5</label><input type="number" id="edit-apgar5" name="apgar5" class="form-input mt-1" min="0" max="10"></div>
+                    </div>
+                </div>
+                
+                <hr>
+                <details id="edit-diagnostico-details">
+                    <summary>Diagnóstico</summary>
+                    <div class="pt-4">
+                        <label for="edit-diagnostico" class="block text-sm font-medium text-gray-700">Selección de Diagnósticos (múltiple)</label>
+                        <select id="edit-diagnostico" name="diagnostico" class="form-input mt-1" multiple size="6">
+                            <option value="rnt_paeg">RNT-PAEG</option><option value="rnt_apeg">RNT-APEG</option><option value="rnt_bpeg">RNT-BPEG</option><option value="rnpt_paeg">RNPT-PAEG</option><option value="rnpt_bpeg">RNPT-BPEG</option><option value="rnpt_apeg">RNPT-APEG</option><option value="rnpost_paeg">RNPOST-PAEG</option><option value="rnpost_bpeg">RNPOST-BPEG</option><option value="rnpost_apeg">RNPOST-APEG</option><option value="asfixia">Asfixia neonatal</option><option value="dif_respiratoria">Dif. respiratoria</option><option value="causa_social">Causa Social</option><option value="hijo_madre_consumo">Hijo de madre con consumo problemático</option><option value="otros">Otros</option>
+                        </select>
+                        <small class="text-gray-500">Ctrl + Click para seleccionar varios.</small>
+                    </div>
+    
+                    <div id="edit-diagnostico_otros_wrapper" class="hidden mt-4">
+                        <label for="edit-diagnostico_otros" class="block text-sm font-medium text-gray-700">Otros Diagnósticos</label>
+                        <input type="text" id="edit-diagnostico_otros" name="diagnostico_otros" class="form-input mt-1">
+                    </div>
+                </details>
+
+                <hr>
+                <h3 class="text-lg font-semibold title-text border-b pb-2">Notas Adicionales</h3>
+                <div>
+                    <label for="edit-notas" class="block text-sm font-medium text-gray-700">Notas</label>
+                    <textarea id="edit-notas" name="notas" class="form-input mt-1" rows="4"></textarea>
+                </div>
 
                 <footer class="flex justify-end gap-4 pt-4">
                     <button type="button" class="btn-secondary" id="cancel-edit-button">Cerrar</button>
-                    <button type="submit" class="btn-primary hidden" id="save-edit-button">Guardar Cambios</button>
+                    <button type="submit" class="btn-primary" id="save-edit-button">Guardar Cambios</button>
                 </footer>
             </form>
         </div>
@@ -545,7 +650,6 @@
     
     <div id="toast"></div>
 
-    <!-- LOGICA JAVASCRIPT -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -595,6 +699,17 @@
                 consultas: document.getElementById('consultas-view'),
                 dashboard: document.getElementById('dashboard-view')
             };
+            
+            // Referencias para el Modal de Edición
+            const editModal = document.getElementById('edit-modal');
+            const editForm = document.getElementById('edit-form');
+            const closeEditModalButton = document.getElementById('close-edit-modal');
+            const cancelEditButton = document.getElementById('cancel-edit-button');
+            const saveEditButton = document.getElementById('save-edit-button');
+            let currentEditPatientId = null;
+
+            closeEditModalButton.addEventListener('click', () => editModal.classList.add('hidden'));
+            cancelEditButton.addEventListener('click', () => editModal.classList.add('hidden'));
 
             // Dashboard Inputs
             const dashYearSelect = document.getElementById('dash-year');
@@ -701,6 +816,18 @@
                     const d = new Date(p.fecha_nacimiento + "T00:00:00");
                     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
                 }).length;
+            }
+            
+            // Función para mostrar/ocultar el aviso de resultados por defecto
+            function toggleDefaultNotice(show) {
+                const notice = document.getElementById('default-results-notice');
+                if (notice) {
+                    if (show) {
+                        notice.classList.remove('hidden');
+                    } else {
+                        notice.classList.add('hidden');
+                    }
+                }
             }
 
             // --- DASHBOARD LOGIC (MEJORADA) ---
@@ -931,7 +1058,9 @@
 
             // --- CONSULTAS ---
             function updateTableDefault() {
-                renderTable(allPatients.slice(0, 20));
+                // Muestra solo los 3 pacientes más recientes
+                renderTable(allPatients.slice(0, 3));
+                toggleDefaultNotice(true);
             }
 
             searchButton.addEventListener('click', () => {
@@ -947,13 +1076,20 @@
                     return match;
                 });
                 renderTable(filtered);
+                
+                // Oculta el aviso si se usan filtros
+                if (apellido || fDesde || fHasta) {
+                    toggleDefaultNotice(false);
+                } else {
+                    toggleDefaultNotice(true);
+                }
             });
 
             document.getElementById('clear-search-button').addEventListener('click', () => {
                 document.getElementById('search-apellido').value = '';
                 document.getElementById('search-fecha-desde').value = '';
                 document.getElementById('search-fecha-hasta').value = '';
-                updateTableDefault();
+                updateTableDefault(); // Muestra los últimos 3 y el aviso
             });
 
             function renderTable(data) {
@@ -969,14 +1105,218 @@
                         <td class="p-4">${p.nombre || ''}</td>
                         <td class="p-4">${formatDate(p.fecha_nacimiento)}</td>
                         <td class="p-4 text-sm text-gray-500 truncate max-w-xs">${p.diagnostico ? p.diagnostico.join(', ') : ''}</td>
-                        <td class="p-4 text-right">
+                        <td class="p-4 text-right flex justify-end gap-2">
+                            <button class="btn-edit" onclick="window.editPatient('${p.id}')">Ver / Editar</button>
+                            <button class="btn-share" onclick="window.sharePatient('${p.id}')">Compartir</button>
                             <button class="btn-danger" onclick="window.deletePatient('${p.id}')">Borrar</button>
                         </td>
                     `;
                     tbody.appendChild(row);
                 });
             }
+            
+            // --- FUNCIONES DE ACCION DE TABLA ---
+            
+            window.editPatient = (id) => {
+                const patient = allPatients.find(p => p.id === id);
+                if (!patient) return showToast('Paciente no encontrado', 'error');
 
+                currentEditPatientId = id;
+                
+                // Función auxiliar para setear valores
+                const setVal = (selector, value) => {
+                    const el = editForm.querySelector(`[name="${selector}"]`);
+                    if (el) el.value = value || '';
+                };
+                const setChecked = (selector, value) => {
+                    const el = editForm.querySelector(`[name="${selector}"]`);
+                    if (el) el.checked = !!value;
+                };
+                
+                // Resetear opciones múltiples
+                editForm.querySelectorAll('select[multiple] option').forEach(opt => opt.selected = false);
+                editForm.querySelectorAll('details').forEach(d => d.open = false);
+                
+                // --- Datos Paciente ---
+                setVal('apellido', patient.apellido);
+                setVal('nombre', patient.nombre);
+                setVal('fecha_nacimiento', patient.fecha_nacimiento);
+                setVal('hora_nacimiento', patient.hora_nacimiento);
+                
+                // --- Datos Maternos ---
+                setVal('edad_materna', patient.edad_materna);
+                setVal('g', patient.g);
+                setVal('p', patient.p);
+                setVal('a', patient.a);
+                setChecked('controlada', patient.controlada);
+                setVal('num_controles', patient.num_controles);
+
+                // Serologías
+                setVal('vdrl_fecha', patient.vdrl_fecha); setVal('vdrl_resultado', patient.vdrl_resultado);
+                setVal('hiv_fecha', patient.hiv_fecha); setVal('hiv_resultado', patient.hiv_resultado);
+                setVal('chagas_fecha', patient.chagas_fecha); setVal('chagas_resultado', patient.chagas_resultado);
+                setVal('hbv_fecha', patient.hbv_fecha); setVal('hbv_resultado', patient.hbv_resultado);
+                setVal('toxo_fecha', patient.toxo_fecha); setVal('toxo_resultado', patient.toxo_resultado);
+                setVal('cmv_fecha', patient.cmv_fecha); setVal('cmv_resultado', patient.cmv_resultado);
+                setVal('serologias_notas', patient.serologias_notas);
+                if (patient.serologias_notas || patient.vdrl_fecha || patient.hiv_fecha || patient.chagas_fecha || patient.hbv_fecha || patient.toxo_fecha || patient.cmv_fecha) {
+                     editForm.querySelector('#edit-serologias-details').open = true;
+                }
+                
+                // Grupos y Rh
+                setVal('grupo_materno', patient.grupo_materno);
+                setVal('rh_materno', patient.rh_materno);
+                setVal('grupo_paciente', patient.grupo_paciente);
+                setVal('rh_paciente', patient.rh_paciente);
+                setVal('pcd', patient.pcd);
+                setVal('pci', patient.pci);
+
+                // Antecedentes Patológicos (Multiple Select)
+                const antPatologicosSelect = editForm.querySelector('#edit-antPatologicos');
+                if (patient.antPatologicos && Array.isArray(patient.antPatologicos)) {
+                    patient.antPatologicos.forEach(val => {
+                        const opt = antPatologicosSelect.querySelector(`option[value="${val}"]`);
+                        if (opt) opt.selected = true;
+                    });
+                     editForm.querySelector('#edit-antpatologicos-details').open = patient.antPatologicos.length > 0 && patient.antPatologicos[0] !== 'ninguno';
+                }
+
+
+                // --- Condiciones Parto ---
+                setVal('tipo_nacimiento', patient.tipo_nacimiento);
+                setVal('presentacion', patient.presentacion);
+                setVal('membranas', patient.membranas);
+                setVal('liquido_amniotico', patient.liquido_amniotico);
+                setVal('evolucion', patient.evolucion);
+
+                // --- Datos Recién Nacido ---
+                setVal('peso', patient.peso);
+                setVal('talla', patient.talla);
+                setVal('pc', patient.pc);
+                setVal('eg', patient.eg);
+                setVal('apgar1', patient.apgar1);
+                setVal('apgar5', patient.apgar5);
+
+                // Diagnóstico (Multiple Select)
+                const diagSelect = editForm.querySelector('#edit-diagnostico');
+                const otrosWrap = document.getElementById('edit-diagnostico_otros_wrapper');
+                const otrosInput = document.getElementById('edit-diagnostico_otros');
+                let hasOtros = false;
+                
+                if (patient.diagnostico && Array.isArray(patient.diagnostico)) {
+                    patient.diagnostico.forEach(val => {
+                        if (val === 'otros') hasOtros = true;
+                        const opt = diagSelect.querySelector(`option[value="${val}"]`);
+                        if (opt) opt.selected = true;
+                    });
+                    editForm.querySelector('#edit-diagnostico-details').open = patient.diagnostico.length > 0;
+                }
+                
+                // Mostrar/Ocultar "Otros Diagnósticos"
+                if(hasOtros || patient.diagnostico_otros) {
+                    otrosWrap.classList.remove('hidden');
+                    otrosInput.required = true;
+                    setVal('diagnostico_otros', patient.diagnostico_otros);
+                } else {
+                    otrosWrap.classList.add('hidden');
+                    otrosInput.required = false;
+                    otrosInput.value = '';
+                }
+                
+                // --- Notas ---
+                setVal('notas', patient.notas);
+
+                editModal.classList.remove('hidden');
+            };
+
+            // Listener para 'otros' en el modal de edición
+            editForm.querySelector('#edit-diagnostico').addEventListener('change', (e) => {
+                const vals = Array.from(e.target.selectedOptions).map(o => o.value);
+                const wrap = document.getElementById('edit-diagnostico_otros_wrapper');
+                const input = document.getElementById('edit-diagnostico_otros');
+                if(vals.includes('otros')) { wrap.classList.remove('hidden'); input.required = true; }
+                else { wrap.classList.add('hidden'); input.required = false; }
+            });
+
+            // Handler para guardar cambios del formulario completo
+            editForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (!currentEditPatientId) return;
+
+                saveEditButton.disabled = true; saveEditButton.textContent = 'Guardando...';
+
+                try {
+                    const docRef = doc(db, "pacientes", currentEditPatientId);
+                    
+                    const formData = new FormData(editForm);
+                    const dataToUpdate = Object.fromEntries(formData.entries());
+                    
+                    // Manejar campos especiales: controlada (boolean) y selects múltiples (arrays)
+                    dataToUpdate.controlada = editForm.querySelector('input[name="controlada"]').checked;
+                    
+                    const antPatologicosSelect = editForm.querySelector('#edit-antPatologicos');
+                    dataToUpdate.antPatologicos = Array.from(antPatologicosSelect.selectedOptions).map(o => o.value);
+
+                    const diagnosticoSelect = editForm.querySelector('#edit-diagnostico');
+                    dataToUpdate.diagnostico = Array.from(diagnosticoSelect.selectedOptions).map(o => o.value);
+                    
+                    dataToUpdate.updatedAt = Timestamp.now();
+                    
+                    // Limpiar campos que no deben ser guardados si están vacíos o no seleccionados
+                    if (!dataToUpdate.diagnostico_otros) delete dataToUpdate.diagnostico_otros;
+                    
+                    // Asegurar que los campos numéricos se guarden como número o string vacío/cero, si es necesario. Firestore maneja esto bien en general.
+                    
+                    await updateDoc(docRef, dataToUpdate);
+                    showToast('Paciente actualizado', 'success');
+                    editModal.classList.add('hidden');
+
+                } catch (err) {
+                    console.error(err);
+                    showToast('Error al actualizar', 'error');
+                } finally {
+                    saveEditButton.disabled = false; saveEditButton.textContent = 'Guardar Cambios';
+                }
+            });
+
+
+            window.sharePatient = (id) => {
+                const patient = allPatients.find(p => p.id === id);
+                if (!patient) return showToast('Paciente no encontrado', 'error');
+
+                let shareText = `--- FICHA DE NACIMIENTO ---\n`;
+                shareText += `Paciente: ${patient.apellido || ''}, ${patient.nombre || ''}\n`;
+                shareText += `Nacimiento: ${formatDate(patient.fecha_nacimiento)} ${patient.hora_nacimiento || ''}\n`;
+                shareText += `Peso/EG: ${patient.peso || ''} gr / ${patient.eg || ''} semanas\n`;
+                shareText += `Diagnóstico: ${patient.diagnostico ? patient.diagnostico.join(', ') : 'N/A'}\n`;
+                shareText += `Evolución: ${patient.evolucion || ''}\n`;
+                shareText += `--------------------------\n`;
+                shareText += `Madre (G${patient.g || ''} P${patient.p || ''} A${patient.a || ''}): ${patient.edad_materna || ''} años\n`;
+                shareText += `Controlada: ${patient.controlada ? 'Sí' : 'No'} (${patient.num_controles || 0} controles)\n`;
+                shareText += `Grupo/Rh M-P: ${patient.grupo_materno || '?'}${patient.rh_materno || '?'} - ${patient.grupo_paciente || '?'}${patient.rh_paciente || '?'}\n`;
+                if(patient.notas) {
+                    shareText += `Notas: ${patient.notas}\n`;
+                }
+
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(shareText)
+                        .then(() => showToast('Ficha copiada al portapapeles', 'success'))
+                        .catch(err => showToast('Error al copiar: ' + err, 'error'));
+                } else {
+                    const textarea = document.createElement('textarea');
+                    textarea.value = shareText;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    try {
+                        document.execCommand('copy');
+                        showToast('Ficha copiada al portapapeles (Fallback)', 'success');
+                    } catch (err) {
+                        showToast('Error al copiar al portapapeles', 'error');
+                    }
+                    document.body.removeChild(textarea);
+                }
+            };
+            
             window.deletePatient = async (id) => {
                 if(!confirm("¿Borrar paciente?")) return;
                 try {
