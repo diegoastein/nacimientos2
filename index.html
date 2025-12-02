@@ -714,6 +714,10 @@
             // Dashboard Inputs
             const dashYearSelect = document.getElementById('dash-year');
             const dashMonthSelect = document.getElementById('dash-month');
+            
+            // --- NUEVO: Preseleccionar el mes actual ---
+            dashMonthSelect.value = new Date().getMonth();
+
             const refreshDashboardBtn = document.getElementById('refresh-dashboard');
 
             // Forms y Botones
