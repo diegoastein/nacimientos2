@@ -401,7 +401,10 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                         <div class="space-y-4">
                             <h3 class="text-lg font-semibold title-text">Filtrar Pacientes</h3>
-                            <div><label for="search-apellido" class="block text-sm font-medium text-gray-700">Apellido</label><input type="text" id="search-apellido" class="form-input mt-1" placeholder="Buscar por apellido..."></div>
+                            <div>
+                                <label for="search-term" class="block text-sm font-medium text-gray-700">Nombre o Apellido</label>
+                                <input type="text" id="search-term" class="form-input mt-1" placeholder="Ej: Juan Perez">
+                            </div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div><label for="search-fecha-desde" class="block text-sm font-medium text-gray-700">Nacido desde</label><input type="date" id="search-fecha-desde" class="form-input mt-1"></div>
                                 <div><label for="search-fecha-hasta" class="block text-sm font-medium text-gray-700">Nacido hasta</label><input type="date" id="search-fecha-hasta" class="form-input mt-1"></div>
@@ -1178,30 +1181,51 @@
                 toggleDefaultNotice(true);
             }
 
-            searchButton.addEventListener('click', () => {
-                const apellido = document.getElementById('search-apellido').value.toLowerCase();
+            // --- NUEVA FUNCION DE BÚSQUEDA EN TIEMPO REAL ---
+            function performSearch() {
+                const term = document.getElementById('search-term').value.toLowerCase().trim();
                 const fDesde = document.getElementById('search-fecha-desde').value;
                 const fHasta = document.getElementById('search-fecha-hasta').value;
 
+                // Separar términos de búsqueda por espacio
+                const searchTerms = term.split(/\s+/).filter(t => t.length > 0);
+
                 let filtered = allPatients.filter(p => {
-                    let match = true;
-                    if(apellido && (!p.apellido || !p.apellido.toLowerCase().includes(apellido))) match = false;
-                    if(fDesde && p.fecha_nacimiento < fDesde) match = false;
-                    if(fHasta && p.fecha_nacimiento > fHasta) match = false;
-                    return match;
+                    // Lógica de Fechas
+                    if(fDesde && p.fecha_nacimiento < fDesde) return false;
+                    if(fHasta && p.fecha_nacimiento > fHasta) return false;
+
+                    // Lógica de Nombre/Apellido flexible
+                    if (searchTerms.length > 0) {
+                        const fullName = `${p.apellido || ''} ${p.nombre || ''}`.toLowerCase();
+                        // Verificar si TODAS las palabras buscadas están en el nombre completo
+                        const matchesAllTerms = searchTerms.every(t => fullName.includes(t));
+                        if (!matchesAllTerms) return false;
+                    }
+
+                    return true;
                 });
+
                 renderTable(filtered);
                 
-                // Oculta el aviso si se usan filtros
-                if (apellido || fDesde || fHasta) {
+                // Mostrar/Ocultar aviso de resultados por defecto
+                if (term || fDesde || fHasta) {
                     toggleDefaultNotice(false);
                 } else {
                     toggleDefaultNotice(true);
                 }
-            });
+            }
+
+            // Listeners para búsqueda en tiempo real
+            document.getElementById('search-term').addEventListener('input', performSearch);
+            document.getElementById('search-fecha-desde').addEventListener('change', performSearch);
+            document.getElementById('search-fecha-hasta').addEventListener('change', performSearch);
+            
+            // El botón de buscar sigue funcionando manualmente si se desea
+            searchButton.addEventListener('click', performSearch);
 
             document.getElementById('clear-search-button').addEventListener('click', () => {
-                document.getElementById('search-apellido').value = '';
+                document.getElementById('search-term').value = '';
                 document.getElementById('search-fecha-desde').value = '';
                 document.getElementById('search-fecha-hasta').value = '';
                 updateTableDefault(); // Muestra los últimos 3 y el aviso
