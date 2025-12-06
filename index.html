@@ -53,6 +53,35 @@
             border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2); outline: none;
         }
 
+        /* Checkbox Grid Styles */
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            background-color: #f9fafb;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #e5e7eb;
+        }
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            padding: 0.25rem;
+        }
+        .checkbox-item:hover {
+            background-color: #eff6ff;
+            border-radius: 0.25rem;
+        }
+        .checkbox-item input[type="checkbox"] {
+            width: 1rem;
+            height: 1rem;
+            accent-color: #2563eb;
+        }
+
         /* Pestañas */
         .tab-btn {
             padding: 1rem 1.5rem; font-weight: 600; border-radius: 0.5rem 0.5rem 0 0;
@@ -69,7 +98,7 @@
         details { border: 1px solid #e5e7eb; border-radius: 0.5rem; margin-bottom: 1rem; }
         details summary { font-weight: 600; padding: 1rem; cursor: pointer; background-color: #f9fafb; border-radius: 0.5rem 0.5rem 0 0; }
         details[open] summary { border-bottom: 1px solid #e5e7eb; }
-        details div { padding: 1.5rem; background-color: white; }
+        details div.details-content { padding: 1.5rem; background-color: white; }
 
         .switch { position: relative; display: inline-block; width: 60px; height: 34px; }
         .switch input { opacity: 0; width: 0; height: 0; }
@@ -228,7 +257,7 @@
 
                     <details>
                         <summary>Serologías Maternas</summary>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 details-content">
                             <div><label class="block text-sm font-medium text-gray-700">VDRL</label><div class="grid grid-cols-3 gap-2 mt-1"><input type="date" name="vdrl_fecha" class="form-input col-span-2"><select name="vdrl_resultado" class="form-input"><option value="-">-</option><option value="+">+</option></select></div></div>
                             <div><label class="block text-sm font-medium text-gray-700">HIV</label><div class="grid grid-cols-3 gap-2 mt-1"><input type="date" name="hiv_fecha" class="form-input col-span-2"><select name="hiv_resultado" class="form-input"><option value="-">-</option><option value="+">+</option></select></div></div>
                             <div><label class="block text-sm font-medium text-gray-700">Chagas</label><div class="grid grid-cols-3 gap-2 mt-1"><input type="date" name="chagas_fecha" class="form-input col-span-2"><select name="chagas_resultado" class="form-input"><option value="-">-</option><option value="+">+</option></select></div></div>
@@ -253,12 +282,19 @@
 
                     <details>
                         <summary>Antecedentes Patológicos</summary>
-                        <div class="pt-4">
-                            <label for="antPatologicos" class="block text-sm font-medium text-gray-700">Selección de Antecedentes (múltiple)</label>
-                            <select id="antPatologicos" name="antPatologicos" class="form-input mt-1" multiple size="6">
-                                <option value="ninguno">Ninguno</option><option value="hta">HTA</option><option value="dbt">DBT</option><option value="dbt_gestacional">DBT gestacional</option><option value="hipotiroidismo">Hipotiroidismo</option><option value="hipertiroidismo">Hipertiroidismo</option><option value="infeccion_urinaria">Infección Urinaria</option><option value="consumo_problematico">Consumo Problemático</option><option value="otras">Otras</option>
-                            </select>
-                            <small class="text-gray-500">Ctrl + Click para seleccionar varios.</small>
+                        <div class="details-content">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Selección de Antecedentes</label>
+                            <div class="checkbox-grid" id="antPatologicos-grid">
+                                <label class="checkbox-item"><input type="checkbox" name="antPatologicos" value="ninguno"> Ninguno</label>
+                                <label class="checkbox-item"><input type="checkbox" name="antPatologicos" value="hta"> HTA</label>
+                                <label class="checkbox-item"><input type="checkbox" name="antPatologicos" value="dbt"> DBT</label>
+                                <label class="checkbox-item"><input type="checkbox" name="antPatologicos" value="dbt_gestacional"> DBT Gestacional</label>
+                                <label class="checkbox-item"><input type="checkbox" name="antPatologicos" value="hipotiroidismo"> Hipotiroidismo</label>
+                                <label class="checkbox-item"><input type="checkbox" name="antPatologicos" value="hipertiroidismo"> Hipertiroidismo</label>
+                                <label class="checkbox-item"><input type="checkbox" name="antPatologicos" value="infeccion_urinaria"> Inf. Urinaria</label>
+                                <label class="checkbox-item"><input type="checkbox" name="antPatologicos" value="consumo_problematico"> Consumo Prob.</label>
+                                <label class="checkbox-item"><input type="checkbox" name="antPatologicos" value="otras"> Otras</label>
+                            </div>
                         </div>
                     </details>
                     
@@ -319,17 +355,29 @@
                     <hr>
                     <details>
                         <summary>Diagnóstico</summary>
-                        <div class="pt-4">
-                            <label for="diagnostico" class="block text-sm font-medium text-gray-700">Selección de Diagnósticos (múltiple)</label>
-                            <select id="diagnostico" name="diagnostico" class="form-input mt-1" multiple size="6">
-                                <option value="rnt_paeg">RNT-PAEG</option><option value="rnt_apeg">RNT-APEG</option><option value="rnt_bpeg">RNT-BPEG</option><option value="rnpt_paeg">RNPT-PAEG</option><option value="rnpt_bpeg">RNPT-BPEG</option><option value="rnpt_apeg">RNPT-APEG</option><option value="rnpost_paeg">RNPOST-PAEG</option><option value="rnpost_bpeg">RNPOST-BPEG</option><option value="rnpost_apeg">RNPOST-APEG</option><option value="asfixia">Asfixia neonatal</option><option value="dif_respiratoria">Dif. respiratoria</option><option value="causa_social">Causa Social</option><option value="hijo_madre_consumo">Hijo de madre con consumo problemático</option><option value="otros">Otros</option>
-                            </select>
-                            <small class="text-gray-500">Ctrl + Click para seleccionar varios.</small>
-                        </div>
+                        <div class="details-content">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Selección de Diagnósticos</label>
+                            <div class="checkbox-grid" id="diagnostico-grid">
+                                <label class="checkbox-item"><input type="checkbox" name="diagnostico" value="rnt_paeg"> RNT-PAEG</label>
+                                <label class="checkbox-item"><input type="checkbox" name="diagnostico" value="rnt_apeg"> RNT-APEG</label>
+                                <label class="checkbox-item"><input type="checkbox" name="diagnostico" value="rnt_bpeg"> RNT-BPEG</label>
+                                <label class="checkbox-item"><input type="checkbox" name="diagnostico" value="rnpt_paeg"> RNPT-PAEG</label>
+                                <label class="checkbox-item"><input type="checkbox" name="diagnostico" value="rnpt_bpeg"> RNPT-BPEG</label>
+                                <label class="checkbox-item"><input type="checkbox" name="diagnostico" value="rnpt_apeg"> RNPT-APEG</label>
+                                <label class="checkbox-item"><input type="checkbox" name="diagnostico" value="rnpost_paeg"> RNPOST-PAEG</label>
+                                <label class="checkbox-item"><input type="checkbox" name="diagnostico" value="rnpost_bpeg"> RNPOST-BPEG</label>
+                                <label class="checkbox-item"><input type="checkbox" name="diagnostico" value="rnpost_apeg"> RNPOST-APEG</label>
+                                <label class="checkbox-item"><input type="checkbox" name="diagnostico" value="asfixia"> Asfixia</label>
+                                <label class="checkbox-item"><input type="checkbox" name="diagnostico" value="dif_respiratoria"> Dif. Resp.</label>
+                                <label class="checkbox-item"><input type="checkbox" name="diagnostico" value="causa_social"> Causa Social</label>
+                                <label class="checkbox-item"><input type="checkbox" name="diagnostico" value="hijo_madre_consumo"> Madre consumo</label>
+                                <label class="checkbox-item"><input type="checkbox" name="diagnostico" value="otros"> Otros</label>
+                            </div>
         
-                        <div id="diagnostico_otros_wrapper" class="hidden mt-4">
-                            <label for="diagnostico_otros" class="block text-sm font-medium text-gray-700">Otros Diagnósticos</label>
-                            <input type="text" id="diagnostico_otros" name="diagnostico_otros" class="form-input mt-1">
+                            <div id="diagnostico_otros_wrapper" class="hidden mt-4">
+                                <label for="diagnostico_otros" class="block text-sm font-medium text-gray-700">Otros Diagnósticos</label>
+                                <input type="text" id="diagnostico_otros" name="diagnostico_otros" class="form-input mt-1">
+                            </div>
                         </div>
                     </details>
 
@@ -534,7 +582,7 @@
 
                 <details id="edit-serologias-details">
                     <summary>Serologías Maternas</summary>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 details-content">
                         <div><label class="block text-sm font-medium text-gray-700">VDRL</label><div class="grid grid-cols-3 gap-2 mt-1"><input type="date" name="vdrl_fecha" class="form-input col-span-2"><select name="vdrl_resultado" class="form-input"><option value="-">-</option><option value="+">+</option></select></div></div>
                         <div><label class="block text-sm font-medium text-gray-700">HIV</label><div class="grid grid-cols-3 gap-2 mt-1"><input type="date" name="hiv_fecha" class="form-input col-span-2"><select name="hiv_resultado" class="form-input"><option value="-">-</option><option value="+">+</option></select></div></div>
                         <div><label class="block text-sm font-medium text-gray-700">Chagas</label><div class="grid grid-cols-3 gap-2 mt-1"><input type="date" name="chagas_fecha" class="form-input col-span-2"><select name="chagas_resultado" class="form-input"><option value="-">-</option><option value="+">+</option></select></div></div>
@@ -559,12 +607,19 @@
 
                 <details id="edit-antpatologicos-details">
                     <summary>Antecedentes Patológicos</summary>
-                    <div class="pt-4">
-                        <label for="edit-antPatologicos" class="block text-sm font-medium text-gray-700">Selección de Antecedentes (múltiple)</label>
-                        <select id="edit-antPatologicos" name="antPatologicos" class="form-input mt-1" multiple size="6">
-                            <option value="ninguno">Ninguno</option><option value="hta">HTA</option><option value="dbt">DBT</option><option value="dbt_gestacional">DBT gestacional</option><option value="hipotiroidismo">Hipotiroidismo</option><option value="hipertiroidismo">Hipertiroidismo</option><option value="infeccion_urinaria">Infección Urinaria</option><option value="consumo_problematico">Consumo Problemático</option><option value="otras">Otras</option>
-                        </select>
-                        <small class="text-gray-500">Ctrl + Click para seleccionar varios.</small>
+                    <div class="details-content">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Selección de Antecedentes</label>
+                        <div class="checkbox-grid" id="edit-antPatologicos-grid">
+                            <label class="checkbox-item"><input type="checkbox" name="antPatologicos" value="ninguno"> Ninguno</label>
+                            <label class="checkbox-item"><input type="checkbox" name="antPatologicos" value="hta"> HTA</label>
+                            <label class="checkbox-item"><input type="checkbox" name="antPatologicos" value="dbt"> DBT</label>
+                            <label class="checkbox-item"><input type="checkbox" name="antPatologicos" value="dbt_gestacional"> DBT Gestacional</label>
+                            <label class="checkbox-item"><input type="checkbox" name="antPatologicos" value="hipotiroidismo"> Hipotiroidismo</label>
+                            <label class="checkbox-item"><input type="checkbox" name="antPatologicos" value="hipertiroidismo"> Hipertiroidismo</label>
+                            <label class="checkbox-item"><input type="checkbox" name="antPatologicos" value="infeccion_urinaria"> Inf. Urinaria</label>
+                            <label class="checkbox-item"><input type="checkbox" name="antPatologicos" value="consumo_problematico"> Consumo Prob.</label>
+                            <label class="checkbox-item"><input type="checkbox" name="antPatologicos" value="otras"> Otras</label>
+                        </div>
                     </div>
                 </details>
                 
@@ -625,17 +680,29 @@
                 <hr>
                 <details id="edit-diagnostico-details">
                     <summary>Diagnóstico</summary>
-                    <div class="pt-4">
-                        <label for="edit-diagnostico" class="block text-sm font-medium text-gray-700">Selección de Diagnósticos (múltiple)</label>
-                        <select id="edit-diagnostico" name="diagnostico" class="form-input mt-1" multiple size="6">
-                            <option value="rnt_paeg">RNT-PAEG</option><option value="rnt_apeg">RNT-APEG</option><option value="rnt_bpeg">RNT-BPEG</option><option value="rnpt_paeg">RNPT-PAEG</option><option value="rnpt_bpeg">RNPT-BPEG</option><option value="rnpt-apeg">RNPT-APEG</option><option value="rnpost_paeg">RNPOST-PAEG</option><option value="rnpost_bpeg">RNPOST-BPEG</option><option value="rnpost_apeg">RNPOST-APEG</option><option value="asfixia">Asfixia neonatal</option><option value="dif_respiratoria">Dif. respiratoria</option><option value="causa_social">Causa Social</option><option value="hijo_madre_consumo">Hijo de madre con consumo problemático</option><option value="otros">Otros</option>
-                        </select>
-                        <small class="text-gray-500">Ctrl + Click para seleccionar varios.</small>
-                    </div>
+                    <div class="details-content">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Selección de Diagnósticos</label>
+                        <div class="checkbox-grid" id="edit-diagnostico-grid">
+                            <label class="checkbox-item"><input type="checkbox" name="diagnostico" value="rnt_paeg"> RNT-PAEG</label>
+                            <label class="checkbox-item"><input type="checkbox" name="diagnostico" value="rnt_apeg"> RNT-APEG</label>
+                            <label class="checkbox-item"><input type="checkbox" name="diagnostico" value="rnt_bpeg"> RNT-BPEG</label>
+                            <label class="checkbox-item"><input type="checkbox" name="diagnostico" value="rnpt_paeg"> RNPT-PAEG</label>
+                            <label class="checkbox-item"><input type="checkbox" name="diagnostico" value="rnpt_bpeg"> RNPT-BPEG</label>
+                            <label class="checkbox-item"><input type="checkbox" name="diagnostico" value="rnpt_apeg"> RNPT-APEG</label>
+                            <label class="checkbox-item"><input type="checkbox" name="diagnostico" value="rnpost_paeg"> RNPOST-PAEG</label>
+                            <label class="checkbox-item"><input type="checkbox" name="diagnostico" value="rnpost_bpeg"> RNPOST-BPEG</label>
+                            <label class="checkbox-item"><input type="checkbox" name="diagnostico" value="rnpost_apeg"> RNPOST-APEG</label>
+                            <label class="checkbox-item"><input type="checkbox" name="diagnostico" value="asfixia"> Asfixia</label>
+                            <label class="checkbox-item"><input type="checkbox" name="diagnostico" value="dif_respiratoria"> Dif. Resp.</label>
+                            <label class="checkbox-item"><input type="checkbox" name="diagnostico" value="causa_social"> Causa Social</label>
+                            <label class="checkbox-item"><input type="checkbox" name="diagnostico" value="hijo_madre_consumo"> Madre consumo</label>
+                            <label class="checkbox-item"><input type="checkbox" name="diagnostico" value="otros"> Otros</label>
+                        </div>
     
-                    <div id="edit-diagnostico_otros_wrapper" class="hidden mt-4">
-                        <label for="edit-diagnostico_otros" class="block text-sm font-medium text-gray-700">Otros Diagnósticos</label>
-                        <input type="text" id="edit-diagnostico_otros" name="diagnostico_otros" class="form-input mt-1">
+                        <div id="edit-diagnostico_otros_wrapper" class="hidden mt-4">
+                            <label for="edit-diagnostico_otros" class="block text-sm font-medium text-gray-700">Otros Diagnósticos</label>
+                            <input type="text" id="edit-diagnostico_otros" name="diagnostico_otros" class="form-input mt-1">
+                        </div>
                     </div>
                 </details>
 
@@ -682,7 +749,7 @@
         let patientsListenerUnsubscribe = null; 
         
         // Variables para Gráficos
-        let chartEvolutionRN = null; // Renombrado
+        let chartEvolutionRN = null; 
         let chartType = null;
         let chartTerm = null;
         let chartControl = null;
@@ -915,11 +982,11 @@
                 document.getElementById('kpi-eg-avg').textContent = `${avgEg} sem`;
 
                 // 3. RENDER CHARTS
-                renderDestinoChart(filteredData); // NUEVO
+                renderDestinoChart(filteredData); 
                 renderDistributionCharts(filteredData);
             }
 
-            // Gráfico EVOLUCION / DESTINO (NUEVO)
+            // Gráfico EVOLUCION / DESTINO
             function renderDestinoChart(data) {
                 const ctx = document.getElementById('chart-evolution-rn').getContext('2d');
                 
@@ -954,7 +1021,7 @@
                     options: { 
                         responsive: true, 
                         maintainAspectRatio: false,
-                        plugins: { legend: { display: false } }, // Ocultar leyenda porque los ejes ya explican
+                        plugins: { legend: { display: false } }, 
                         scales: {
                             y: { beginAtZero: true, ticks: { stepSize: 1 } }
                         }
@@ -1038,6 +1105,33 @@
             });
 
             // --- INGRESO ---
+            
+            // Helper function for diagnosis toggle visibility
+            function handleOtrosVisibility(form) {
+                const otrosCheckbox = form.querySelector('input[name="diagnostico"][value="otros"]');
+                const wrapper = form.id === 'ingreso-form' ? document.getElementById('diagnostico_otros_wrapper') : document.getElementById('edit-diagnostico_otros_wrapper');
+                const input = form.id === 'ingreso-form' ? document.getElementById('diagnostico_otros') : document.getElementById('edit-diagnostico_otros');
+                
+                if (otrosCheckbox && otrosCheckbox.checked) {
+                    wrapper.classList.remove('hidden');
+                    input.required = true;
+                } else {
+                    wrapper.classList.add('hidden');
+                    input.required = false;
+                }
+            }
+
+            // Listener for Ingreso checkboxes
+            document.querySelectorAll('#ingreso-form input[name="diagnostico"]').forEach(cb => {
+                cb.addEventListener('change', () => handleOtrosVisibility(ingresoForm));
+            });
+
+             // Listener for Edit checkboxes
+            document.querySelectorAll('#edit-form input[name="diagnostico"]').forEach(cb => {
+                cb.addEventListener('change', () => handleOtrosVisibility(editForm));
+            });
+
+
             ingresoForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 if (!currentUser) return showToast('Debes iniciar sesión', 'error');
@@ -1050,16 +1144,24 @@
                     const data = Object.fromEntries(formData.entries());
                     
                     data.controlada = document.getElementById('controlada').checked;
-                    data.diagnostico = Array.from(document.getElementById('diagnostico').selectedOptions).map(o => o.value);
-                    data.antPatologicos = Array.from(document.getElementById('antPatologicos').selectedOptions).map(o => o.value);
+                    
+                    // Recopilar valores de checkboxes
+                    data.diagnostico = Array.from(ingresoForm.querySelectorAll('input[name="diagnostico"]:checked')).map(cb => cb.value);
+                    data.antPatologicos = Array.from(ingresoForm.querySelectorAll('input[name="antPatologicos"]:checked')).map(cb => cb.value);
                     
                     data.createdAt = Timestamp.now();
                     data.createdBy = currentUser.email;
 
                     await addDoc(patientsCollection, data);
                     showToast('Guardado correctamente', 'success');
+                    
+                    // Resetear formulario y checkboxes
                     ingresoForm.reset();
+                    ingresoForm.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+                    document.getElementById('diagnostico_otros_wrapper').classList.add('hidden');
+                    
                     document.querySelectorAll('details').forEach(d => d.open = false);
+
                 } catch (err) {
                     console.error(err);
                     showToast('Error al guardar', 'error');
@@ -1068,13 +1170,6 @@
                 }
             });
 
-            document.getElementById('diagnostico').addEventListener('change', (e) => {
-                const vals = Array.from(e.target.selectedOptions).map(o => o.value);
-                const wrap = document.getElementById('diagnostico_otros_wrapper');
-                const input = document.getElementById('diagnostico_otros');
-                if(vals.includes('otros')) { wrap.classList.remove('hidden'); input.required = true; }
-                else { wrap.classList.add('hidden'); input.required = false; }
-            });
 
             // --- CONSULTAS ---
             function updateTableDefault() {
@@ -1249,7 +1344,7 @@
 
                 currentEditPatientId = id;
                 
-                // Función auxiliar para setear valores
+                // Helper functions
                 const setVal = (selector, value) => {
                     const el = editForm.querySelector(`[name="${selector}"]`);
                     if (el) el.value = value || '';
@@ -1259,8 +1354,8 @@
                     if (el) el.checked = !!value;
                 };
                 
-                // Resetear opciones múltiples
-                editForm.querySelectorAll('select[multiple] option').forEach(opt => opt.selected = false);
+                // Resetear checkboxes y details
+                editForm.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
                 editForm.querySelectorAll('details').forEach(d => d.open = false);
                 
                 // --- Datos Paciente ---
@@ -1297,12 +1392,11 @@
                 setVal('pcd', patient.pcd);
                 setVal('pci', patient.pci);
 
-                // Antecedentes Patológicos (Multiple Select)
-                const antPatologicosSelect = editForm.querySelector('#edit-antPatologicos');
+                // Antecedentes Patológicos (Checkbox Grid)
                 if (patient.antPatologicos && Array.isArray(patient.antPatologicos)) {
                     patient.antPatologicos.forEach(val => {
-                        const opt = antPatologicosSelect.querySelector(`option[value="${val}"]`);
-                        if (opt) opt.selected = true;
+                        const cb = editForm.querySelector(`input[name="antPatologicos"][value="${val}"]`);
+                        if (cb) cb.checked = true;
                     });
                      editForm.querySelector('#edit-antpatologicos-details').open = patient.antPatologicos.length > 0 && patient.antPatologicos[0] !== 'ninguno';
                 }
@@ -1323,30 +1417,21 @@
                 setVal('apgar1', patient.apgar1);
                 setVal('apgar5', patient.apgar5);
 
-                // Diagnóstico (Multiple Select)
-                const diagSelect = editForm.querySelector('#edit-diagnostico');
-                const otrosWrap = document.getElementById('edit-diagnostico_otros_wrapper');
-                const otrosInput = document.getElementById('edit-diagnostico_otros');
-                let hasOtros = false;
-                
+                // Diagnóstico (Checkbox Grid)
                 if (patient.diagnostico && Array.isArray(patient.diagnostico)) {
                     patient.diagnostico.forEach(val => {
-                        if (val === 'otros') hasOtros = true;
-                        const opt = diagSelect.querySelector(`option[value="${val}"]`);
-                        if (opt) opt.selected = true;
+                        const cb = editForm.querySelector(`input[name="diagnostico"][value="${val}"]`);
+                        if (cb) cb.checked = true;
                     });
                     editForm.querySelector('#edit-diagnostico-details').open = patient.diagnostico.length > 0;
                 }
                 
-                // Mostrar/Ocultar "Otros Diagnósticos"
-                if(hasOtros || patient.diagnostico_otros) {
-                    otrosWrap.classList.remove('hidden');
-                    otrosInput.required = true;
-                    setVal('diagnostico_otros', patient.diagnostico_otros);
+                // Actualizar visibilidad de "Otros"
+                handleOtrosVisibility(editForm);
+                if(patient.diagnostico_otros) {
+                     setVal('diagnostico_otros', patient.diagnostico_otros);
                 } else {
-                    otrosWrap.classList.add('hidden');
-                    otrosInput.required = false;
-                    otrosInput.value = '';
+                     setVal('diagnostico_otros', '');
                 }
                 
                 // --- Notas ---
@@ -1354,15 +1439,6 @@
 
                 editModal.classList.remove('hidden');
             };
-
-            // Listener para 'otros' en el modal de edición
-            editForm.querySelector('#edit-diagnostico').addEventListener('change', (e) => {
-                const vals = Array.from(e.target.selectedOptions).map(o => o.value);
-                const wrap = document.getElementById('edit-diagnostico_otros_wrapper');
-                const input = document.getElementById('edit-diagnostico_otros');
-                if(vals.includes('otros')) { wrap.classList.remove('hidden'); input.required = true; }
-                else { wrap.classList.add('hidden'); input.required = false; }
-            });
 
             // Handler para guardar cambios del formulario completo
             editForm.addEventListener('submit', async (e) => {
@@ -1377,21 +1453,17 @@
                     const formData = new FormData(editForm);
                     const dataToUpdate = Object.fromEntries(formData.entries());
                     
-                    // Manejar campos especiales: controlada (boolean) y selects múltiples (arrays)
+                    // Manejar campos especiales
                     dataToUpdate.controlada = editForm.querySelector('input[name="controlada"]').checked;
                     
-                    const antPatologicosSelect = editForm.querySelector('#edit-antPatologicos');
-                    dataToUpdate.antPatologicos = Array.from(antPatologicosSelect.selectedOptions).map(o => o.value);
-
-                    const diagnosticoSelect = editForm.querySelector('#edit-diagnostico');
-                    dataToUpdate.diagnostico = Array.from(diagnosticoSelect.selectedOptions).map(o => o.value);
+                    // Recopilar checkboxes
+                    dataToUpdate.antPatologicos = Array.from(editForm.querySelectorAll('input[name="antPatologicos"]:checked')).map(cb => cb.value);
+                    dataToUpdate.diagnostico = Array.from(editForm.querySelectorAll('input[name="diagnostico"]:checked')).map(cb => cb.value);
                     
                     dataToUpdate.updatedAt = Timestamp.now();
                     
-                    // Limpiar campos que no deben ser guardados si están vacíos o no seleccionados
+                    // Limpieza
                     if (!dataToUpdate.diagnostico_otros) delete dataToUpdate.diagnostico_otros;
-                    
-                    // Asegurar que los campos numéricos se guarden como número o string vacío/cero, si es necesario. Firestore maneja esto bien en general.
                     
                     await updateDoc(docRef, dataToUpdate);
                     showToast('Paciente actualizado', 'success');
