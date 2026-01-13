@@ -235,10 +235,11 @@
                     
                     <hr>
                     <h3 class="text-lg font-semibold title-text border-b pb-2">Datos Maternos</h3>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
                         <div><label for="edad_materna" class="block text-sm font-medium text-gray-700">Edad Materna</label><input type="number" id="edad_materna" name="edad_materna" class="form-input mt-1" min="10"></div>
                         <div><label for="g" class="block text-sm font-medium text-gray-700">G</label><input type="number" id="g" name="g" class="form-input mt-1" min="0" max="15"></div>
                         <div><label for="p" class="block text-sm font-medium text-gray-700">P</label><input type="number" id="p" name="p" class="form-input mt-1" min="0" max="15"></div>
+                        <div><label for="c" class="block text-sm font-medium text-gray-700">C</label><input type="number" id="c" name="c" class="form-input mt-1" min="0" max="15"></div>
                         <div><label for="a" class="block text-sm font-medium text-gray-700">A</label><input type="number" id="a" name="a" class="form-input mt-1" min="0" max="15"></div>
                     </div>
                     
@@ -557,10 +558,11 @@
                 
                 <hr>
                 <h3 class="text-lg font-semibold title-text border-b pb-2">Datos Maternos</h3>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
                     <div><label for="edit-edad_materna" class="block text-sm font-medium text-gray-700">Edad Materna</label><input type="number" id="edit-edad_materna" name="edad_materna" class="form-input mt-1" min="10"></div>
                     <div><label for="edit-g" class="block text-sm font-medium text-gray-700">G</label><input type="number" id="edit-g" name="g" class="form-input mt-1" min="0" max="15"></div>
                     <div><label for="edit-p" class="block text-sm font-medium text-gray-700">P</label><input type="number" id="edit-p" name="p" class="form-input mt-1" min="0" max="15"></div>
+                    <div><label for="edit-c" class="block text-sm font-medium text-gray-700">C</label><input type="number" id="edit-c" name="c" class="form-input mt-1" min="0" max="15"></div>
                     <div><label for="edit-a" class="block text-sm font-medium text-gray-700">A</label><input type="number" id="edit-a" name="a" class="form-input mt-1" min="0" max="15"></div>
                 </div>
                 
@@ -1294,7 +1296,7 @@
                 // ** II. DATOS MATERNOS **
                 shareText += `\n** II. DATOS MATERNOS **\n`;
                 shareText += formatField('» Edad Materna', `${patient.edad_materna || ''} años\n`);
-                shareText += formatField('» Fórmula Obstétrica (G/P/A)', `${patient.g || ''} / ${patient.p || ''} / ${patient.a || ''}\n`);
+                shareText += formatField('» Fórmula Obstétrica (G/P/C/A)', `${patient.g || ''} / ${patient.p || ''} / ${patient.c || ''} / ${patient.a || ''}\n`);
                 shareText += formatField('» Control Prenatal (N°)', `${patient.controlada ? 'Sí' : 'No'} (${patient.num_controles || 0} controles)\n`);
                 shareText += formatField('» Grupo/Rh Materno', `${patient.grupo_materno || '?'}${patient.rh_materno || '?'}\n`);
                 
@@ -1386,6 +1388,7 @@
                 setVal('edad_materna', patient.edad_materna);
                 setVal('g', patient.g);
                 setVal('p', patient.p);
+                setVal('c', patient.c);
                 setVal('a', patient.a);
                 setChecked('controlada', patient.controlada);
                 setVal('num_controles', patient.num_controles);
